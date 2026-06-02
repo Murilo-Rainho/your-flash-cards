@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Your Flash Cards",
+    "slug": "your-flash-cards",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "yourflashcards",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.veploy.yourflashcards",
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": ["expo-router", "expo-secure-store"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
