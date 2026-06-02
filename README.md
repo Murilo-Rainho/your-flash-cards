@@ -1,6 +1,6 @@
 # Your Flash Cards
 
-App mobile em **Expo (SDK 54) + React Native + TypeScript + NativeWind (Tailwind)**.
+App mobile em **Expo (SDK 54) + React Native + TypeScript + Expo Router + NativeWind (Tailwind)**.
 As versões estão fixadas para serem compatíveis com o **Expo Go** publicado na loja.
 
 ## Começando
@@ -15,43 +15,53 @@ npm run web      # abre no navegador
 
 ## Estrutura
 
+Toda a aplicação vive em `src/` (alias `@/*` → `src/*`). As rotas do Expo Router ficam em
+`src/app/`.
+
 ```
-app/                 # Rotas (expo-router, file-based routing)
-  _layout.tsx        # Layout raiz: providers globais + Stack + StatusBar
-  index.tsx          # Tela inicial
-  +not-found.tsx     # Rota 404
 src/
-  theme/
-    tokens.js        # ⭐ Fonte única de cores/tokens (edite aqui)
-    tokens.d.ts      # Tipagem dos tokens
-    index.ts         # API do tema para uso em JS (theme, colors, ...)
-  components/ui/      # Componentes base (Screen, Text, Button, Card)
-  providers/          # AppProviders (React Query + SafeArea)
-  lib/                # Infra compartilhada (queryClient, ...)
-global.css           # Diretivas do Tailwind
-tailwind.config.js   # Lê as cores de src/theme/tokens.js
+  app/                 # Rotas (expo-router, file-based) — _layout.tsx + index.tsx
+  components/
+    common/            # Componentes base compartilhados (a criar)
+    forms/             # Componentes de formulário (a criar)
+  features/            # Casos de uso + hooks por domínio de UI
+    collections/ decks/ cards/ review/ import-export/ stats/ premium/
+      components/ screens/ hooks/ services/
+  domain/              # Núcleo TypeScript puro (entidades, interfaces, regras)
+    entities/ repositories/ services/ schedulers/ importers/ exporters/ premium/
+  infrastructure/      # Implementações (SQLite, filesystem, TTS, conectores, billing)
+    database/sqlite/   # migrations/ repositories/
+    database/remote/   # repositories/ (Premium/sync futuro)
+    filesystem/ tts/ importers/ exporters/ premium/
+  state/stores/        # Estado global de UI/sessão (Zustand)
+  theme/               # colors.ts, spacing.ts, typography.ts, radius.ts, shadows.ts, icons.ts, index.ts
+  constants/           # cardTypes, featureFlags, limits, routes, languages
+  utils/               # date, ids, file, normalizeText, validation
+  config/              # env, app
+  tests/               # factories/ mocks/
+global.css             # Diretivas do Tailwind
+tailwind.config.ts     # Lê as cores de src/theme/colors.ts (fonte única)
 ```
 
-O alias `@/*` aponta para `src/*` (configurado em `tsconfig.json` e `babel.config.js`).
+## Tema (cores)
 
-## Mudando as cores (tema)
+O tema é **TypeScript puro** em `src/theme/`. A paleta vive em **`src/theme/colors.ts`**
+(fonte única de verdade):
 
-Toda a paleta vive em **`src/theme/tokens.js`** (fonte única de verdade):
+- As classes do NativeWind (`bg-primary`, `bg-surface`, `text-textPrimary`,
+  `text-textSecondary`, `border-border`, ...) são geradas a partir de `colors.ts` via
+  `tailwind.config.ts` — sem duplicação.
+- Em contextos que não aceitam `className` (react-navigation, StatusBar, gráficos, estilos
+  inline), importe os valores de `@/theme` (`colors`, `spacing`, `radius`, `shadows`, ...).
+- **Ícones** passam sempre por `src/theme/icons.ts` (inversão de dependência), para permitir
+  trocar a biblioteca de ícones no futuro sem mexer nas telas.
 
-- As classes do NativeWind (`bg-background`, `text-content-primary`,
-  `bg-income`, `bg-expense`, `text-danger`, ...) são geradas a partir do objeto
-  `light` desse arquivo.
-- Em contextos que não aceitam `className` (react-navigation, StatusBar,
-  gráficos, estilos inline), importe os valores brutos de `@/theme`.
-
-Para re-tematizar o app inteiro, basta alterar os valores em `tokens.js` — não é
-preciso tocar em telas nem componentes. Há também uma paleta `dark` pronta para
-quando quiser habilitar tema escuro.
+Tema **claro único** na V1 (sem tema escuro). Para re-tematizar, altere `colors.ts`.
 
 ### Regra de ouro
 
-Telas e componentes **sempre** usam os tokens semânticos do tema (via classes do
-NativeWind ou via `@/theme`), **nunca** cores cruas (`#fff`, `bg-blue-500`).
+Telas e componentes **sempre** usam os tokens semânticos do tema (classes do NativeWind ou
+`@/theme`), **nunca** cores cruas (`#fff`, `bg-blue-500`).
 
 ## Qualidade
 

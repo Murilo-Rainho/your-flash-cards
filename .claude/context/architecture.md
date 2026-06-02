@@ -1,9 +1,8 @@
 # Contexto: Arquitetura
 
 > Fonte da verdade: [`CONTRATO_README.md`](../../CONTRATO_README.md) §31 e §38.
-> Este arquivo **reconcilia** a estrutura sugerida no contrato com a estrutura real
-> do projeto (Expo Router). Em caso de conflito, o contrato vence em **intenção**;
-> este arquivo vence em **localização física dos arquivos**.
+> Este arquivo descreve a **estrutura física real** do projeto. Em caso de conflito de
+> intenção, o contrato vence; este arquivo vence em **localização dos arquivos**.
 
 ## Princípios (não negociáveis)
 
@@ -12,7 +11,7 @@
    contrário. `UI → features → domain ← infrastructure`.
 3. **Offline-first.** A base local (SQLite) é a fonte primária de dados.
 4. **Inversão de dependência** para tudo que é substituível: scheduler (SM-2),
-   importers/exporters, TTS, billing/auth.
+   importers/exporters, TTS, billing/auth, ícones.
 5. **V1 simples para o usuário, bem estruturada por dentro** para crescer.
 
 ## Camadas
@@ -22,56 +21,69 @@ domain/          ← NÚCLEO. TypeScript puro. Zero imports de React/Expo/UI/inf
 infrastructure/  ← Implementa as interfaces do domínio usando SQLite/FS/Expo.
 features/        ← Casos de uso + hooks; orquestra domain + infrastructure.
 app/ + components/ ← UI. Só conhece features. Nunca toca em SQLite/infra direto.
-shared/          ← Tipos, utils e constantes sem regra de negócio.
 ```
+
+Pastas de apoio sem regra de negócio: `theme/`, `constants/`, `utils/`, `config/`,
+`state/` (estado global de UI/sessão).
 
 ### O que cada camada PODE e NÃO PODE importar
 
-| Camada            | Pode importar                                         | Proibido importar                                               |
-| ----------------- | ----------------------------------------------------- | --------------------------------------------------------------- |
-| `domain/`         | `shared/` (tipos puros)                               | React, Expo, RN, `infrastructure/`, `features/`, `app/`, SQLite |
-| `infrastructure/` | `domain/`, `shared/`, libs nativas/Expo               | `features/`, `app/`, `components/`                              |
-| `features/`       | `domain/`, `infrastructure/` (via injeção), `shared/` | `app/` (rotas)                                                  |
-| `components/`     | `shared/`, `theme/`                                   | `domain/`, `infrastructure/`, SQLite                            |
-| `app/` (rotas)    | `features/`, `components/`, `providers/`, `theme/`    | `domain/` direto, `infrastructure/`, SQLite                     |
+| Camada            | Pode importar                                                                           | Proibido importar                                                         |
+| ----------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `domain/`         | `constants/`, `utils/` (TS puro)                                                        | React, Expo, RN, `infrastructure/`, `features/`, `app/`, `state/`, SQLite |
+| `infrastructure/` | `domain/`, `constants/`, `utils/`, `config/`, libs nativas/Expo                         | `features/`, `app/`, `components/`, `state/`                              |
+| `features/`       | `domain/`, `infrastructure/` (via injeção), `state/`, `constants/`, `utils/`, `config/` | `app/` (rotas)                                                            |
+| `components/`     | `theme/`, `constants/`, `utils/`                                                        | `domain/`, `infrastructure/`, `features/`, SQLite                         |
+| `app/` (rotas)    | `features/`, `components/`, `state/`, `theme/`, `constants/`                            | `domain/` direto, `infrastructure/`, SQLite                               |
 
 > Regra de ouro: **se uma tela precisa de uma regra de negócio, ela chama um hook/caso
 > de uso de `features/`, que chama o domínio.** Nunca o contrário, nunca pulando camadas.
 
-## Estrutura física reconciliada
+## Estrutura física
 
-O contrato (§31) sugere `src/app/`. O projeto usa **Expo Router**, que exige a pasta
-`app/` na **raiz** do projeto. Portanto:
+O contrato (§31) sugere `src/app/`, e o projeto segue exatamente isso: o **Expo Router**
+suporta a pasta de rotas em `src/app/` (auto-detectada quando não há `app/` na raiz).
+Toda a camada de apresentação/rotas mora em `src/app/`.
 
 ```txt
-app/                       # ← camada "app/" do contrato = rotas Expo Router (file-based)
-  _layout.tsx              # providers globais + Stack
-  index.tsx                # Home/Dashboard
-  (collections)/ ...       # grupos de rota por feature (a criar)
 src/
-  components/
-    ui/                    # componentes base já existentes (Screen, Text, Button, Card)
-  features/                # ← do contrato
+  app/                     # ← camada "app/" do contrato = rotas Expo Router (file-based)
+    _layout.tsx            # layout raiz (Stack); composição/injeção na borda
+    index.tsx              # tela inicial (placeholder na fundação)
+  components/              # UI burra compartilhada
+    common/                # componentes base (a criar)
+    forms/                 # componentes de formulário (a criar)
+  features/                # ← do contrato (casos de uso + hooks)
     collections/ decks/ cards/ review/ import-export/ stats/ premium/
+      components/ screens/ hooks/ services/
   domain/                  # ← do contrato (TS puro)
-    entities/ repositories/ services/ schedulers/ importers/ exporters/
-  infrastructure/          # ← do contrato
-    database/ filesystem/ tts/ importers/ exporters/ auth/ billing/
-  shared/                  # ← do contrato
-    types/ utils/ constants/
-  providers/               # já existe (React Query + SafeArea)
-  theme/                   # já existe (tokens.js = fonte única de cores)
-  lib/                     # já existe (queryClient e infra compartilhada de app)
+    entities/ repositories/ services/ schedulers/ importers/ exporters/ premium/
+  infrastructure/          # ← do contrato (implementa as interfaces do domínio)
+    database/
+      sqlite/              # migrations/ repositories/
+      remote/              # repositories/ (Premium/sync futuro — ponto de extensão)
+    filesystem/ tts/ importers/ exporters/ premium/
+  state/                   # estado global de UI/sessão (Zustand)
+    stores/
+  theme/                   # colors.ts spacing.ts typography.ts radius.ts shadows.ts icons.ts index.ts
+  constants/               # cardTypes featureFlags limits routes languages
+  utils/                   # date ids file normalizeText validation
+  config/                  # env app
+  tests/                   # factories/ mocks/
 ```
 
-Notas de reconciliação:
+Notas:
 
-- A pasta `app/` do contrato **vive na raiz**, não em `src/app/`, por exigência do
-  Expo Router. Toda a "camada de apresentação/rotas" mora ali.
-- `src/providers`, `src/theme`, `src/lib` já existem e são compatíveis: tratam de
-  composição de UI e infra de app (não de domínio).
-- `src/components/ui` já contém os componentes base; novos componentes compartilhados
-  entram em `src/components/`.
+- A camada `app/` vive em **`src/app/`** (não na raiz). O `tsconfig`/`babel` mapeiam o
+  alias **`@/*` → `src/*`**.
+- **Não há `shared/`**: tipos/enums puros do domínio ficam em `domain/entities` (ou em
+  `constants/` quando forem identificadores estáveis); utilitários puros em `utils/`.
+- **Não há `providers/` nem `lib/`**: a composição/injeção de dependências acontece na
+  **borda** (`src/app/_layout.tsx` ou uma factory dedicada). Estado global mora em `state/`.
+- **Tema**: `src/theme/` é só TypeScript. `colors.ts` é a fonte única de cores e também
+  alimenta o NativeWind via `tailwind.config.ts` (sem duplicação). Tema claro único na V1.
+- **Ícones**: passe sempre por `src/theme/icons.ts` (inversão de dependência) para permitir
+  troca futura de biblioteca de ícones.
 
 ## Fluxo de dependência (diagrama)
 
@@ -93,7 +105,7 @@ Notas de reconciliação:
 
 O domínio define **interfaces** (repositórios, scheduler, importer/exporter, TTS,
 premium gate). A infraestrutura as **implementa**. As features recebem as
-implementações por injeção (composição na borda, ex.: providers/contexto/factory).
+implementações por injeção (composição na borda, ex.: `src/app/_layout.tsx`).
 
 ## Pontos de extensão exigidos pelo contrato
 

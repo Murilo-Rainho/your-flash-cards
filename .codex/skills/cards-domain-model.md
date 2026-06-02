@@ -30,7 +30,7 @@ puro. Detalhe em `.codex/context/domain-model.md`.
 
 ## Padrões obrigatórios
 
-- Enums/identificadores num único lugar (`shared/types` ou `domain/entities`), reutilizados.
+- Enums/identificadores num único lugar (`constants/` ou `domain/entities`), reutilizados.
 - `Card` físico × `CardVariant` derivada bem separados.
 - Normalização de digitação simples: trim/lowercase/pontuação/espaços (§11), sem validação
   linguística complexa.

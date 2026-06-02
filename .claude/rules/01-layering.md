@@ -23,7 +23,7 @@ app/ + components/  →  features/  →  domain/  ←  infrastructure/
 - ❌ Lógica de negócio dentro de telas (`app/`) ou componentes (`components/`).
 - ❌ Acesso direto ao SQLite/banco a partir da UI ou de `features/` (só via repositórios
   da `infrastructure/`, expostos por interfaces do `domain/`).
-- ❌ `domain/` importando qualquer coisa de fora do domínio (exceto tipos puros de `shared/`).
+- ❌ `domain/` importando qualquer coisa de fora do domínio (exceto tipos puros de `constants/`/`utils/`).
 - ❌ Pular camadas (ex.: tela importando um repositório concreto).
 - ❌ Cálculo de scheduling, geração de reverso, normalização de
   resposta, etc. **fora** do domínio/serviços.
@@ -33,8 +33,8 @@ app/ + components/  →  features/  →  domain/  ←  infrastructure/
 - Interfaces no `domain/` (`repositories/`, `schedulers/`, `importers/`, `exporters/`,
   e contratos de `TtsProvider`/`PremiumGate`). Implementações concretas na
   `infrastructure/`.
-- Injeção de dependências na borda (provider/contexto/factory em `app/` ou `providers/`),
-  nunca instanciando infra dentro do domínio.
+- Injeção de dependências na borda (composição em `src/app/` — ex.: `_layout.tsx` — ou
+  factory dedicada), nunca instanciando infra dentro do domínio.
 - Componentes pequenos e focados; extraia hooks de `features/` quando a tela crescer.
 
 ## Checklist de revisão

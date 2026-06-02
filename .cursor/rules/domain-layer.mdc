@@ -1,6 +1,6 @@
 ---
 description: Domain Layer — TypeScript puro, entidades do §30 e invariantes.
-globs: src/domain/**/*.ts,src/shared/types/**/*.ts
+globs: src/domain/**/*.ts,src/constants/**/*.ts
 alwaysApply: false
 ---
 
@@ -12,7 +12,7 @@ Base: contrato §5, §17, §19, §20, §30.
   `infrastructure/`. Recebe dados, devolve dados/decisões.
 - Entidades fiéis ao §30: `Collection, Deck, Card, CardVariant, Media, Tag, CardTag,
   ReviewItem, ReviewLog` (+ `LocalProfile`). Não remover/renomear campos sem atualizar o contrato.
-- Enums **centralizados** (em `shared/types` ou `domain/entities`) e reutilizados:
+- Enums **centralizados** (em `constants/` ou `domain/entities`) e reutilizados:
   - `CardType = 'vocabulary' | 'cloze' | 'listening' | 'typing' | 'pronunciation'`
   - `Rating = 'again' | 'hard' | 'good' | 'easy'`
   - `MediaSide = 'front' | 'back'`, `MediaType = 'image' | 'audio' | 'recording' | 'tts'`

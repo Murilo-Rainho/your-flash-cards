@@ -15,26 +15,35 @@ app/ + components/  →  features/  →  domain/  ←  infrastructure/
 
 ## Imports permitidos × proibidos
 
-| Camada            | Pode importar                                      | Proibido                                                        |
-| ----------------- | -------------------------------------------------- | --------------------------------------------------------------- |
-| `domain/`         | `shared/` (tipos puros)                            | React, Expo, RN, `infrastructure/`, `features/`, `app/`, SQLite |
-| `infrastructure/` | `domain/`, `shared/`, libs Expo/nativas            | `features/`, `app/`, `components/`                              |
-| `features/`       | `domain/`, `infrastructure/` (injeção), `shared/`  | `app/` (rotas)                                                  |
-| `components/`     | `shared/`, `theme/`                                | `domain/`, `infrastructure/`, SQLite                            |
-| `app/`            | `features/`, `components/`, `providers/`, `theme/` | `domain/` direto, `infrastructure/`, SQLite                     |
+| Camada            | Pode importar                                                                       | Proibido                                                                  |
+| ----------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `domain/`         | `constants/`, `utils/` (TS puro)                                                    | React, Expo, RN, `infrastructure/`, `features/`, `app/`, `state/`, SQLite |
+| `infrastructure/` | `domain/`, `constants/`, `utils/`, `config/`, libs Expo/nativas                     | `features/`, `app/`, `components/`, `state/`                              |
+| `features/`       | `domain/`, `infrastructure/` (injeção), `state/`, `constants/`, `utils/`, `config/` | `app/` (rotas)                                                            |
+| `components/`     | `theme/`, `constants/`, `utils/`                                                    | `domain/`, `infrastructure/`, `features/`, SQLite                         |
+| `app/` (rotas)    | `features/`, `components/`, `state/`, `theme/`, `constants/`                        | `domain/` direto, `infrastructure/`, SQLite                               |
 
-## Estrutura física (reconciliada com Expo Router)
+## Estrutura física (rotas em `src/app/`)
 
 ```txt
-app/                 # camada "app/" do contrato vive na RAIZ (exigência do expo-router)
 src/
-  components/        # ui/ já existe
-  features/          # collections/ decks/ cards/ review/ import-export/ stats/ premium/
-  domain/            # entities/ repositories/ services/ schedulers/ importers/ exporters/
-  infrastructure/    # database/ filesystem/ tts/ importers/ exporters/ auth/ billing/
-  shared/            # types/ utils/ constants/
-  providers/ theme/ lib/   # já existem
+  app/               # camada "app/" do contrato = rotas expo-router (file-based). _layout + index
+  components/        # UI burra: common/ forms/ (a criar)
+  features/          # collections/ decks/ cards/ review/ import-export/ stats/ premium/ (components/ screens/ hooks/ services/)
+  domain/            # entities/ repositories/ services/ schedulers/ importers/ exporters/ premium/  (TS puro)
+  infrastructure/    # database/(sqlite/{migrations,repositories}, remote/repositories) filesystem/ tts/ importers/ exporters/ premium/
+  state/             # stores/ (Zustand)
+  theme/             # colors.ts spacing.ts typography.ts radius.ts shadows.ts icons.ts index.ts
+  constants/         # cardTypes featureFlags limits routes languages
+  utils/             # date ids file normalizeText validation
+  config/            # env app
+  tests/             # factories/ mocks/
 ```
+
+- Sem `shared/`: tipos/enums puros em `domain/entities` ou `constants/`; utils puros em `utils/`.
+- Sem `providers/`/`lib/`: composição/injeção na borda (`src/app/_layout.tsx`). Estado em `state/`.
+- Tema só TS; `colors.ts` é fonte única e alimenta o NativeWind via `tailwind.config.ts`. Tema claro único.
+- Ícones sempre via `theme/icons.ts` (inversão de dependência).
 
 ## Pontos de extensão exigidos
 

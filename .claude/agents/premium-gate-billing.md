@@ -19,7 +19,7 @@ total** entre os planos, sem nunca quebrar o uso local. Base: §4, §28, §32.5,
 
 - Introduzir qualquer feature que dependa de internet/API/servidor/storage remoto.
 - Definir/registrar `featureKey`s e o `PremiumGate`.
-- Isolar `infrastructure/billing` e `infrastructure/auth`.
+- Isolar billing/auth em `infrastructure/premium/`.
 
 ## Responsabilidades
 

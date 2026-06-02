@@ -40,20 +40,24 @@ preparada para **Premium/Sync** futuros. Sem IA na V1.
 10. **Testes obrigatórios** para domínio, scheduler e import/export. TS `strict`. Só tokens
     de tema (sem cor crua). V1 simples, internamente extensível.
 
-## Estrutura (reconciliada com Expo Router)
+## Estrutura (rotas em `src/app/`)
 
 ```txt
-app/                 # rotas Expo Router (a "camada app/" do contrato vive na raiz)
 src/
-  components/        # UI burra (ui/ já existe)
-  features/          # casos de uso + hooks (orquestração)
-  domain/            # entities/ repositories/ services/ schedulers/ importers/ exporters/  (TS puro)
-  infrastructure/    # database/ filesystem/ tts/ importers/ exporters/ auth/ billing/
-  shared/            # types/ utils/ constants/
-  providers/ theme/ lib/   # já existentes
+  app/               # rotas Expo Router (file-based) = "camada app/" do contrato. _layout + index
+  components/        # UI burra: common/ forms/ (a criar)
+  features/          # casos de uso + hooks (orquestração) — components/ screens/ hooks/ services/
+  domain/            # entities/ repositories/ services/ schedulers/ importers/ exporters/ premium/  (TS puro)
+  infrastructure/    # database/(sqlite/{migrations,repositories}, remote/repositories) filesystem/ tts/ importers/ exporters/ premium/
+  state/             # stores/ (Zustand)
+  theme/             # colors.ts spacing.ts typography.ts radius.ts shadows.ts icons.ts index.ts
+  constants/ utils/ config/   # cardTypes/featureFlags/...; date/ids/...; env/app
+  tests/             # factories/ mocks/
 ```
 
-Detalhe completo em [`.codex/context/architecture.md`](./.codex/context/architecture.md).
+Sem `shared/`, `providers/` ou `lib/`: tipos puros no domínio/`constants/`, injeção na borda
+(`src/app/_layout.tsx`), estado em `state/`. Detalhe completo em
+[`.codex/context/architecture.md`](./.codex/context/architecture.md).
 
 ## Comandos
 

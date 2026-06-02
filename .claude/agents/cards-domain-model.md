@@ -26,7 +26,7 @@ entidades em TypeScript puro e invariantes garantidas. Detalhe completo em
 - Entidades e value objects puros (sem React/Expo/SQLite).
 - Invariantes: integridade hierárquica; reverso derivado do original (variant `isGenerated`,
   distinta do card físico); um `ReviewItem` por unidade revisável.
-- Enums/identificadores estáveis num único lugar (`shared/types` ou `domain/entities`).
+- Enums/identificadores estáveis num único lugar (`constants/` ou `domain/entities`).
 - Normalização de resposta de digitação (trim/lowercase/pontuação/espaços) — sem
   validação linguística complexa (§11).
 

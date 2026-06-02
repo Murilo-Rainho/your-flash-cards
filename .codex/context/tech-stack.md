@@ -5,7 +5,7 @@ Espelha `.claude/context/tech-stack.md`. Fonte: `package.json`.
 ## Instalado
 
 - Expo SDK ~54, react-native 0.81.5, react 19.1.0, TypeScript ~5.9 (`strict`).
-- expo-router ~6 (rotas em `app/`), NativeWind 4 + Tailwind 3 (tokens em `src/theme/tokens.js`).
+- expo-router ~6 (rotas em `src/app/`), NativeWind 4 + Tailwind 3 (tema TS; `src/theme/colors.ts` = fonte única, lida pelo `tailwind.config.ts`).
 - @tanstack/react-query 5 (dados async), zustand 5 (estado UI), react-hook-form 7 + zod 4.
 - expo-secure-store, expo-speech (a usar atrás de `TtsProvider`).
 - jest + jest-expo (alias `@/`→`src/`), ESLint + Prettier + Husky + lint-staged.
@@ -25,8 +25,8 @@ explícitos para compatibilidade com o Expo Go publicado. Não atualizar/remover
 
 ## Convenções
 
-- Alias `@/*` → `src/*`. Componentes base em `src/components/ui`. Telas consomem `features/`.
-- Só tokens semânticos do tema (`bg-background`, `text-content-primary`...); nunca cor crua.
+- Alias `@/*` → `src/*`. Componentes compartilhados em `src/components/common` e `src/components/forms` (a criar). Telas (`src/app/`) consomem `features/`.
+- Só tokens semânticos do tema (`bg-primary`, `bg-surface`, `text-textPrimary`...); nunca cor crua. Ícones via `@/theme` (`icons.ts`).
 
 ## Scripts
 

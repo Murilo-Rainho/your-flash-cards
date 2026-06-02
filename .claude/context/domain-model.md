@@ -107,5 +107,5 @@ O contrato usa rótulos em português/genéricos; o código usa identificadores 
 - Avaliações: `Errei→again`, `Difícil→hard`, `Médio→good`, `Fácil→easy`.
 - Tipos de card: ver tabela acima (`vocabulary`/`cloze`/`listening`/`typing`/`pronunciation`).
 
-Mantenha **um** lugar (`shared/types` ou `domain/entities`) definindo esses enums e
+Mantenha **um** lugar (`constants/` ou `domain/entities`) definindo esses enums e
 reutilize em todo o app. Não duplicar literais string espalhados.

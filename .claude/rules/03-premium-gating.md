@@ -19,7 +19,7 @@
 
 ## Isolamento Free × Premium
 
-- `infrastructure/billing` e `infrastructure/auth` ficam **isolados** e não podem ser
+- O billing/auth fica em `infrastructure/premium/` (**isolado**) e não pode ser
   dependência de fluxos Free (§31).
 - O `domain/` define apenas a interface `PremiumGate`; a decisão concreta (assinatura
   válida etc.) vive na infra.

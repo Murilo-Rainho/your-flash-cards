@@ -10,7 +10,7 @@ e mídia, sem quebrar a compatibilidade com Expo Go. Base: contrato §2, §33; s
 
 ## Entradas
 
-- Tela/fluxo do §33; componentes existentes em `src/components/ui`.
+- Tela/fluxo do §33; componentes compartilhados em `src/components/common`/`forms` (a criar).
 - Tokens de tema (`@/theme`, classes NativeWind).
 - Casos de uso/hooks de `features/`.
 

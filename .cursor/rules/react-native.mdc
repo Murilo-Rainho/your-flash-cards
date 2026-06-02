@@ -1,19 +1,19 @@
 ---
 description: Padrões React Native para UI (telas e componentes).
-globs: app/**/*.tsx,src/components/**/*.tsx
+globs: src/app/**/*.tsx,src/components/**/*.tsx
 alwaysApply: false
 ---
 
 # React Native (UI)
 
-Aplica-se a telas (`app/`) e componentes (`src/components/`). Base: contrato §33.
+Aplica-se a telas (`src/app/`) e componentes (`src/components/`). Base: contrato §33.
 
 - Telas **burras**: consomem hooks/casos de uso de `features/`; **sem** regra de negócio e
   **sem** acesso a SQLite/infra.
-- **Só tokens de tema** (`bg-background`, `text-content-primary`, ou `@/theme`); **nunca** cor
-  crua (`#fff`, `bg-blue-500`).
-- Componentes **pequenos e composáveis**; variantes via objeto `as const` + classes do tema
-  (siga o padrão de `src/components/ui/Button.tsx`).
+- **Só tokens de tema** (`bg-primary`, `bg-surface`, `text-textPrimary`, ou `@/theme`);
+  **nunca** cor crua (`#fff`, `bg-blue-500`). Ícones sempre via `@/theme` (`icons.ts`).
+- Componentes **pequenos e composáveis** em `src/components/common`/`forms`; variantes via
+  objeto `as const` + classes do tema.
 - Listas longas **virtualizadas**; evite re-renders (memo/seletores).
 - Acessibilidade: `accessibilityRole`/labels, alvos de toque adequados.
 - Rótulos amigáveis (sem jargão): tipos de card como `Vocabulário/Preencher lacuna/Escuta/

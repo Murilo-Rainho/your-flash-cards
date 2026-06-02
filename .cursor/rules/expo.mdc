@@ -1,12 +1,12 @@
 ---
 description: Padrões Expo (SDK 54), navegação, libs e compatibilidade com Expo Go.
-globs: app/**/*.tsx,src/**/*.ts,src/**/*.tsx
+globs: src/app/**/*.tsx,src/**/*.ts,src/**/*.tsx
 alwaysApply: false
 ---
 
 # Expo (SDK 54)
 
-- Navegação via **expo-router** (file-based) com rotas na pasta `app/` na raiz.
+- Navegação via **expo-router** (file-based) com rotas em `src/app/`.
 - Prefira **APIs/libs Expo nativas** (expo-sqlite, expo-file-system, expo-av/expo-audio,
   expo-image-picker, expo-speech). Evite dependências redundantes.
 - Mídia/TTS atrás de interfaces de infra (`TtsProvider`), nunca chamadas cruas na tela.

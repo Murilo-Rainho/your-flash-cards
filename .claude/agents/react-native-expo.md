@@ -25,7 +25,8 @@ NativeWind, tokens de tema) sem quebrar a compatibilidade com Expo Go. Base: con
 ## Responsabilidades
 
 - Telas "burras": consomem `features/`, sem regra de negócio.
-- Usar componentes base de `src/components/ui` e o **tema** (`@/theme`/classes), nunca cor crua.
+- Usar componentes compartilhados de `src/components/common`/`forms` (a criar) e o **tema**
+  (`@/theme`/classes), nunca cor crua. Ícones sempre via `@/theme` (`icons.ts`).
 - Garantir performance (listas virtualizadas, memoization onde necessário, evitar re-render).
 - Respeitar a **regra de Expo Go**: não bumpar `react-native`/`reanimated`/`worklets`,
   manter `overrides` e `babel-preset-expo`.

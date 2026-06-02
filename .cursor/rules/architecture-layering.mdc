@@ -13,7 +13,7 @@ Direção inviolável: `app/ + components/ → features/ → domain/ ← infrast
 - `infrastructure/` implementa as interfaces do domínio (repositórios, scheduler,
   importer/exporter, TTS, billing) usando Expo/SQLite/FS.
 - `features/` orquestra (casos de uso + hooks) e recebe implementações por injeção na borda.
-- `app/` (rotas Expo Router, na raiz) e `components/` são UI burra; nunca tocam SQLite/infra.
+- `src/app/` (rotas Expo Router) e `components/` são UI burra; nunca tocam SQLite/infra.
 
 Proibido: regra de negócio em telas/componentes; SQLite fora dos repositórios; domínio
 importando algo de fora; pular camadas; scheduling/limite/reverso/normalização fora do

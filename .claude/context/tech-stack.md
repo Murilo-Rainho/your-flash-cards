@@ -5,21 +5,21 @@
 
 ## Núcleo
 
-| Área           | Ferramenta / versão                             | Observações                                               |
-| -------------- | ----------------------------------------------- | --------------------------------------------------------- |
-| Runtime        | Expo SDK **~54**                                | Foco Android na V1 (§2); arquitetura não pode impedir iOS |
-| RN / React     | react-native **0.81.5**, react **19.1.0**       | Versões **fixadas** — ver regra de Expo Go abaixo         |
-| Linguagem      | TypeScript **~5.9**, `strict: true`             | Sem `any` implícito; tipar bordas                         |
-| Navegação      | **expo-router ~6** (file-based)                 | Rotas em `app/` na raiz                                   |
-| Estilo         | **NativeWind 4** + Tailwind 3                   | Cores via tokens, nunca cor crua                          |
-| Tema           | `src/theme/tokens.js` (fonte única)             | Classes (`bg-background`) ou `@/theme`                    |
-| Estado async   | **@tanstack/react-query 5**                     | Dados derivados/assíncronos (queries de DB)               |
-| Estado client  | **zustand 5**                                   | Estado de UI/sessão local                                 |
-| Formulários    | **react-hook-form 7** + **zod 4**               | Validação de inputs nas telas                             |
-| Storage seguro | **expo-secure-store**                           | Tokens de auth (Premium futuro)                           |
-| TTS            | **expo-speech** (a usar atrás de `TtsProvider`) | §14.2                                                     |
-| Testes         | **jest + jest-expo**, alias `@/`→`src/`         | ver `package.json#jest`                                   |
-| Qualidade      | ESLint + Prettier + Husky + lint-staged         | `npm run validate`                                        |
+| Área           | Ferramenta / versão                             | Observações                                                |
+| -------------- | ----------------------------------------------- | ---------------------------------------------------------- |
+| Runtime        | Expo SDK **~54**                                | Foco Android na V1 (§2); arquitetura não pode impedir iOS  |
+| RN / React     | react-native **0.81.5**, react **19.1.0**       | Versões **fixadas** — ver regra de Expo Go abaixo          |
+| Linguagem      | TypeScript **~5.9**, `strict: true`             | Sem `any` implícito; tipar bordas                          |
+| Navegação      | **expo-router ~6** (file-based)                 | Rotas em `src/app/` (alias `@/app`)                        |
+| Estilo         | **NativeWind 4** + Tailwind 3                   | Cores via tokens do tema, nunca cor crua                   |
+| Tema           | `src/theme/*.ts` (`colors.ts` = fonte única)    | Classes (`bg-primary`) ou `@/theme`. Ícones via `icons.ts` |
+| Estado async   | **@tanstack/react-query 5**                     | Dados derivados/assíncronos (queries de DB)                |
+| Estado client  | **zustand 5**                                   | Estado de UI/sessão local                                  |
+| Formulários    | **react-hook-form 7** + **zod 4**               | Validação de inputs nas telas                              |
+| Storage seguro | **expo-secure-store**                           | Tokens de auth (Premium futuro)                            |
+| TTS            | **expo-speech** (a usar atrás de `TtsProvider`) | §14.2                                                      |
+| Testes         | **jest + jest-expo**, alias `@/`→`src/`         | ver `package.json#jest`                                    |
+| Qualidade      | ESLint + Prettier + Husky + lint-staged         | `npm run validate`                                         |
 
 ## Dependências recomendadas a adicionar (quando a camada for construída)
 
@@ -58,9 +58,10 @@ npm run validate     # typecheck + lint + format:check
 ## Convenções de código já adotadas
 
 - Alias **`@/*` → `src/*`** (em `tsconfig.json` e `babel.config.js`). Use sempre o alias.
-- Componentes base em `src/components/ui` (`Screen`, `Text`, `Button`, `Card`) com
-  variantes por objeto `as const` + classes do tema. Siga esse padrão.
-- Telas/rotas em `app/` consomem `features/` e `components/`; mantêm-se "burras".
-- Tema: **somente tokens semânticos** (`bg-background`, `text-content-primary`, …),
-  **nunca** `#fff`/`bg-blue-500`. Em contextos sem `className` (navigation, StatusBar,
-  charts), importe valores de `@/theme`.
+- Componentes compartilhados em `src/components/common` (base) e `src/components/forms`
+  (formulários). A criar — ainda não existem na fundação.
+- Telas/rotas em `src/app/` consomem `features/` e `components/`; mantêm-se "burras".
+- Tema: **somente tokens semânticos** (`bg-primary`, `bg-surface`, `text-textPrimary`,
+  `text-textSecondary`, `border-border`, …), **nunca** `#fff`/`bg-blue-500`. Fonte única
+  em `src/theme/colors.ts`. Em contextos sem `className` (navigation, StatusBar, charts),
+  importe valores de `@/theme`. Ícones sempre via `@/theme` (`icons.ts`).
