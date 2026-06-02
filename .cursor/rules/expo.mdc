@@ -1,0 +1,23 @@
+---
+description: Padrões Expo (SDK 54), navegação, libs e compatibilidade com Expo Go.
+globs: app/**/*.tsx,src/**/*.ts,src/**/*.tsx
+alwaysApply: false
+---
+
+# Expo (SDK 54)
+
+- Navegação via **expo-router** (file-based) com rotas na pasta `app/` na raiz.
+- Prefira **APIs/libs Expo nativas** (expo-sqlite, expo-file-system, expo-av/expo-audio,
+  expo-image-picker, expo-speech). Evite dependências redundantes.
+- Mídia/TTS atrás de interfaces de infra (`TtsProvider`), nunca chamadas cruas na tela.
+  Valide disponibilidade do TTS antes de oferecer; bloqueie+informe se indisponível (§14.2).
+- A arquitetura **não pode impedir iOS** futuro (foco V1 = Android, §2).
+
+## Regra de Expo Go (NÃO QUEBRAR)
+Versões de `react-native`, `react-native-reanimated` e `react-native-worklets` estão
+**fixadas**; há `overrides` no `package.json` e `babel-preset-expo` explícito para garantir
+compatibilidade com o **Expo Go** publicado. **Não** atualize essas versões nem remova os
+`overrides`/preset sem validar no Expo Go.
+
+Antes de adicionar lib nativa: confirme compatibilidade com o SDK e que não força bump de
+RN/reanimated/worklets.

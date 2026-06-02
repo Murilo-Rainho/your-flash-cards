@@ -1,0 +1,20 @@
+---
+description: Offline-first — base local como fonte primária; nada de rede em fluxos Free.
+globs: src/features/**/*.ts,src/features/**/*.tsx,src/infrastructure/**/*.ts
+alwaysApply: false
+---
+
+# Offline-First
+
+Base: contrato §29, §20, §26.
+
+- O app deve **abrir, estudar, criar cards, revisar, ver estatísticas e importar/exportar
+  localmente sem internet**. A base local (SQLite) é a fonte primária.
+- Nenhum fluxo Free pode depender de backend/rede.
+- Estatísticas calculadas **localmente** a partir de `ReviewLog`/`ReviewItem` (§22).
+- Backup na V1 = exportação local manual (§26). Sem backup automático em nuvem.
+- Sessão de revisão carrega **apenas cards vencidos** com `LIMIT` (ver regra `sqlite`).
+- Sync é **Premium futuro**: deixe `updatedAt`/ids estáveis, mas **não** implemente sync na V1.
+
+Tudo que exigir internet/API/backend ⇒ atrás de `PremiumGate` (regra de premium gating no
+contrato §28). Em dúvida local vs remoto: **priorizar local** (§38).

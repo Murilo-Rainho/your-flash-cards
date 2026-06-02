@@ -1,0 +1,23 @@
+---
+description: Clean Architecture + DDD — camadas e direção de dependência.
+globs:
+alwaysApply: true
+---
+
+# Arquitetura: camadas e dependências
+
+Direção inviolável: `app/ + components/ → features/ → domain/ ← infrastructure/`.
+
+- `domain/` é **TypeScript puro**: sem React, Expo, React Native, SQLite, `infrastructure/`,
+  `features/` ou `app/`.
+- `infrastructure/` implementa as interfaces do domínio (repositórios, scheduler,
+  importer/exporter, TTS, billing) usando Expo/SQLite/FS.
+- `features/` orquestra (casos de uso + hooks) e recebe implementações por injeção na borda.
+- `app/` (rotas Expo Router, na raiz) e `components/` são UI burra; nunca tocam SQLite/infra.
+
+Proibido: regra de negócio em telas/componentes; SQLite fora dos repositórios; domínio
+importando algo de fora; pular camadas; scheduling/limite/reverso/normalização fora do
+domínio.
+
+Obrigatório: interfaces no domínio + implementações na infra (DIP); componentes pequenos;
+alias `@/*` → `src/*`. Estrutura física e tabela de imports em `.cursor/context/architecture.md`.

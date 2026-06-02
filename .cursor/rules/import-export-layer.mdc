@@ -1,0 +1,28 @@
+---
+description: Import/Export Layer — conectores plugáveis CSV/ZIP/APKG atrás de interfaces.
+globs: src/domain/importers/**/*.ts,src/domain/exporters/**/*.ts,src/infrastructure/importers/**/*.ts,src/infrastructure/exporters/**/*.ts
+alwaysApply: false
+---
+
+# Import/Export Layer (conectores)
+
+Base: contrato §15, §16, §23, §24, §25, §32.3/§32.4.
+
+- Interfaces no domínio:
+  ```ts
+  interface DeckImporter { source: string; canImport(i: ImportInput): boolean; import(i: ImportInput): Promise<ImportResult> }
+  interface DeckExporter { target: string; canExport(i: ExportInput): boolean; export(i: ExportInput): Promise<ExportResult> }
+  ```
+- Implementações concretas em `infrastructure/importers` e `infrastructure/exporters`. A
+  UI/features só conhecem as interfaces (conectores plugáveis).
+- Pacote ZIP local (§24): `manifest.json` (versão, coleção, deck, idiomas, data, contagem,
+  metadados de mídia) + `cards.csv` (referenciando `media/images/..`, `media/audios/..`) +
+  pastas `media/`.
+- **Anki APKG**: import de **melhor esforço** — importar o máximo, avisar, **listar
+  ignorados** (`ImportResult.skipped`), **não travar** por 1 card inválido. **Sem export
+  `.apkg`** na V1.
+- Sem IA para gerar cards a partir de texto (§16/§27). Pré-visualização + validação antes
+  de salvar (lote).
+
+Proibido: acoplar UI/features a um parser específico; abortar tudo por um item inválido;
+importar de fonte **online** em fluxo Free (isso é Premium futuro).

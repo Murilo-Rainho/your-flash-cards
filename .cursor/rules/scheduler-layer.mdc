@@ -1,0 +1,28 @@
+---
+description: Scheduler Layer — SM-2 atrás da interface ReviewScheduler.
+globs: src/domain/schedulers/**/*.ts,src/infrastructure/schedulers/**/*.ts
+alwaysApply: false
+---
+
+# Scheduler Layer (repetição espaçada)
+
+Base: contrato §18, §19, §20, §32.1.
+
+- Interface no domínio (inversão de dependência):
+  ```ts
+  interface ReviewScheduler {
+    type: string
+    schedule(input: ReviewScheduleInput): ReviewScheduleResult
+  }
+  ```
+- Implementação inicial `Sm2Scheduler`: **função pura e determinística**, sem I/O e sem
+  acoplamento a React/Expo/SQLite. Recebe estado + `Rating`, devolve `{ nextRepetitions,
+  nextIntervalDays, nextEaseFactor, nextReviewAt, lapses }`.
+- Os **4 ratings** (§19) afetam intervalo/ease/repetições/lapses/nextReviewAt: `again` reseta
+  repetições, encurta intervalo, `lapses+1` e reduz ease (respeitando mínimo); `hard/good/easy`
+  ajustam conforme SM-2.
+- Quem persiste no banco é a feature/repositório — **não** o scheduler.
+- Seleção por `schedulerType` (fábrica) para suportar FSRS/algoritmos futuros sem quebrar a interface.
+
+Proibido: cálculo de scheduling espalhado pela UI/features; reduzir os ratings a acertei/errei.
+Exige testes (bordas: 1ª revisão, ease mínimo, lapse).

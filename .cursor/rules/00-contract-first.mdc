@@ -1,0 +1,23 @@
+---
+description: Regra principal — consultar o CONTRATO_README.md antes de qualquer mudança.
+globs:
+alwaysApply: true
+---
+
+# Contract-First (REGRA PRINCIPAL)
+
+`CONTRATO_README.md` (raiz do projeto) é a **fonte única da verdade** do produto e da
+arquitetura. **Antes de gerar/alterar código, propor mudanças arquiteturais, criar features,
+adicionar dependências ou modelar dados, você DEVE consultar o `CONTRATO_README.md`** e
+citar as seções relevantes (ex.: §18, §29, §30).
+
+Invariantes inegociáveis:
+- ❌ Não inventar funcionalidades fora do contrato (§38).
+- ✅ Offline-first: o app funciona sem internet; base local é a fonte primária (§29).
+- ✅ Local = Free, remoto (internet/API/backend) = Premium (§4/§28). Em dúvida, **priorizar local**.
+- ✅ Clean Architecture/DDD: `app/+components → features → domain ← infrastructure`; domínio
+  TS puro; SQLite só em repositórios; sem regra de negócio na UI.
+- ❌ Sem IA na V1 (§27); sem subdecks; sem export `.apkg` (§37) — apenas pontos de extensão.
+
+Em ambiguidade: apresente opções, recomende a mais simples/local, não decida sozinho por
+algo remoto/complexo. Contexto detalhado em `.cursor/context/`.

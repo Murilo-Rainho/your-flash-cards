@@ -1,0 +1,26 @@
+---
+description: SQLite — acesso só por repositórios; schema fiel ao §30; query de revisão eficiente.
+globs: src/infrastructure/database/**/*.ts
+alwaysApply: false
+---
+
+# SQLite (infrastructure/database)
+
+Base: contrato §20, §29, §30.
+
+- SQLite (expo-sqlite) é acessado **somente** por repositórios desta camada, que implementam
+  interfaces de `domain/repositories`. **Nunca** acessar SQLite da UI/features/componentes.
+- Schema fiel às entidades do §30; diferencie **card físico** (`Card`) de **variant gerada**
+  (`CardVariant` com `isGenerated`).
+- **Consulta de sessão de revisão** (nunca carregar todos os cards):
+  ```sql
+  SELECT * FROM review_items
+  WHERE next_review_at <= CURRENT_TIMESTAMP
+  ORDER BY next_review_at ASC
+  LIMIT :sessionLimit;
+  ```
+- Crie **índice** em `next_review_at`. Use transações para operações compostas.
+- Diferencie card físico de variant gerada (`isGenerated`) no schema; Free **não** tem limite de cards.
+- Mantenha `createdAt`/`updatedAt`/ids estáveis (preparação para sync futuro; sem implementar sync).
+
+Proibido: queries inline em telas/stores; carregar a coleção inteira em memória.

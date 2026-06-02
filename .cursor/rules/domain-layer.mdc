@@ -1,0 +1,26 @@
+---
+description: Domain Layer — TypeScript puro, entidades do §30 e invariantes.
+globs: src/domain/**/*.ts,src/shared/types/**/*.ts
+alwaysApply: false
+---
+
+# Domain Layer
+
+Base: contrato §5, §17, §19, §20, §30.
+
+- `domain/` é **TypeScript puro**: zero imports de React, Expo, React Native, SQLite ou
+  `infrastructure/`. Recebe dados, devolve dados/decisões.
+- Entidades fiéis ao §30: `Collection, Deck, Card, CardVariant, Media, Tag, CardTag,
+  ReviewItem, ReviewLog` (+ `LocalProfile`). Não remover/renomear campos sem atualizar o contrato.
+- Enums **centralizados** (em `shared/types` ou `domain/entities`) e reutilizados:
+  - `CardType = 'vocabulary' | 'cloze' | 'listening' | 'typing' | 'pronunciation'`
+  - `Rating = 'again' | 'hard' | 'good' | 'easy'`
+  - `MediaSide = 'front' | 'back'`, `MediaType = 'image' | 'audio' | 'recording' | 'tts'`
+  - `VariantType = 'original' | 'reverse'`
+- Invariantes: integridade hierárquica; reverso é variant derivada (`isGenerated`), distinta
+  do card físico; um `ReviewItem` por unidade revisável; normalização de digitação simples
+  (trim/lowercase/pontuação/espaços, §11).
+- Interfaces de portas no domínio: `ReviewScheduler`, `DeckImporter`/`DeckExporter`,
+  `TtsProvider`, `PremiumGate`, repositórios.
+
+Proibido: literais de tipo/rating soltos; metadados de revisão dentro de `Card`; I/O no domínio.
