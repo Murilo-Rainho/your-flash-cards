@@ -76,6 +76,7 @@ describe('SQLiteHomeReadRepository', () => {
         createdAt: '2026-06-01T10:00:00.000Z',
         updatedAt: '2026-06-02T10:00:00.000Z',
         archivedAt: null,
+        totalDecks: 3,
         totalCards: 12,
         dueCards: 5,
         masteredPercentage: 67,
@@ -95,12 +96,14 @@ describe('SQLiteHomeReadRepository', () => {
           updatedAt: '2026-06-02T10:00:00.000Z',
           archivedAt: undefined,
         },
+        totalDecks: 3,
         totalCards: 12,
         dueCards: 5,
         masteredPercentage: 67,
       },
     ]);
 
+    expect(db.allCalls[0]?.source).toContain('COUNT(DISTINCT deck.id) AS totalDecks');
     expect(db.allCalls[0]?.source).toContain('COUNT(DISTINCT card.id) AS totalCards');
     expect(db.allCalls[0]?.params[0]).toEqual({ $now: now.toISOString() });
   });

@@ -1,3 +1,4 @@
+import { type Href, useRouter } from 'expo-router';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -8,20 +9,33 @@ import { ProgressStatsGrid } from '@/features/home/components/ProgressStatsGrid'
 import { QuickActionsFab } from '@/features/home/components/QuickActionsFab';
 import { ReviewNowCard } from '@/features/home/components/ReviewNowCard';
 import { useHomeData } from '@/features/home/hooks/useHomeData';
+import { getReviewNowCardState } from '@/features/home/services/getReviewNowCardState';
 import type { CollectionSummary } from '@/features/home/types';
 import { colors } from '@/theme';
 
 /**
  * Home/Dashboard (§33) — hub que responde "o que preciso estudar hoje?".
  *
- * UI burra: consome dados via `useHomeData` e delega ações. A navegação ainda não existe,
- * então os handlers apenas registram no console (ponto de extensão futuro).
+ * UI burra: consome dados via `useHomeData`, usa serviços da feature para derivar estado
+ * de apresentação e delega navegação/ações.
  */
 export function HomeScreen() {
+  const router = useRouter();
   const { greeting, summary, collections, quickActions, error, isLoading, isRefreshing, refetch } =
     useHomeData();
+  const loadedCollections = !isLoading && !error ? collections : undefined;
+  const reviewNowCardState = getReviewNowCardState({
+    dueCards: summary.dueCards,
+    collections: loadedCollections,
+  });
+  const shouldGuideFirstCollection = reviewNowCardState.action === 'create-collection';
 
   const handleReviewPress = () => {
+    if (reviewNowCardState.route) {
+      router.push(reviewNowCardState.route as Href);
+      return;
+    }
+
     console.log('[Home] Revisar agora');
   };
 
@@ -30,7 +44,12 @@ export function HomeScreen() {
   };
 
   const handleQuickAction = (action: QuickAction) => {
-    console.log('[Home] Ação rápida', action.id);
+    if (!action.route || action.disabled) {
+      console.log('[Home] Ação rápida indisponível', action.id);
+      return;
+    }
+
+    router.push(action.route as Href);
   };
 
   return (
@@ -50,7 +69,7 @@ export function HomeScreen() {
         <View className="gap-6 px-4 pb-28 pt-2">
           <HomeHeader greeting={greeting} dueCards={summary.dueCards} />
 
-          <ReviewNowCard dueCards={summary.dueCards} onPress={handleReviewPress} />
+          <ReviewNowCard state={reviewNowCardState} onPress={handleReviewPress} />
 
           <View className="gap-3">
             <Text className="text-lg font-semibold text-textPrimary">Progresso Hoje</Text>
@@ -95,7 +114,11 @@ export function HomeScreen() {
         </View>
       </ScrollView>
 
-      <QuickActionsFab actions={quickActions} onActionPress={handleQuickAction} />
+      <QuickActionsFab
+        actions={quickActions}
+        showFirstCollectionHint={shouldGuideFirstCollection}
+        onActionPress={handleQuickAction}
+      />
     </SafeAreaView>
   );
 }

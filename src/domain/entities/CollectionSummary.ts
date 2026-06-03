@@ -7,6 +7,8 @@ import type { Collection } from './Collection';
  */
 export type CollectionSummary = {
   collection: Collection;
+  /** Total de decks ativos na coleção. */
+  totalDecks: number;
   /** Total de cards físicos ativos na coleção. */
   totalCards: number;
   /** Total de unidades revisáveis vencidas (`ReviewItem.nextReviewAt <= now`). */

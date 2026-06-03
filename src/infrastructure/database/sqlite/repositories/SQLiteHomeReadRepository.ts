@@ -30,6 +30,7 @@ type CollectionSummaryRow = {
   createdAt: string;
   updatedAt: string;
   archivedAt: string | null;
+  totalDecks: number | null;
   totalCards: number | null;
   dueCards: number | null;
   masteredPercentage: number | null;
@@ -67,6 +68,7 @@ function mapCollection(row: CollectionSummaryRow): Collection {
 function mapCollectionSummary(row: CollectionSummaryRow): CollectionSummary {
   return {
     collection: mapCollection(row),
+    totalDecks: toNumber(row.totalDecks),
     totalCards: toNumber(row.totalCards),
     dueCards: toNumber(row.dueCards),
     masteredPercentage: toPercentage(row.masteredPercentage),
@@ -111,6 +113,7 @@ SELECT
   collection.created_at AS createdAt,
   collection.updated_at AS updatedAt,
   collection.archived_at AS archivedAt,
+  COUNT(DISTINCT deck.id) AS totalDecks,
   COUNT(DISTINCT card.id) AS totalCards,
   COUNT(DISTINCT CASE WHEN ri.next_review_at <= $now THEN ri.id END) AS dueCards,
   CASE

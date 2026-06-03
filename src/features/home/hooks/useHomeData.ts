@@ -15,6 +15,8 @@ const emptySummary: DailyStudySummary = {
   masteredCards: 0,
 };
 
+export const HOME_DATA_QUERY_KEY = ['home-data'] as const;
+
 export type HomeDataState = HomeData & {
   error: Error | null;
   isLoading: boolean;
@@ -24,7 +26,7 @@ export type HomeDataState = HomeData & {
 
 export function useHomeData(): HomeDataState {
   const query = useQuery<HomeData, Error>({
-    queryKey: ['home-data'],
+    queryKey: HOME_DATA_QUERY_KEY,
     queryFn: () =>
       getHomeData({
         repository: getSQLiteHomeReadRepository(),
