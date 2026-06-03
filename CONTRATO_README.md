@@ -854,8 +854,6 @@ Usado para reversos ou variações derivadas.
 id
 cardId
 variantType
-front
-back
 isGenerated
 createdAt
 updatedAt
@@ -868,11 +866,20 @@ original
 reverse
 ```
 
+A variant não duplica conteúdo textual. `cards.front` e `cards.back` são a fonte da
+verdade; a apresentação é calculada pela camada de domínio/UI:
+
+```txt
+original -> front/back do card
+reverse -> back/front do card
+```
+
 ### 30.6 Media
 
 ```txt
 id
 cardId
+cardVariantId
 side
 type
 uri
@@ -880,6 +887,9 @@ mimeType
 createdAt
 updatedAt
 ```
+
+`cardVariantId` é opcional. Quando preenchido, a mídia pertence àquela variant; quando
+nulo, a mídia é compartilhada pelo card físico.
 
 Exemplo de `side`:
 
@@ -902,6 +912,7 @@ tts
 ```txt
 id
 name
+normalizedName
 createdAt
 updatedAt
 ```
@@ -917,13 +928,13 @@ tagId
 
 Representa uma unidade revisável.
 
-Pode apontar para card original ou variant.
+A unidade revisável oficial é a `CardVariant`.
 
 ```txt
 id
-cardId
 cardVariantId
 schedulerType
+schedulerVersion
 repetitions
 intervalDays
 easeFactor
@@ -939,6 +950,7 @@ updatedAt
 ```txt
 id
 reviewItemId
+sessionId
 rating
 reviewedAt
 timeSpentMs
@@ -946,6 +958,29 @@ previousIntervalDays
 nextIntervalDays
 previousEaseFactor
 nextEaseFactor
+```
+
+### 30.11 Study Session
+
+```txt
+id
+startedAt
+endedAt
+collectionId
+deckId
+mode
+cardsReviewed
+durationMs
+createdAt
+updatedAt
+```
+
+### 30.12 App Setting
+
+```txt
+key
+value
+updatedAt
 ```
 
 ---

@@ -13,7 +13,7 @@ Collection (par de idiomas: base → alvo)
               ├── CardVariant (original | reverse; reverse = isGenerated)
               ├── Media (image | audio | recording | tts; side: front | back)
               ├── CardTag → Tag
-              └── ReviewItem (unidade revisável; aponta p/ card OU variant)
+              └── ReviewItem (unidade revisável; aponta p/ CardVariant)
                     └── ReviewLog (histórico de cada avaliação)
 ```
 
@@ -44,38 +44,54 @@ Existe mesmo **sem conta** (Free é local-first).
 
 ### CardVariant (§30.5) — reversos/variações derivadas
 
-`id, cardId, variantType, front, back, isGenerated, createdAt, updatedAt`
+`id, cardId, variantType, isGenerated, createdAt, updatedAt`
 `variantType ∈ { original, reverse }`.
 
 > **Distinção importante:** variants `isGenerated` (reverso automático) são derivadas do
-> card original e **não** são cards físicos independentes (§17).
+> card original e **não** são cards físicos independentes (§17). A variant não duplica
+> conteúdo: `Card.front/back` são a fonte da verdade; `original` apresenta front/back e
+> `reverse` apresenta back/front.
 
 ### Media (§30.6)
 
-`id, cardId, side, type, uri, mimeType, createdAt, updatedAt`
+`id, cardId, cardVariantId?, side, type, uri, mimeType, createdAt, updatedAt`
 `side ∈ { front, back }`; `type ∈ { image, audio, recording, tts }`.
 
-> `uri` aponta para arquivo **local** no filesystem. Mídia é exportável em pacotes
-> ZIP locais (§13, §24).
+> `cardVariantId` é opcional: nulo = mídia compartilhada do card; preenchido = mídia da
+> variant. `uri` aponta para arquivo **local** no filesystem. Mídia é exportável em
+> pacotes ZIP locais (§13, §24).
 
 ### Tag (§30.7) e CardTag (§30.8)
 
-`Tag: id, name, createdAt, updatedAt` · `CardTag: cardId, tagId`
+`Tag: id, name, normalizedName, createdAt, updatedAt` · `CardTag: cardId, tagId`
 
 > Tags flexíveis e reutilizáveis; o app pode sugerir tags comuns (§6).
 
 ### ReviewItem (§30.9) — unidade revisável (metadados do SM-2)
 
-`id, cardId, cardVariantId?, schedulerType, repetitions, intervalDays, easeFactor, nextReviewAt, lastReviewedAt?, lapses, createdAt, updatedAt`
+`id, cardVariantId, schedulerType, schedulerVersion, repetitions, intervalDays, easeFactor, nextReviewAt, lastReviewedAt?, lapses, createdAt, updatedAt`
 
-> Aponta para card **ou** variant. `schedulerType` permite múltiplos algoritmos.
+> Aponta para `CardVariant`. `schedulerType` + `schedulerVersion` permitem evoluir
+> algoritmos sem quebrar histórico.
 
 ### ReviewLog (§30.10) — histórico de cada avaliação
 
-`id, reviewItemId, rating, reviewedAt, timeSpentMs, previousIntervalDays, nextIntervalDays, previousEaseFactor, nextEaseFactor`
+`id, reviewItemId, sessionId?, rating, reviewedAt, timeSpentMs, previousIntervalDays, nextIntervalDays, previousEaseFactor, nextEaseFactor`
 
 > `rating ∈ { again(Errei), hard(Difícil), good(Médio), easy(Fácil) }` (§19).
 > Base de todas as estatísticas (§22).
+
+### StudySession — sessão de estudo
+
+`id, startedAt, endedAt?, collectionId?, deckId?, mode, cardsReviewed, durationMs, createdAt, updatedAt`
+
+> Agregado local para estatísticas rápidas de sessão (§22), sem alterar o fluxo de revisão.
+
+### AppSetting — configuração local
+
+`key, value, updatedAt`
+
+> Configurações simples locais; não depende de conta, internet ou backend.
 
 ## Tipos de Card da V1 (§7–§12)
 

@@ -1,21 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { HomeScreen } from '@/features/home/screens/HomeScreen';
 
 export default function Index() {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Flashcards App</Text>
-    </View>
-  );
+  return <HomeScreen />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '600',
-  },
-});

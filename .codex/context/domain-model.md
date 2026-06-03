@@ -9,14 +9,16 @@ Base: `CONTRATO_README.md` §5, §17, §19, §20, §30. Espelha `.claude/context
 ## Entidades (campos do §30)
 
 - **LocalProfile**: `id, displayName, baseLanguagePreference, createdAt, updatedAt` (existe sem conta).
+- **AppSetting**: `key, value, updatedAt` (configurações locais simples).
 - **Collection**: `id, name, baseLanguage, targetLanguage, description?, createdAt, updatedAt, archivedAt?` (par de idiomas).
 - **Deck**: `id, collectionId, name, description?, autoGenerateReverseCards, createdAt, updatedAt, archivedAt?` (sem subdecks).
 - **Card** (físico): `id, deckId, type, front, back, notes?, createdAt, updatedAt, archivedAt?`.
-- **CardVariant**: `id, cardId, variantType('original'|'reverse'), front, back, isGenerated, createdAt, updatedAt`.
-- **Media**: `id, cardId, side('front'|'back'), type('image'|'audio'|'recording'|'tts'), uri, mimeType, createdAt, updatedAt`.
-- **Tag**: `id, name, createdAt, updatedAt`; **CardTag**: `cardId, tagId`.
-- **ReviewItem**: `id, cardId, cardVariantId?, schedulerType, repetitions, intervalDays, easeFactor, nextReviewAt, lastReviewedAt?, lapses, createdAt, updatedAt`.
-- **ReviewLog**: `id, reviewItemId, rating, reviewedAt, timeSpentMs, previousIntervalDays, nextIntervalDays, previousEaseFactor, nextEaseFactor`.
+- **CardVariant**: `id, cardId, variantType('original'|'reverse'), isGenerated, createdAt, updatedAt`.
+- **Media**: `id, cardId, cardVariantId?, side('front'|'back'), type('image'|'audio'|'recording'|'tts'), uri, mimeType, createdAt, updatedAt`.
+- **Tag**: `id, name, normalizedName, createdAt, updatedAt`; **CardTag**: `cardId, tagId`.
+- **ReviewItem**: `id, cardVariantId, schedulerType, schedulerVersion, repetitions, intervalDays, easeFactor, nextReviewAt, lastReviewedAt?, lapses, createdAt, updatedAt`.
+- **StudySession**: `id, startedAt, endedAt?, collectionId?, deckId?, mode, cardsReviewed, durationMs, createdAt, updatedAt`.
+- **ReviewLog**: `id, reviewItemId, sessionId?, rating, reviewedAt, timeSpentMs, previousIntervalDays, nextIntervalDays, previousEaseFactor, nextEaseFactor`.
 
 ## Tipos de card (§7–§12)
 
@@ -34,5 +36,7 @@ Base: `CONTRATO_README.md` §5, §17, §19, §20, §30. Espelha `.claude/context
 3. Criar `ReviewItem` por unidade revisável.
 4. Sessão só com vencidos (`nextReviewAt <= now`, com `LIMIT`).
 5. Normalização de digitação simples (trim/lowercase/pontuação/espaços).
+6. `Card.front/back` são a fonte da verdade; `CardVariant` só define a apresentação:
+   `original` usa front/back e `reverse` usa back/front.
 
 > Use os identificadores em código (`vocabulary`, `again`, `front`...), não os rótulos PT.
