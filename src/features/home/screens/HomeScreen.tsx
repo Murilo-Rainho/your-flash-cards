@@ -1,4 +1,4 @@
-import { ScrollView, Text, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { QuickAction } from '@/domain/entities/QuickAction';
@@ -18,7 +18,8 @@ import { colors } from '@/theme';
  * então os handlers apenas registram no console (ponto de extensão futuro).
  */
 export function HomeScreen() {
-  const { greeting, summary, collections, quickActions } = useHomeData();
+  const { greeting, summary, collections, quickActions, error, isLoading, isRefreshing, refetch } =
+    useHomeData();
 
   const handleReviewPress = () => {
     console.log('[Home] Revisar agora');
@@ -34,7 +35,18 @@ export function HomeScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.background }}>
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+            onRefresh={refetch}
+          />
+        }
+      >
         <View className="gap-6 px-4 pb-28 pt-2">
           <HomeHeader greeting={greeting} dueCards={summary.dueCards} />
 
@@ -52,13 +64,33 @@ export function HomeScreen() {
 
           <View className="gap-3">
             <Text className="text-lg font-semibold text-textPrimary">Coleções</Text>
-            {collections.map((item) => (
-              <CollectionSummaryCard
-                key={item.collection.id}
-                summary={item}
-                onPress={() => handleCollectionPress(item)}
-              />
-            ))}
+            {isLoading ? (
+              <Text className="text-sm text-textSecondary">Carregando dados locais...</Text>
+            ) : error ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Tentar carregar a Home novamente"
+                onPress={refetch}
+                className="rounded-2xl border border-border bg-surface p-4 active:opacity-90"
+              >
+                <Text className="text-base font-semibold text-textPrimary">
+                  Não foi possível carregar os dados locais
+                </Text>
+                <Text className="mt-1 text-sm text-textSecondary">
+                  Toque para tentar novamente.
+                </Text>
+              </Pressable>
+            ) : collections.length === 0 ? (
+              <Text className="text-sm text-textSecondary">Nenhuma coleção criada ainda.</Text>
+            ) : (
+              collections.map((item) => (
+                <CollectionSummaryCard
+                  key={item.collection.id}
+                  summary={item}
+                  onPress={() => handleCollectionPress(item)}
+                />
+              ))
+            )}
           </View>
         </View>
       </ScrollView>

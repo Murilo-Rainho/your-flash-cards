@@ -1,31 +1,53 @@
-import type { DailyStudySummary } from '@/domain/entities/DailyStudySummary';
-import type { QuickAction } from '@/domain/entities/QuickAction';
-import {
-  mockCollections,
-  mockDailyStudySummary,
-  mockQuickActions,
-} from '@/features/home/mocks/homeMocks';
-import { getGreeting } from '@/features/home/services/getGreeting';
-import type { CollectionSummary } from '@/features/home/types';
+import { useQuery } from '@tanstack/react-query';
 
-export type HomeData = {
-  greeting: string;
-  summary: DailyStudySummary;
-  collections: CollectionSummary[];
-  quickActions: QuickAction[];
+import { getSQLiteHomeReadRepository } from '@/infrastructure/database/sqlite/repositories';
+import { getGreeting } from '@/features/home/services/getGreeting';
+import { getHomeData, type HomeData } from '@/features/home/services/getHomeData';
+import { getHomeQuickActions } from '@/features/home/services/homeQuickActions';
+import type { DailyStudySummary } from '@/domain/entities/DailyStudySummary';
+
+const emptySummary: DailyStudySummary = {
+  dueCards: 0,
+  difficultCards: 0,
+  reviewedToday: 0,
+  retentionPercentage: 0,
+  streakDays: 0,
+  masteredCards: 0,
 };
 
-/**
- * Fonte de dados da Home.
- *
- * Hoje devolve mocks locais. **Este hook é o ponto de injeção**: no futuro, troca-se a
- * origem por repositórios offline-first (via React Query) sem mexer na UI da tela.
- */
-export function useHomeData(): HomeData {
+export type HomeDataState = HomeData & {
+  error: Error | null;
+  isLoading: boolean;
+  isRefreshing: boolean;
+  refetch: () => void;
+};
+
+export function useHomeData(): HomeDataState {
+  const query = useQuery<HomeData, Error>({
+    queryKey: ['home-data'],
+    queryFn: () =>
+      getHomeData({
+        repository: getSQLiteHomeReadRepository(),
+        now: new Date(),
+      }),
+  });
+
+  const data =
+    query.data ??
+    ({
+      greeting: getGreeting(),
+      summary: emptySummary,
+      collections: [],
+      quickActions: getHomeQuickActions(),
+    } satisfies HomeData);
+
   return {
-    greeting: getGreeting(),
-    summary: mockDailyStudySummary,
-    collections: mockCollections,
-    quickActions: mockQuickActions,
+    ...data,
+    error: query.error,
+    isLoading: query.isLoading,
+    isRefreshing: query.isFetching && !query.isLoading,
+    refetch: () => {
+      void query.refetch();
+    },
   };
 }
