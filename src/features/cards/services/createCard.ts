@@ -1,4 +1,5 @@
 import { CARD_TYPES, type CardType } from '@/constants/cardTypes';
+import { extractExpectedClozeAnswer, parseClozeFront } from '@/domain/cloze/cloze';
 import type { CollectionRepository } from '@/domain/repositories/CollectionRepository';
 import type { DeckRepository } from '@/domain/repositories/DeckRepository';
 import type { CardAggregate, CardRepository } from '@/domain/repositories/CardRepository';
@@ -142,10 +143,6 @@ function hasBackMedia(media: readonly CreateCardMediaInput[]): boolean {
   return media.some((item) => item.side === MEDIA_SIDES.BACK);
 }
 
-function hasClozeGap(value: string): boolean {
-  return value.includes('____') || /\{[^{}]+\}/.test(value);
-}
-
 function sideTextField(side: MediaSide): 'frontText' | 'backText' {
   return side === MEDIA_SIDES.FRONT ? 'frontText' : 'backText';
 }
@@ -282,12 +279,19 @@ function sanitizeInput(
 
     if (!hasText(frontText)) {
       fieldErrors.frontText = 'Informe a frase com lacuna.';
-    } else if (!hasClozeGap(frontText)) {
-      fieldErrors.frontText = 'Use ____ ou {resposta} para marcar a lacuna.';
+    } else if (!parseClozeFront(frontText)) {
+      fieldErrors.frontText = 'Use {lacuna} para marcar a lacuna na frase.';
     }
 
     if (!hasText(backText)) {
-      fieldErrors.backText = 'Informe a resposta da lacuna.';
+      fieldErrors.backText = 'Informe a frase completa no verso.';
+    } else if (
+      hasText(frontText) &&
+      parseClozeFront(frontText) &&
+      !extractExpectedClozeAnswer(frontText, backText)
+    ) {
+      fieldErrors.backText =
+        'O verso deve ter a mesma estrutura da frente, com a resposta no lugar da lacuna.';
     }
   }
 

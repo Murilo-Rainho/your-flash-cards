@@ -274,6 +274,10 @@ I'm tired now
 
 O app deve permitir que o usuário defina manualmente a lacuna e a resposta.
 
+Persistência: `Card.front` guarda a frase com exatamente uma lacuna no formato `{texto}`
+(ex.: `I'm {cansado} now`). Na revisão, a UI exibe `____` no lugar da lacuna; a resposta
+digitada é comparada com o trecho correspondente do verso completo (`Card.back`).
+
 Na V1, o app não deve usar IA para traduzir automaticamente o conteúdo.
 
 Caso exista alguma transformação automática local no futuro, ela deve validar se o par idioma base -> idioma alvo é suportado.

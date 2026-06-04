@@ -188,7 +188,7 @@ describe('createCard', () => {
         collectionId: 'collection-pt-en',
         deckId: 'deck-reverse',
         type: CARD_TYPES.CLOZE,
-        frontText: "I'm ____ now",
+        frontText: "I'm {cansado} now",
         backText: "I'm tired now",
       },
       createOptions({ decks: [reverseDeck] }),
@@ -280,6 +280,57 @@ describe('createCard', () => {
     ).rejects.toMatchObject({
       fieldErrors: {
         frontText: 'Informe texto para usar TTS local.',
+      },
+    });
+  });
+
+  it('persists cloze front with braces and rejects invalid cloze structure', async () => {
+    const aggregate = await createCard(
+      {
+        collectionId: 'collection-pt-en',
+        deckId: 'deck-travel',
+        type: CARD_TYPES.CLOZE,
+        frontText: "I'm {cansado} now",
+        backText: "I'm tired now",
+      },
+      createOptions(),
+    );
+
+    expect(aggregate.card.front).toBe("I'm {cansado} now");
+    expect(aggregate.card.back).toBe("I'm tired now");
+
+    await expect(
+      createCard(
+        {
+          collectionId: 'collection-pt-en',
+          deckId: 'deck-travel',
+          type: CARD_TYPES.CLOZE,
+          frontText: "I'm ____ now",
+          backText: "I'm tired now",
+        },
+        createOptions(),
+      ),
+    ).rejects.toMatchObject({
+      fieldErrors: {
+        frontText: 'Use {lacuna} para marcar a lacuna na frase.',
+      },
+    });
+
+    await expect(
+      createCard(
+        {
+          collectionId: 'collection-pt-en',
+          deckId: 'deck-travel',
+          type: CARD_TYPES.CLOZE,
+          frontText: "I'm {cansado} now",
+          backText: 'I am tired now',
+        },
+        createOptions(),
+      ),
+    ).rejects.toMatchObject({
+      fieldErrors: {
+        backText:
+          'O verso deve ter a mesma estrutura da frente, com a resposta no lugar da lacuna.',
       },
     });
   });

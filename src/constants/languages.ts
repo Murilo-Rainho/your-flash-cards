@@ -10,3 +10,16 @@ export const LANGUAGES = [
 ] as const;
 
 export type LanguageCode = (typeof LANGUAGES)[number]['code'];
+
+/** Mapeamento de idioma da Coleção para o código BCP-47 usado pelo TTS local. */
+export const LANGUAGE_SPEECH_CODES: Record<LanguageCode, string> = {
+  pt: 'pt-BR',
+  en: 'en-US',
+  es: 'es-ES',
+  ja: 'ja-JP',
+};
+
+/** Converte um código de idioma em código de fala (BCP-47), com fallback para `en-US`. */
+export function toSpeechLanguage(code: string | undefined): string {
+  return LANGUAGE_SPEECH_CODES[code as LanguageCode] ?? 'en-US';
+}

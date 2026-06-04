@@ -1,24 +1,20 @@
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { LANGUAGES } from '@/constants/languages';
+import { PrimaryButton } from '@/components/common/PrimaryButton';
+import { ScreenHeader } from '@/components/common/ScreenHeader';
+import { FormScreen } from '@/components/forms/FormScreen';
+import { TextAreaField } from '@/components/forms/TextAreaField';
+import { TextField } from '@/components/forms/TextField';
 import { ROUTES } from '@/constants/routes';
-import { colors } from '@/theme';
+import { useGoBack } from '@/hooks/useGoBack';
+import { applyFieldErrors } from '@/utils/forms';
+import { LanguagePicker } from '@/features/collections/components/LanguagePicker';
 import { useCreateCollection } from '@/features/collections/hooks/useCreateCollection';
 import {
   isCreateCollectionInputError,
-  type CreateCollectionField,
   type CreateCollectionInput,
 } from '@/features/collections/services/createCollection';
 
@@ -29,16 +25,9 @@ const defaultValues: CreateCollectionInput = {
   description: '',
 };
 
-function FieldError({ message }: { message?: string }) {
-  if (!message) {
-    return null;
-  }
-
-  return <Text className="text-sm text-danger">{message}</Text>;
-}
-
 export function NewCollectionScreen() {
   const router = useRouter();
+  const goBack = useGoBack();
   const createCollectionMutation = useCreateCollection();
   const [formError, setFormError] = useState<string | null>(null);
   const {
@@ -53,15 +42,6 @@ export function NewCollectionScreen() {
   const targetLanguage = watch('targetLanguage');
   const isSaving = createCollectionMutation.isPending;
 
-  const handleBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-      return;
-    }
-
-    router.replace(ROUTES.HOME);
-  };
-
   const onSubmit = handleSubmit(async (values) => {
     setFormError(null);
 
@@ -70,11 +50,7 @@ export function NewCollectionScreen() {
       router.replace(ROUTES.HOME);
     } catch (error) {
       if (isCreateCollectionInputError(error)) {
-        Object.entries(error.fieldErrors).forEach(([field, message]) => {
-          if (message) {
-            setError(field as CreateCollectionField, { message });
-          }
-        });
+        applyFieldErrors(setError, error.fieldErrors);
         return;
       }
 
@@ -83,152 +59,72 @@ export function NewCollectionScreen() {
   });
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.background }}>
-      <KeyboardAvoidingView
-        className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView className="flex-1" keyboardShouldPersistTaps="handled">
-          <View className="gap-6 px-4 pb-10 pt-2">
-            <View className="flex-row items-center justify-between gap-3">
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Voltar"
-                onPress={handleBack}
-                className="rounded-xl border border-border px-4 py-3 active:bg-surface"
-              >
-                <Text className="text-base font-semibold text-textPrimary">Voltar</Text>
-              </Pressable>
-              <Text className="flex-1 text-right text-2xl font-bold text-textPrimary">
-                Nova Coleção
-              </Text>
-            </View>
+    <FormScreen>
+      <ScreenHeader title="Nova Coleção" onBack={goBack} />
 
-            <View className="gap-2">
-              <Text className="text-sm font-semibold text-textPrimary">Nome</Text>
-              <Controller
-                control={control}
-                name="name"
-                render={({ field: { onBlur, onChange, value } }) => (
-                  <TextInput
-                    value={value}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    placeholder="Português para Inglês"
-                    placeholderTextColor={colors.textSecondary}
-                    editable={!isSaving}
-                    className="rounded-xl border border-border bg-surface px-4 py-3 text-base text-textPrimary"
-                  />
-                )}
-              />
-              <FieldError message={errors.name?.message} />
-            </View>
+      <Controller
+        control={control}
+        name="name"
+        render={({ field: { onBlur, onChange, value } }) => (
+          <TextField
+            label="Nome"
+            value={value}
+            placeholder="Português para Inglês"
+            error={errors.name?.message}
+            disabled={isSaving}
+            onChangeText={onChange}
+            onBlur={onBlur}
+          />
+        )}
+      />
 
-            <View className="gap-3">
-              <Text className="text-sm font-semibold text-textPrimary">Idioma base</Text>
-              <View className="flex-row flex-wrap gap-2">
-                {LANGUAGES.map((language) => {
-                  const selected = language.code === baseLanguage;
+      <LanguagePicker
+        label="Idioma base"
+        value={baseLanguage}
+        disabled={isSaving}
+        accessibilityPrefix="Idioma base"
+        error={errors.baseLanguage?.message}
+        onChange={(code) =>
+          setValue('baseLanguage', code, { shouldDirty: true, shouldValidate: false })
+        }
+      />
 
-                  return (
-                    <Pressable
-                      key={language.code}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Idioma base ${language.label}`}
-                      accessibilityState={{ selected }}
-                      disabled={isSaving}
-                      onPress={() =>
-                        setValue('baseLanguage', language.code, {
-                          shouldDirty: true,
-                          shouldValidate: false,
-                        })
-                      }
-                      className={`rounded-xl border px-3 py-2 ${
-                        selected ? 'border-primary bg-surface' : 'border-border bg-background'
-                      }`}
-                    >
-                      <Text className="text-sm font-medium text-textPrimary">{language.label}</Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-              <FieldError message={errors.baseLanguage?.message} />
-            </View>
+      <LanguagePicker
+        label="Idioma alvo"
+        value={targetLanguage}
+        disabled={isSaving}
+        accessibilityPrefix="Idioma alvo"
+        error={errors.targetLanguage?.message}
+        onChange={(code) =>
+          setValue('targetLanguage', code, { shouldDirty: true, shouldValidate: false })
+        }
+      />
 
-            <View className="gap-3">
-              <Text className="text-sm font-semibold text-textPrimary">Idioma alvo</Text>
-              <View className="flex-row flex-wrap gap-2">
-                {LANGUAGES.map((language) => {
-                  const selected = language.code === targetLanguage;
+      <Controller
+        control={control}
+        name="description"
+        render={({ field: { onBlur, onChange, value } }) => (
+          <TextAreaField
+            label="Descrição"
+            value={value ?? ''}
+            placeholder="Opcional"
+            error={errors.description?.message}
+            disabled={isSaving}
+            minHeight={96}
+            onChangeText={onChange}
+            onBlur={onBlur}
+          />
+        )}
+      />
 
-                  return (
-                    <Pressable
-                      key={language.code}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Idioma alvo ${language.label}`}
-                      accessibilityState={{ selected }}
-                      disabled={isSaving}
-                      onPress={() =>
-                        setValue('targetLanguage', language.code, {
-                          shouldDirty: true,
-                          shouldValidate: false,
-                        })
-                      }
-                      className={`rounded-xl border px-3 py-2 ${
-                        selected ? 'border-primary bg-surface' : 'border-border bg-background'
-                      }`}
-                    >
-                      <Text className="text-sm font-medium text-textPrimary">{language.label}</Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-              <FieldError message={errors.targetLanguage?.message} />
-            </View>
+      {formError ? <Text className="text-sm font-medium text-danger">{formError}</Text> : null}
 
-            <View className="gap-2">
-              <Text className="text-sm font-semibold text-textPrimary">Descrição</Text>
-              <Controller
-                control={control}
-                name="description"
-                render={({ field: { onBlur, onChange, value } }) => (
-                  <TextInput
-                    value={value}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    placeholder="Opcional"
-                    placeholderTextColor={colors.textSecondary}
-                    editable={!isSaving}
-                    multiline
-                    textAlignVertical="top"
-                    className="min-h-24 rounded-xl border border-border bg-surface px-4 py-3 text-base text-textPrimary"
-                  />
-                )}
-              />
-              <FieldError message={errors.description?.message} />
-            </View>
-
-            {formError ? (
-              <Text className="text-sm font-medium text-danger">{formError}</Text>
-            ) : null}
-
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Salvar coleção"
-              accessibilityState={{ disabled: isSaving }}
-              disabled={isSaving}
-              onPress={onSubmit}
-              className={`items-center rounded-xl bg-primary px-4 py-4 active:opacity-90 ${
-                isSaving ? 'opacity-50' : ''
-              }`}
-            >
-              <Text className="text-base font-bold text-background">
-                {isSaving ? 'Salvando...' : 'Salvar coleção'}
-              </Text>
-            </Pressable>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      <PrimaryButton
+        label={isSaving ? 'Salvando...' : 'Salvar coleção'}
+        accessibilityLabel="Salvar coleção"
+        disabled={isSaving}
+        onPress={onSubmit}
+      />
+    </FormScreen>
   );
 }

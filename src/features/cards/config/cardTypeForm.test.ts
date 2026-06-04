@@ -1,0 +1,38 @@
+import { CARD_TYPES } from '@/constants/cardTypes';
+
+import { CARD_TYPE_FORM_CONFIGS, getCardTypeFormConfig } from './cardTypeForm';
+
+describe('cardTypeForm config', () => {
+  it('has exactly the five V1 card types', () => {
+    const types = CARD_TYPE_FORM_CONFIGS.map((config) => config.type).sort();
+    expect(types).toEqual([...Object.values(CARD_TYPES)].sort());
+  });
+
+  it('marks cloze as recommended and uses the cloze layout', () => {
+    const cloze = getCardTypeFormConfig(CARD_TYPES.CLOZE);
+    expect(cloze.recommended).toBe(true);
+    expect(cloze.layout).toBe('cloze');
+    expect(cloze.front.media).toBeNull();
+    expect(cloze.back.media).toBeNull();
+  });
+
+  it('disallows images on listening/typing front media', () => {
+    for (const type of [CARD_TYPES.LISTENING, CARD_TYPES.TYPING]) {
+      const config = getCardTypeFormConfig(type);
+      expect(config.front.media?.allowImage).toBe(false);
+      expect(config.back.media).toBeNull();
+    }
+  });
+
+  it('pronunciation front hides text and only allows audio media', () => {
+    const config = getCardTypeFormConfig(CARD_TYPES.PRONUNCIATION);
+    expect(config.layout).toBe('pronunciation');
+    expect(config.front.showText).toBe(false);
+    expect(config.front.media).toEqual({
+      allowImage: false,
+      allowAudioFile: true,
+      allowRecording: true,
+      allowTts: false,
+    });
+  });
+});
