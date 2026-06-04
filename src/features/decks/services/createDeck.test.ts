@@ -29,6 +29,14 @@ class FakeDeckRepository implements DeckRepository {
     this.decks.push(deck);
     return deck;
   }
+
+  async listActiveByCollection(collectionId: string): Promise<Deck[]> {
+    return this.decks.filter((deck) => deck.collectionId === collectionId && !deck.archivedAt);
+  }
+
+  async findById(id: string): Promise<Deck | null> {
+    return this.decks.find((deck) => deck.id === id && !deck.archivedAt) ?? null;
+  }
 }
 
 const collection: Collection = {

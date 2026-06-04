@@ -14,13 +14,12 @@ describe('getHomeQuickActions', () => {
     );
   });
 
-  it('keeps future actions disabled while their screens do not exist', () => {
+  it('points card creation to its route and keeps import disabled', () => {
     const actions = getHomeQuickActions();
     const cardAction = actions.find((action) => action.id === 'new-card');
     const importAction = actions.find((action) => action.id === 'import');
 
-    expect(cardAction).toMatchObject({ id: 'new-card', disabled: true });
-    expect(cardAction).not.toHaveProperty('route');
+    expect(cardAction).toMatchObject({ id: 'new-card', route: ROUTES.CARD_NEW });
     expect(importAction).toMatchObject({ id: 'import', disabled: true });
     expect(importAction).not.toHaveProperty('route');
   });
