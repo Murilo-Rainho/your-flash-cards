@@ -6,7 +6,7 @@ import type { SelectOption } from '@/components/forms/SelectField';
 import { CARD_TYPES, type CardType } from '@/constants/cardTypes';
 import { toSpeechLanguage } from '@/constants/languages';
 import { ROUTES } from '@/constants/routes';
-import { composeClozeFront } from '@/domain/cloze/cloze';
+import { composeClozeBack, composeClozeFront } from '@/domain/cloze/cloze';
 import type { Collection } from '@/domain/entities/Collection';
 import type { Deck } from '@/domain/entities/Deck';
 import { MEDIA_SIDES, MEDIA_TYPES, type MediaSide } from '@/domain/entities/Media';
@@ -17,6 +17,7 @@ import { applyFieldErrors } from '@/utils/forms';
 import { splitTags } from '@/utils/text';
 
 import { CARD_TYPE_FORM_CONFIGS, getCardTypeFormConfig } from '../config/cardTypeForm';
+import { LISTENING_INPUT_MODES, type ListeningInputMode } from '../config/listeningInputMode';
 import { sanitizeMediaForType } from '../services/cardMedia';
 import {
   isCreateCardInputError,
@@ -41,6 +42,9 @@ export type CardFormValues = {
   clozeBefore: string;
   clozeGap: string;
   clozeAfter: string;
+  clozeBackBefore: string;
+  clozeBackGap: string;
+  clozeBackAfter: string;
   frontMedia: string;
   backMedia: string;
   notes: string;
@@ -56,6 +60,9 @@ const defaultValues: CardFormValues = {
   clozeBefore: '',
   clozeGap: '',
   clozeAfter: '',
+  clozeBackBefore: '',
+  clozeBackGap: '',
+  clozeBackAfter: '',
   frontMedia: '',
   backMedia: '',
   notes: '',
@@ -64,6 +71,11 @@ const defaultValues: CardFormValues = {
 
 const emptyCollections: Collection[] = [];
 const emptyDecks: Deck[] = [];
+
+const defaultListeningModes: Record<MediaSide, ListeningInputMode> = {
+  front: LISTENING_INPUT_MODES.AUDIO_FILE,
+  back: LISTENING_INPUT_MODES.AUDIO_FILE,
+};
 
 /** Orquestra todo o estado do formulário de "Novo Card", entregando um view-model à tela. */
 export function useNewCardForm() {
@@ -81,6 +93,8 @@ export function useNewCardForm() {
     front: 'en-US',
     back: 'pt-BR',
   });
+  const [listeningModes, setListeningModes] =
+    useState<Record<MediaSide, ListeningInputMode>>(defaultListeningModes);
 
   const clearSuccess = useCallback(() => setSuccessMessage(null), []);
 
@@ -103,6 +117,9 @@ export function useNewCardForm() {
   const clozeBefore = watch('clozeBefore');
   const clozeGap = watch('clozeGap');
   const clozeAfter = watch('clozeAfter');
+  const clozeBackBefore = watch('clozeBackBefore');
+  const clozeBackGap = watch('clozeBackGap');
+  const clozeBackAfter = watch('clozeBackAfter');
   const backText = watch('backText');
   const tags = watch('tags');
   const notes = watch('notes');
@@ -164,12 +181,16 @@ export function useNewCardForm() {
 
   const clearCardContent = useCallback(() => {
     media.clearMedia();
+    setListeningModes(defaultListeningModes);
     setShowOptionalFields(false);
     clearErrors(['frontText', 'backText', 'frontMedia', 'backMedia', 'tags', 'notes']);
     setValue('frontText', '', { shouldDirty: false, shouldValidate: false });
     setValue('clozeBefore', '', { shouldDirty: false, shouldValidate: false });
     setValue('clozeGap', '', { shouldDirty: false, shouldValidate: false });
     setValue('clozeAfter', '', { shouldDirty: false, shouldValidate: false });
+    setValue('clozeBackBefore', '', { shouldDirty: false, shouldValidate: false });
+    setValue('clozeBackGap', '', { shouldDirty: false, shouldValidate: false });
+    setValue('clozeBackAfter', '', { shouldDirty: false, shouldValidate: false });
     setValue('backText', '', { shouldDirty: false, shouldValidate: false });
     setValue('tags', '', { shouldDirty: false, shouldValidate: false });
     setValue('notes', '', { shouldDirty: false, shouldValidate: false });
@@ -250,6 +271,7 @@ export function useNewCardForm() {
       const nextType = type as CardType;
       setValue('type', nextType, { shouldDirty: true, shouldValidate: false });
       media.sanitizeForType(nextType);
+      setListeningModes(defaultListeningModes);
       setSuccessMessage(null);
       setFormError(null);
     },
@@ -272,24 +294,53 @@ export function useNewCardForm() {
     [setValue],
   );
 
+  const syncClozeBackText = useCallback(
+    (before: string, gap: string, after: string) => {
+      setValue('backText', composeClozeBack(before, gap, after) ?? '', { shouldDirty: true });
+    },
+    [setValue],
+  );
+
   const handleChangeCloze = useCallback(
-    (part: 'before' | 'gap' | 'after', value: string) => {
+    (side: 'front' | 'back', part: 'before' | 'gap' | 'after', value: string) => {
+      if (side === 'front') {
+        if (part === 'before') {
+          setValue('clozeBefore', value, { shouldDirty: true });
+          setValue('clozeBackBefore', value, { shouldDirty: true });
+          syncClozeFrontText(value, getValues('clozeGap'), getValues('clozeAfter'));
+          syncClozeBackText(value, getValues('clozeBackGap'), getValues('clozeBackAfter'));
+          return;
+        }
+
+        if (part === 'gap') {
+          setValue('clozeGap', value, { shouldDirty: true });
+          syncClozeFrontText(getValues('clozeBefore'), value, getValues('clozeAfter'));
+          return;
+        }
+
+        setValue('clozeAfter', value, { shouldDirty: true });
+        setValue('clozeBackAfter', value, { shouldDirty: true });
+        syncClozeFrontText(getValues('clozeBefore'), getValues('clozeGap'), value);
+        syncClozeBackText(getValues('clozeBackBefore'), getValues('clozeBackGap'), value);
+        return;
+      }
+
       if (part === 'before') {
-        setValue('clozeBefore', value, { shouldDirty: true });
-        syncClozeFrontText(value, getValues('clozeGap'), getValues('clozeAfter'));
+        setValue('clozeBackBefore', value, { shouldDirty: true });
+        syncClozeBackText(value, getValues('clozeBackGap'), getValues('clozeBackAfter'));
         return;
       }
 
       if (part === 'gap') {
-        setValue('clozeGap', value, { shouldDirty: true });
-        syncClozeFrontText(getValues('clozeBefore'), value, getValues('clozeAfter'));
+        setValue('clozeBackGap', value, { shouldDirty: true });
+        syncClozeBackText(getValues('clozeBackBefore'), value, getValues('clozeBackAfter'));
         return;
       }
 
-      setValue('clozeAfter', value, { shouldDirty: true });
-      syncClozeFrontText(getValues('clozeBefore'), getValues('clozeGap'), value);
+      setValue('clozeBackAfter', value, { shouldDirty: true });
+      syncClozeBackText(getValues('clozeBackBefore'), getValues('clozeBackGap'), value);
     },
-    [getValues, setValue, syncClozeFrontText],
+    [getValues, setValue, syncClozeBackText, syncClozeFrontText],
   );
 
   const toggleTts = useCallback(
@@ -333,9 +384,78 @@ export function useNewCardForm() {
     setTtsLanguages((current) => ({ ...current, [side]: language }));
   }, []);
 
+  const handleListeningModeChange = useCallback(
+    (side: MediaSide, mode: ListeningInputMode) => {
+      setListeningModes((current) => ({ ...current, [side]: mode }));
+      media.removeSideMedia(side, MEDIA_TYPES.AUDIO);
+
+      if (mode !== LISTENING_INPUT_MODES.TTS) {
+        setValue(side === MEDIA_SIDES.FRONT ? 'frontText' : 'backText', '', {
+          shouldDirty: true,
+        });
+      }
+    },
+    [media, setValue],
+  );
+
+  const testListeningAudio = useCallback(
+    async (side: MediaSide) => {
+      setFormError(null);
+
+      if (listeningModes[side] === LISTENING_INPUT_MODES.TTS) {
+        await speakTts(side);
+        return;
+      }
+
+      const sideMedia = media.media.find(
+        (item) =>
+          item.side === side &&
+          (item.type === MEDIA_TYPES.AUDIO || item.type === MEDIA_TYPES.RECORDING),
+      );
+
+      if (!sideMedia) {
+        setError(side === MEDIA_SIDES.FRONT ? 'frontMedia' : 'backMedia', {
+          message: 'Adicione audio antes de testar.',
+        });
+        return;
+      }
+
+      try {
+        await recording.playAudio(sideMedia.uri);
+      } catch {
+        setFormError('Nao foi possivel reproduzir o audio.');
+      }
+    },
+    [listeningModes, media.media, recording, setError, speakTts],
+  );
+
   const buildMediaForSubmit = useCallback(
     async (values: CardFormValues): Promise<CreateCardMediaInput[]> => {
       let nextMedia = sanitizeMediaForType(values.type, media.media);
+
+      if (values.type === CARD_TYPES.LISTENING) {
+        for (const side of [MEDIA_SIDES.FRONT, MEDIA_SIDES.BACK] as const) {
+          if (listeningModes[side] !== LISTENING_INPUT_MODES.TTS) {
+            continue;
+          }
+
+          const text = side === MEDIA_SIDES.FRONT ? values.frontText : values.backText;
+          const language = ttsLanguages[side];
+
+          if (!text.trim()) {
+            continue;
+          }
+
+          if (!(await tts.isAvailable(language))) {
+            throw new Error('TTS_UNAVAILABLE');
+          }
+
+          nextMedia = [
+            ...nextMedia.filter((item) => !(item.side === side && item.type === MEDIA_TYPES.TTS)),
+            { side, type: MEDIA_TYPES.TTS, language },
+          ];
+        }
+      }
 
       if (values.type === CARD_TYPES.PRONUNCIATION && values.backText.trim()) {
         const language = ttsLanguages.back;
@@ -354,7 +474,7 @@ export function useNewCardForm() {
 
       return nextMedia;
     },
-    [media.media, tts, ttsLanguages.back],
+    [listeningModes, media.media, tts, ttsLanguages],
   );
 
   const onSubmit = handleSubmit(async (values) => {
@@ -374,6 +494,11 @@ export function useNewCardForm() {
       values.type === CARD_TYPES.CLOZE
         ? (composeClozeFront(values.clozeBefore, values.clozeGap, values.clozeAfter) ?? '')
         : values.frontText;
+    const clozeBackText =
+      values.type === CARD_TYPES.CLOZE
+        ? (composeClozeBack(values.clozeBackBefore, values.clozeBackGap, values.clozeBackAfter) ??
+          '')
+        : values.backText;
 
     const input: CreateCardInput = {
       collectionId: values.collectionId,
@@ -385,7 +510,7 @@ export function useNewCardForm() {
           : values.type === CARD_TYPES.CLOZE
             ? clozeFrontText
             : values.frontText,
-      backText: values.backText,
+      backText: values.type === CARD_TYPES.CLOZE ? clozeBackText : values.backText,
       notes: values.notes,
       tags: splitTags(values.tags),
       media: submitMedia,
@@ -445,10 +570,14 @@ export function useNewCardForm() {
     isSaveDisabled,
     frontText,
     backText,
-    cloze: { before: clozeBefore, gap: clozeGap, after: clozeAfter },
+    cloze: {
+      front: { before: clozeBefore, gap: clozeGap, after: clozeAfter },
+      back: { before: clozeBackBefore, gap: clozeBackGap, after: clozeBackAfter },
+    },
     frontMedia,
     backMedia,
     ttsLanguages,
+    listeningModes,
     recordingSide: recording.recordingSide,
     recordingDurationMs: recording.recordingDurationMs,
     tags,
@@ -485,6 +614,10 @@ export function useNewCardForm() {
       void speakTts(side);
     },
     onTtsLanguageChange: handleTtsLanguageChange,
+    onListeningModeChange: handleListeningModeChange,
+    onTestListeningAudio: (side: MediaSide) => {
+      void testListeningAudio(side);
+    },
     onToggleOptional: () => setShowOptionalFields((current) => !current),
     onChangeTags: (value: string) => setValue('tags', value, { shouldDirty: true }),
     onChangeNotes: (value: string) => setValue('notes', value, { shouldDirty: true }),

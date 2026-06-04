@@ -1,4 +1,5 @@
 import {
+  composeClozeBack,
   composeClozeFront,
   extractExpectedClozeAnswer,
   isClozeAnswerCorrect,
@@ -15,6 +16,17 @@ describe('composeClozeFront', () => {
   it('returns null when gap is empty or whitespace', () => {
     expect(composeClozeFront("I'm ", '', ' now')).toBeNull();
     expect(composeClozeFront("I'm ", '   ', ' now')).toBeNull();
+  });
+});
+
+describe('composeClozeBack', () => {
+  it('composes before, gap, and after without braces', () => {
+    expect(composeClozeBack("I'm ", 'tired', ' now')).toBe("I'm tired now");
+  });
+
+  it('returns null when gap is empty or whitespace', () => {
+    expect(composeClozeBack("I'm ", '', ' now')).toBeNull();
+    expect(composeClozeBack("I'm ", '   ', ' now')).toBeNull();
   });
 });
 

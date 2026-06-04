@@ -50,8 +50,13 @@ describe('sanitizeMediaForType', () => {
     expect(sanitizeMediaForType(CARD_TYPES.CLOZE, [frontImage, frontAudio])).toEqual([]);
   });
 
-  it('keeps only non-image front media for listening/typing', () => {
+  it('keeps non-image media on both sides for listening', () => {
     const result = sanitizeMediaForType(CARD_TYPES.LISTENING, [frontImage, frontAudio, backTts]);
+    expect(result).toEqual([frontAudio, backTts]);
+  });
+
+  it('keeps only non-image front media for typing', () => {
+    const result = sanitizeMediaForType(CARD_TYPES.TYPING, [frontImage, frontAudio, backTts]);
     expect(result).toEqual([frontAudio]);
   });
 

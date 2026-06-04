@@ -245,6 +245,7 @@ describe('createCard', () => {
     ).rejects.toMatchObject({
       fieldErrors: {
         frontMedia: 'Adicione audio, gravacao ou TTS na frente.',
+        backMedia: 'Adicione audio, gravacao ou TTS no verso.',
       },
     });
 

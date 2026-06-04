@@ -1,15 +1,17 @@
 import { Pressable, Text, View } from 'react-native';
 
-import { ClozeFrontField } from '@/components/forms/ClozeFrontField';
+import { ClozeBackField, ClozeFrontField } from '@/components/forms/ClozeFrontField';
 import { FieldError } from '@/components/common/FieldError';
 import { SelectField } from '@/components/forms/SelectField';
 import { TextAreaField } from '@/components/forms/TextAreaField';
 import { LANGUAGES, toSpeechLanguage } from '@/constants/languages';
 import type { CardType } from '@/constants/cardTypes';
-import { MEDIA_SIDES, type MediaSide } from '@/domain/entities/Media';
+import { MEDIA_SIDES, MEDIA_TYPES, type MediaSide } from '@/domain/entities/Media';
 
 import { getCardTypeFormConfig } from '../config/cardTypeForm';
+import type { ListeningInputMode } from '../config/listeningInputMode';
 import type { CreateCardMediaInput } from '../services/createCard';
+import { ListeningSideField } from './ListeningSideField';
 import { MediaControls } from './MediaControls';
 
 type CardTypeFieldsErrors = {
@@ -23,7 +25,10 @@ type CardTypeFieldsProps = {
   type: CardType;
   frontText: string;
   backText: string;
-  cloze: { before: string; gap: string; after: string };
+  cloze: {
+    front: { before: string; gap: string; after: string };
+    back: { before: string; gap: string; after: string };
+  };
   frontMedia: CreateCardMediaInput[];
   backMedia: CreateCardMediaInput[];
   errors: CardTypeFieldsErrors;
@@ -32,8 +37,11 @@ type CardTypeFieldsProps = {
   recordingSide: MediaSide | null;
   recordingDurationMs: number;
   ttsLanguages: Record<MediaSide, string>;
+  listeningModes: Record<MediaSide, ListeningInputMode>;
   onChangeText: (side: MediaSide, value: string) => void;
-  onChangeCloze: (part: 'before' | 'gap' | 'after', value: string) => void;
+  onListeningModeChange: (side: MediaSide, mode: ListeningInputMode) => void;
+  onTestListeningAudio: (side: MediaSide) => void;
+  onChangeCloze: (side: 'front' | 'back', part: 'before' | 'gap' | 'after', value: string) => void;
   onPickImage: (side: MediaSide, source: 'library' | 'camera') => void;
   onPickAudio: (side: MediaSide) => void;
   onStartRecording: (side: MediaSide) => void;
@@ -60,7 +68,10 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
     recordingSide,
     recordingDurationMs,
     ttsLanguages,
+    listeningModes,
     onChangeText,
+    onListeningModeChange,
+    onTestListeningAudio,
     onChangeCloze,
     onPickImage,
     onPickAudio,
@@ -139,16 +150,72 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
     return (
       <>
         <ClozeFrontField
-          before={cloze.before}
-          gap={cloze.gap}
-          after={cloze.after}
+          before={cloze.front.before}
+          gap={cloze.front.gap}
+          after={cloze.front.after}
           error={frontError}
           disabled={isSaving}
-          onChangeBefore={(value) => onChangeCloze('before', value)}
-          onChangeGap={(value) => onChangeCloze('gap', value)}
-          onChangeAfter={(value) => onChangeCloze('after', value)}
+          onChangeBefore={(value) => onChangeCloze('front', 'before', value)}
+          onChangeGap={(value) => onChangeCloze('front', 'gap', value)}
+          onChangeAfter={(value) => onChangeCloze('front', 'after', value)}
         />
-        {renderTextField(MEDIA_SIDES.BACK)}
+        <ClozeBackField
+          before={cloze.back.before}
+          gap={cloze.back.gap}
+          after={cloze.back.after}
+          error={backError}
+          disabled={isSaving}
+          onChangeBefore={(value) => onChangeCloze('back', 'before', value)}
+          onChangeGap={(value) => onChangeCloze('back', 'gap', value)}
+          onChangeAfter={(value) => onChangeCloze('back', 'after', value)}
+        />
+      </>
+    );
+  }
+
+  if (config.layout === 'listening') {
+    return (
+      <>
+        <ListeningSideField
+          label="Frente"
+          mode={listeningModes.front}
+          text={frontText}
+          textPlaceholder={config.front.textPlaceholder}
+          media={frontMedia}
+          textError={errors.frontText}
+          mediaError={errors.frontMedia}
+          isSaving={isSaving}
+          isRecording={isRecording}
+          isRecordingThisSide={recordingSide === MEDIA_SIDES.FRONT}
+          recordingDurationMs={recordingDurationMs}
+          onModeChange={(mode) => onListeningModeChange(MEDIA_SIDES.FRONT, mode)}
+          onChangeText={(value) => onChangeText(MEDIA_SIDES.FRONT, value)}
+          onPickAudio={() => onPickAudio(MEDIA_SIDES.FRONT)}
+          onStartRecording={() => onStartRecording(MEDIA_SIDES.FRONT)}
+          onStopRecording={onStopRecording}
+          onRemoveMedia={() => onRemoveMedia(MEDIA_SIDES.FRONT, MEDIA_TYPES.AUDIO)}
+          onTestAudio={() => onTestListeningAudio(MEDIA_SIDES.FRONT)}
+        />
+        <ListeningSideField
+          label="Verso"
+          mode={listeningModes.back}
+          text={backText}
+          textPlaceholder={config.back.textPlaceholder}
+          media={backMedia}
+          textError={errors.backText}
+          mediaError={errors.backMedia}
+          isSaving={isSaving}
+          isRecording={isRecording}
+          isRecordingThisSide={recordingSide === MEDIA_SIDES.BACK}
+          recordingDurationMs={recordingDurationMs}
+          onModeChange={(mode) => onListeningModeChange(MEDIA_SIDES.BACK, mode)}
+          onChangeText={(value) => onChangeText(MEDIA_SIDES.BACK, value)}
+          onPickAudio={() => onPickAudio(MEDIA_SIDES.BACK)}
+          onStartRecording={() => onStartRecording(MEDIA_SIDES.BACK)}
+          onStopRecording={onStopRecording}
+          onRemoveMedia={() => onRemoveMedia(MEDIA_SIDES.BACK, MEDIA_TYPES.AUDIO)}
+          onTestAudio={() => onTestListeningAudio(MEDIA_SIDES.BACK)}
+        />
       </>
     );
   }

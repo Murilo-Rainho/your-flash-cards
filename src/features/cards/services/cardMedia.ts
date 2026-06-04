@@ -33,7 +33,11 @@ export function sanitizeMediaForType(
     return [];
   }
 
-  if (type === CARD_TYPES.LISTENING || type === CARD_TYPES.TYPING) {
+  if (type === CARD_TYPES.LISTENING) {
+    return media.filter((item) => item.type !== MEDIA_TYPES.IMAGE);
+  }
+
+  if (type === CARD_TYPES.TYPING) {
     return media.filter(
       (item) => item.side === MEDIA_SIDES.FRONT && item.type !== MEDIA_TYPES.IMAGE,
     );

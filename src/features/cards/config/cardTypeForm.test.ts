@@ -16,12 +16,17 @@ describe('cardTypeForm config', () => {
     expect(cloze.back.media).toBeNull();
   });
 
-  it('disallows images on listening/typing front media', () => {
-    for (const type of [CARD_TYPES.LISTENING, CARD_TYPES.TYPING]) {
-      const config = getCardTypeFormConfig(type);
-      expect(config.front.media?.allowImage).toBe(false);
-      expect(config.back.media).toBeNull();
-    }
+  it('uses the listening layout without inline media controls', () => {
+    const config = getCardTypeFormConfig(CARD_TYPES.LISTENING);
+    expect(config.layout).toBe('listening');
+    expect(config.front.media).toBeNull();
+    expect(config.back.media).toBeNull();
+  });
+
+  it('disallows images on typing front media', () => {
+    const config = getCardTypeFormConfig(CARD_TYPES.TYPING);
+    expect(config.front.media?.allowImage).toBe(false);
+    expect(config.back.media).toBeNull();
   });
 
   it('pronunciation front hides text and only allows audio media', () => {

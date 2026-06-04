@@ -16,6 +16,16 @@ export function composeClozeFront(before: string, gap: string, after: string): s
   return `${before}{${trimmedGap}}${after}`;
 }
 
+export function composeClozeBack(before: string, gap: string, after: string): string | null {
+  const trimmedGap = gap.trim();
+
+  if (!trimmedGap) {
+    return null;
+  }
+
+  return `${before}${trimmedGap}${after}`;
+}
+
 export function parseClozeFront(front: string): ParsedClozeFront | null {
   const matches = [...front.matchAll(CLOZE_GAP_PATTERN)];
 

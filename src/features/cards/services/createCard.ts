@@ -296,17 +296,16 @@ function sanitizeInput(
   }
 
   if (type === CARD_TYPES.LISTENING) {
-    if (hasImageMedia(media) || hasBackMedia(media)) {
-      fieldErrors.frontMedia = 'Escuta aceita audio apenas na frente.';
-      fieldErrors.backMedia = 'Use texto no verso do card de escuta.';
+    if (hasImageMedia(media)) {
+      fieldErrors.frontMedia = 'Escuta nao aceita imagem.';
     }
 
     if (!hasSideAudioLikeMedia(media, MEDIA_SIDES.FRONT)) {
       fieldErrors.frontMedia = 'Adicione audio, gravacao ou TTS na frente.';
     }
 
-    if (!hasText(backText)) {
-      fieldErrors.backText = 'Informe a resposta ou significado no verso.';
+    if (!hasSideAudioLikeMedia(media, MEDIA_SIDES.BACK)) {
+      fieldErrors.backMedia = 'Adicione audio, gravacao ou TTS no verso.';
     }
   }
 

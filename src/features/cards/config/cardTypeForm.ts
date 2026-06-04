@@ -18,7 +18,7 @@ export type CardSideConfig = {
 };
 
 /** Layout do formulário de conteúdo por tipo de card. */
-export type CardTypeLayout = 'cloze' | 'standard' | 'pronunciation';
+export type CardTypeLayout = 'cloze' | 'standard' | 'pronunciation' | 'listening';
 
 export type CardTypeFormConfig = {
   type: CardType;
@@ -77,11 +77,11 @@ export const CARD_TYPE_FORM_CONFIGS: readonly CardTypeFormConfig[] = [
   {
     type: CARD_TYPES.LISTENING,
     label: 'Escuta',
-    description: 'Audio na frente',
+    description: 'Audio na frente e no verso',
     recommended: false,
-    layout: 'standard',
-    front: { showText: true, textPlaceholder: 'Texto para TTS', media: AUDIO_AND_TTS_MEDIA },
-    back: { showText: true, textPlaceholder: 'Significado ou resposta', media: null },
+    layout: 'listening',
+    front: { showText: false, textPlaceholder: 'Texto para ouvir na revisao', media: null },
+    back: { showText: false, textPlaceholder: 'Texto para ouvir na revisao', media: null },
   },
   {
     type: CARD_TYPES.TYPING,
