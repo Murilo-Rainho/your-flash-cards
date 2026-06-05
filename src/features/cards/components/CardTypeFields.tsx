@@ -1,18 +1,15 @@
-import { Pressable, Text, View } from 'react-native';
-
 import { ClozeBackField, ClozeFrontField } from '@/components/forms/ClozeFrontField';
-import { FieldError } from '@/components/common/FieldError';
-import { SelectField } from '@/components/forms/SelectField';
 import { TextAreaField } from '@/components/forms/TextAreaField';
-import { LANGUAGES, toSpeechLanguage } from '@/constants/languages';
 import type { CardType } from '@/constants/cardTypes';
 import { MEDIA_SIDES, MEDIA_TYPES, type MediaSide } from '@/domain/entities/Media';
 
 import { getCardTypeFormConfig } from '../config/cardTypeForm';
 import type { ListeningInputMode } from '../config/listeningInputMode';
+import type { VocabularyFrontMode } from '../config/vocabularyFrontMode';
 import type { CreateCardMediaInput } from '../services/createCard';
 import { ListeningSideField } from './ListeningSideField';
 import { MediaControls } from './MediaControls';
+import { VocabularyFrontField } from './VocabularyFrontField';
 
 type CardTypeFieldsErrors = {
   frontText?: string;
@@ -38,8 +35,10 @@ type CardTypeFieldsProps = {
   recordingDurationMs: number;
   ttsLanguages: Record<MediaSide, string>;
   listeningModes: Record<MediaSide, ListeningInputMode>;
+  vocabularyFrontMode: VocabularyFrontMode;
   onChangeText: (side: MediaSide, value: string) => void;
   onListeningModeChange: (side: MediaSide, mode: ListeningInputMode) => void;
+  onVocabularyFrontModeChange: (mode: VocabularyFrontMode) => void;
   onTestListeningAudio: (side: MediaSide) => void;
   onChangeCloze: (side: 'front' | 'back', part: 'before' | 'gap' | 'after', value: string) => void;
   onPickImage: (side: MediaSide, source: 'library' | 'camera') => void;
@@ -69,8 +68,10 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
     recordingDurationMs,
     ttsLanguages,
     listeningModes,
+    vocabularyFrontMode,
     onChangeText,
     onListeningModeChange,
+    onVocabularyFrontModeChange,
     onTestListeningAudio,
     onChangeCloze,
     onPickImage,
@@ -173,87 +174,59 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
     );
   }
 
-  if (config.layout === 'listening') {
+  if (config.layout === 'vocabulary') {
     return (
       <>
-        <ListeningSideField
-          label="Frente"
-          mode={listeningModes.front}
+        <VocabularyFrontField
+          mode={vocabularyFrontMode}
           text={frontText}
           textPlaceholder={config.front.textPlaceholder}
-          media={frontMedia}
           textError={errors.frontText}
           mediaError={errors.frontMedia}
+          media={frontMedia}
+          listeningMode={listeningModes.front}
           isSaving={isSaving}
           isRecording={isRecording}
           isRecordingThisSide={recordingSide === MEDIA_SIDES.FRONT}
           recordingDurationMs={recordingDurationMs}
-          onModeChange={(mode) => onListeningModeChange(MEDIA_SIDES.FRONT, mode)}
+          onModeChange={onVocabularyFrontModeChange}
           onChangeText={(value) => onChangeText(MEDIA_SIDES.FRONT, value)}
+          onListeningModeChange={(mode) => onListeningModeChange(MEDIA_SIDES.FRONT, mode)}
+          onPickImage={(source) => onPickImage(MEDIA_SIDES.FRONT, source)}
           onPickAudio={() => onPickAudio(MEDIA_SIDES.FRONT)}
           onStartRecording={() => onStartRecording(MEDIA_SIDES.FRONT)}
           onStopRecording={onStopRecording}
-          onRemoveMedia={() => onRemoveMedia(MEDIA_SIDES.FRONT, MEDIA_TYPES.AUDIO)}
+          onRemoveMedia={(mediaType) => onRemoveMedia(MEDIA_SIDES.FRONT, mediaType)}
+          onPlayAudio={onPlayAudio}
           onTestAudio={() => onTestListeningAudio(MEDIA_SIDES.FRONT)}
         />
-        <ListeningSideField
-          label="Verso"
-          mode={listeningModes.back}
-          text={backText}
-          textPlaceholder={config.back.textPlaceholder}
-          media={backMedia}
-          textError={errors.backText}
-          mediaError={errors.backMedia}
-          isSaving={isSaving}
-          isRecording={isRecording}
-          isRecordingThisSide={recordingSide === MEDIA_SIDES.BACK}
-          recordingDurationMs={recordingDurationMs}
-          onModeChange={(mode) => onListeningModeChange(MEDIA_SIDES.BACK, mode)}
-          onChangeText={(value) => onChangeText(MEDIA_SIDES.BACK, value)}
-          onPickAudio={() => onPickAudio(MEDIA_SIDES.BACK)}
-          onStartRecording={() => onStartRecording(MEDIA_SIDES.BACK)}
-          onStopRecording={onStopRecording}
-          onRemoveMedia={() => onRemoveMedia(MEDIA_SIDES.BACK, MEDIA_TYPES.AUDIO)}
-          onTestAudio={() => onTestListeningAudio(MEDIA_SIDES.BACK)}
-        />
+        {renderTextField(MEDIA_SIDES.BACK)}
       </>
     );
   }
 
-  if (config.layout === 'pronunciation') {
+  if (config.layout === 'listening' || config.layout === 'pronunciation') {
     return (
-      <>
-        <View className="gap-2">
-          <Text className="text-sm font-semibold text-textPrimary">Frente</Text>
-          {renderMedia(MEDIA_SIDES.FRONT)}
-          <FieldError message={frontError} />
-        </View>
-        {renderTextField(MEDIA_SIDES.BACK)}
-        <View className="gap-2">
-          <SelectField
-            label="Idioma TTS"
-            value={ttsLanguages.back}
-            placeholder="Escolha o idioma"
-            disabled={isSaving}
-            options={LANGUAGES.map((language) => ({
-              value: toSpeechLanguage(language.code),
-              label: language.label,
-            }))}
-            onChange={(language) => onTtsLanguageChange(MEDIA_SIDES.BACK, language)}
-          />
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Ouvir preview TTS"
-            disabled={isSaving || !backText.trim()}
-            onPress={() => onSpeakTts(MEDIA_SIDES.BACK)}
-            className={`items-center rounded-xl border border-border bg-surface px-4 py-3 active:bg-background ${
-              !backText.trim() ? 'opacity-50' : ''
-            }`}
-          >
-            <Text className="text-base font-semibold text-textPrimary">Ouvir TTS</Text>
-          </Pressable>
-        </View>
-      </>
+      <ListeningSideField
+        label="Frente"
+        mode={listeningModes.front}
+        text={frontText}
+        textPlaceholder={config.front.textPlaceholder}
+        media={frontMedia}
+        textError={errors.frontText}
+        mediaError={errors.frontMedia}
+        isSaving={isSaving}
+        isRecording={isRecording}
+        isRecordingThisSide={recordingSide === MEDIA_SIDES.FRONT}
+        recordingDurationMs={recordingDurationMs}
+        onModeChange={(mode) => onListeningModeChange(MEDIA_SIDES.FRONT, mode)}
+        onChangeText={(value) => onChangeText(MEDIA_SIDES.FRONT, value)}
+        onPickAudio={() => onPickAudio(MEDIA_SIDES.FRONT)}
+        onStartRecording={() => onStartRecording(MEDIA_SIDES.FRONT)}
+        onStopRecording={onStopRecording}
+        onRemoveMedia={() => onRemoveMedia(MEDIA_SIDES.FRONT, MEDIA_TYPES.AUDIO)}
+        onTestAudio={() => onTestListeningAudio(MEDIA_SIDES.FRONT)}
+      />
     );
   }
 

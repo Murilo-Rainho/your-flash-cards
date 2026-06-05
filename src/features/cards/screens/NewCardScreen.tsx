@@ -143,8 +143,10 @@ export function NewCardScreen() {
           recordingDurationMs={form.recordingDurationMs}
           ttsLanguages={form.ttsLanguages}
           listeningModes={form.listeningModes}
+          vocabularyFrontMode={form.vocabularyFrontMode}
           onChangeText={form.onChangeText}
           onListeningModeChange={form.onListeningModeChange}
+          onVocabularyFrontModeChange={form.onVocabularyFrontModeChange}
           onTestListeningAudio={form.onTestListeningAudio}
           onChangeCloze={form.onChangeCloze}
           onPickImage={form.onPickImage}

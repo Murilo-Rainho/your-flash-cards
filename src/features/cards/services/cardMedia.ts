@@ -17,13 +17,6 @@ export function getMediaLabel(item: CreateCardMediaInput): string {
   return item.fileName ?? item.uri.split('/').pop() ?? item.type;
 }
 
-function isFrontAudioForPronunciation(item: CreateCardMediaInput): boolean {
-  return (
-    item.side === MEDIA_SIDES.FRONT &&
-    (item.type === MEDIA_TYPES.AUDIO || item.type === MEDIA_TYPES.RECORDING)
-  );
-}
-
 /** Remove mídias incompatíveis com o tipo de card selecionado. */
 export function sanitizeMediaForType(
   type: CardType,
@@ -33,21 +26,21 @@ export function sanitizeMediaForType(
     return [];
   }
 
-  if (type === CARD_TYPES.LISTENING) {
-    return media.filter((item) => item.type !== MEDIA_TYPES.IMAGE);
+  if (type === CARD_TYPES.VOCABULARY) {
+    // Frente aceita imagem ou áudio; verso é apenas texto.
+    return media.filter((item) => item.side === MEDIA_SIDES.FRONT);
   }
 
-  if (type === CARD_TYPES.TYPING) {
+  if (type === CARD_TYPES.LISTENING || type === CARD_TYPES.PRONUNCIATION) {
+    // Áudio/TTS apenas na frente; verso não é usado na criação.
     return media.filter(
       (item) => item.side === MEDIA_SIDES.FRONT && item.type !== MEDIA_TYPES.IMAGE,
     );
   }
 
-  if (type === CARD_TYPES.PRONUNCIATION) {
+  if (type === CARD_TYPES.TYPING) {
     return media.filter(
-      (item) =>
-        isFrontAudioForPronunciation(item) ||
-        (item.side === MEDIA_SIDES.BACK && item.type === MEDIA_TYPES.TTS),
+      (item) => item.side === MEDIA_SIDES.FRONT && item.type !== MEDIA_TYPES.IMAGE,
     );
   }
 

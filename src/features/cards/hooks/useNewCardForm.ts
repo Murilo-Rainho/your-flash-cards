@@ -18,9 +18,11 @@ import { splitTags } from '@/utils/text';
 
 import { CARD_TYPE_FORM_CONFIGS, getCardTypeFormConfig } from '../config/cardTypeForm';
 import { LISTENING_INPUT_MODES, type ListeningInputMode } from '../config/listeningInputMode';
+import { VOCABULARY_FRONT_MODES, type VocabularyFrontMode } from '../config/vocabularyFrontMode';
 import { sanitizeMediaForType } from '../services/cardMedia';
 import {
   isCreateCardInputError,
+  type CreateCardFileMediaInput,
   type CreateCardInput,
   type CreateCardMediaInput,
 } from '../services/createCard';
@@ -95,6 +97,9 @@ export function useNewCardForm() {
   });
   const [listeningModes, setListeningModes] =
     useState<Record<MediaSide, ListeningInputMode>>(defaultListeningModes);
+  const [vocabularyFrontMode, setVocabularyFrontMode] = useState<VocabularyFrontMode>(
+    VOCABULARY_FRONT_MODES.TEXT,
+  );
 
   const clearSuccess = useCallback(() => setSuccessMessage(null), []);
 
@@ -182,6 +187,7 @@ export function useNewCardForm() {
   const clearCardContent = useCallback(() => {
     media.clearMedia();
     setListeningModes(defaultListeningModes);
+    setVocabularyFrontMode(VOCABULARY_FRONT_MODES.TEXT);
     setShowOptionalFields(false);
     clearErrors(['frontText', 'backText', 'frontMedia', 'backMedia', 'tags', 'notes']);
     setValue('frontText', '', { shouldDirty: false, shouldValidate: false });
@@ -272,10 +278,30 @@ export function useNewCardForm() {
       setValue('type', nextType, { shouldDirty: true, shouldValidate: false });
       media.sanitizeForType(nextType);
       setListeningModes(defaultListeningModes);
+      setVocabularyFrontMode(VOCABULARY_FRONT_MODES.TEXT);
       setSuccessMessage(null);
       setFormError(null);
     },
     [media, setValue],
+  );
+
+  const handleVocabularyFrontModeChange = useCallback(
+    (mode: VocabularyFrontMode) => {
+      setVocabularyFrontMode(mode);
+      setFormError(null);
+      clearErrors(['frontText', 'frontMedia']);
+      media.removeSideMedia(MEDIA_SIDES.FRONT, MEDIA_TYPES.IMAGE);
+      media.removeSideMedia(MEDIA_SIDES.FRONT, MEDIA_TYPES.AUDIO);
+      setValue('frontText', '', { shouldDirty: true });
+
+      if (mode === VOCABULARY_FRONT_MODES.AUDIO) {
+        setListeningModes((current) => ({
+          ...current,
+          front: LISTENING_INPUT_MODES.AUDIO_FILE,
+        }));
+      }
+    },
+    [clearErrors, media, setValue],
   );
 
   const handleChangeText = useCallback(
@@ -408,7 +434,7 @@ export function useNewCardForm() {
       }
 
       const sideMedia = media.media.find(
-        (item) =>
+        (item): item is CreateCardFileMediaInput =>
           item.side === side &&
           (item.type === MEDIA_TYPES.AUDIO || item.type === MEDIA_TYPES.RECORDING),
       );
@@ -433,32 +459,17 @@ export function useNewCardForm() {
     async (values: CardFormValues): Promise<CreateCardMediaInput[]> => {
       let nextMedia = sanitizeMediaForType(values.type, media.media);
 
-      if (values.type === CARD_TYPES.LISTENING) {
-        for (const side of [MEDIA_SIDES.FRONT, MEDIA_SIDES.BACK] as const) {
-          if (listeningModes[side] !== LISTENING_INPUT_MODES.TTS) {
-            continue;
-          }
+      // Escuta, Pronúncia e Vocabulário (modo áudio) constroem o TTS da frente no envio,
+      // a partir do texto digitado e do idioma da frente.
+      const usesFrontTts =
+        ((values.type === CARD_TYPES.LISTENING || values.type === CARD_TYPES.PRONUNCIATION) &&
+          listeningModes.front === LISTENING_INPUT_MODES.TTS) ||
+        (values.type === CARD_TYPES.VOCABULARY &&
+          vocabularyFrontMode === VOCABULARY_FRONT_MODES.AUDIO &&
+          listeningModes.front === LISTENING_INPUT_MODES.TTS);
 
-          const text = side === MEDIA_SIDES.FRONT ? values.frontText : values.backText;
-          const language = ttsLanguages[side];
-
-          if (!text.trim()) {
-            continue;
-          }
-
-          if (!(await tts.isAvailable(language))) {
-            throw new Error('TTS_UNAVAILABLE');
-          }
-
-          nextMedia = [
-            ...nextMedia.filter((item) => !(item.side === side && item.type === MEDIA_TYPES.TTS)),
-            { side, type: MEDIA_TYPES.TTS, language },
-          ];
-        }
-      }
-
-      if (values.type === CARD_TYPES.PRONUNCIATION && values.backText.trim()) {
-        const language = ttsLanguages.back;
+      if (usesFrontTts && values.frontText.trim()) {
+        const language = ttsLanguages.front;
 
         if (!(await tts.isAvailable(language))) {
           throw new Error('TTS_UNAVAILABLE');
@@ -466,15 +477,15 @@ export function useNewCardForm() {
 
         nextMedia = [
           ...nextMedia.filter(
-            (item) => !(item.side === MEDIA_SIDES.BACK && item.type === MEDIA_TYPES.TTS),
+            (item) => !(item.side === MEDIA_SIDES.FRONT && item.type === MEDIA_TYPES.TTS),
           ),
-          { side: MEDIA_SIDES.BACK, type: MEDIA_TYPES.TTS, language },
+          { side: MEDIA_SIDES.FRONT, type: MEDIA_TYPES.TTS, language },
         ];
       }
 
       return nextMedia;
     },
-    [listeningModes, media.media, tts, ttsLanguages],
+    [listeningModes, media.media, tts, ttsLanguages, vocabularyFrontMode],
   );
 
   const onSubmit = handleSubmit(async (values) => {
@@ -500,17 +511,16 @@ export function useNewCardForm() {
           '')
         : values.backText;
 
+    const backIsContentless =
+      values.type === CARD_TYPES.LISTENING || values.type === CARD_TYPES.PRONUNCIATION;
+
     const input: CreateCardInput = {
       collectionId: values.collectionId,
       deckId: values.deckId,
       type: values.type,
-      frontText:
-        values.type === CARD_TYPES.PRONUNCIATION
-          ? ''
-          : values.type === CARD_TYPES.CLOZE
-            ? clozeFrontText
-            : values.frontText,
-      backText: values.type === CARD_TYPES.CLOZE ? clozeBackText : values.backText,
+      frontText: values.type === CARD_TYPES.CLOZE ? clozeFrontText : values.frontText,
+      backText:
+        values.type === CARD_TYPES.CLOZE ? clozeBackText : backIsContentless ? '' : values.backText,
       notes: values.notes,
       tags: splitTags(values.tags),
       media: submitMedia,
@@ -578,6 +588,7 @@ export function useNewCardForm() {
     backMedia,
     ttsLanguages,
     listeningModes,
+    vocabularyFrontMode,
     recordingSide: recording.recordingSide,
     recordingDurationMs: recording.recordingDurationMs,
     tags,
@@ -587,6 +598,7 @@ export function useNewCardForm() {
     onCollectionChange: handleCollectionChange,
     onDeckChange: handleDeckChange,
     onTypeChange: handleTypeChange,
+    onVocabularyFrontModeChange: handleVocabularyFrontModeChange,
     onNext,
     onSubmit,
     goToCreateCollection: () => router.replace(ROUTES.COLLECTION_NEW),

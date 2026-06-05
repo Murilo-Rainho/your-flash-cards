@@ -29,7 +29,7 @@ describe('cardTypeForm config', () => {
     expect(config.back.media).toBeNull();
   });
 
-  it('pronunciation front hides text and only allows audio media', () => {
+  it('pronunciation front hides text, allows audio/TTS and has no back', () => {
     const config = getCardTypeFormConfig(CARD_TYPES.PRONUNCIATION);
     expect(config.layout).toBe('pronunciation');
     expect(config.front.showText).toBe(false);
@@ -37,7 +37,16 @@ describe('cardTypeForm config', () => {
       allowImage: false,
       allowAudioFile: true,
       allowRecording: true,
-      allowTts: false,
+      allowTts: true,
     });
+    expect(config.back.showText).toBe(false);
+    expect(config.back.media).toBeNull();
+  });
+
+  it('uses the vocabulary layout with a text-only back', () => {
+    const config = getCardTypeFormConfig(CARD_TYPES.VOCABULARY);
+    expect(config.layout).toBe('vocabulary');
+    expect(config.back.showText).toBe(true);
+    expect(config.back.media).toBeNull();
   });
 });

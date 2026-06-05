@@ -18,7 +18,7 @@ export type CardSideConfig = {
 };
 
 /** Layout do formulário de conteúdo por tipo de card. */
-export type CardTypeLayout = 'cloze' | 'standard' | 'pronunciation' | 'listening';
+export type CardTypeLayout = 'cloze' | 'standard' | 'pronunciation' | 'listening' | 'vocabulary';
 
 export type CardTypeFormConfig = {
   type: CardType;
@@ -44,13 +44,6 @@ const AUDIO_AND_TTS_MEDIA: SideMediaCapabilities = {
   allowTts: true,
 };
 
-const AUDIO_ONLY_MEDIA: SideMediaCapabilities = {
-  allowImage: false,
-  allowAudioFile: true,
-  allowRecording: true,
-  allowTts: false,
-};
-
 /**
  * Fonte única de metadados/capacidades por tipo de card, consumida tanto pela lista de
  * seleção (etapa 1) quanto pelo render do conteúdo (etapa 2).
@@ -68,11 +61,11 @@ export const CARD_TYPE_FORM_CONFIGS: readonly CardTypeFormConfig[] = [
   {
     type: CARD_TYPES.VOCABULARY,
     label: 'Vocabulario',
-    description: 'Frente e verso simples',
+    description: 'Texto, imagem ou audio na frente',
     recommended: false,
-    layout: 'standard',
+    layout: 'vocabulary',
     front: { showText: true, textPlaceholder: 'apple', media: ALL_MEDIA },
-    back: { showText: true, textPlaceholder: 'maca', media: ALL_MEDIA },
+    back: { showText: true, textPlaceholder: 'maca', media: null },
   },
   {
     type: CARD_TYPES.LISTENING,
@@ -95,11 +88,15 @@ export const CARD_TYPE_FORM_CONFIGS: readonly CardTypeFormConfig[] = [
   {
     type: CARD_TYPES.PRONUNCIATION,
     label: 'Pronuncia',
-    description: 'Audio e TTS local',
+    description: 'Audio modelo para repetir',
     recommended: false,
     layout: 'pronunciation',
-    front: { showText: false, textPlaceholder: '', media: AUDIO_ONLY_MEDIA },
-    back: { showText: true, textPlaceholder: "I'm tired now", media: null },
+    front: {
+      showText: false,
+      textPlaceholder: 'Texto para ouvir na revisao',
+      media: AUDIO_AND_TTS_MEDIA,
+    },
+    back: { showText: false, textPlaceholder: '', media: null },
   },
 ];
 

@@ -245,7 +245,6 @@ describe('createCard', () => {
     ).rejects.toMatchObject({
       fieldErrors: {
         frontMedia: 'Adicione audio, gravacao ou TTS na frente.',
-        backMedia: 'Adicione audio, gravacao ou TTS no verso.',
       },
     });
 
@@ -364,24 +363,7 @@ describe('createCard', () => {
     });
   });
 
-  it('rejects pronunciation cards without front audio or back text', async () => {
-    await expect(
-      createCard(
-        {
-          collectionId: 'collection-pt-en',
-          deckId: 'deck-travel',
-          type: CARD_TYPES.PRONUNCIATION,
-          frontText: '',
-          backText: 'repeat this',
-        },
-        createOptions(),
-      ),
-    ).rejects.toMatchObject({
-      fieldErrors: {
-        frontMedia: 'Adicione audio ou gravacao na frente.',
-      },
-    });
-
+  it('rejects pronunciation cards without front audio', async () => {
     await expect(
       createCard(
         {
@@ -390,12 +372,88 @@ describe('createCard', () => {
           type: CARD_TYPES.PRONUNCIATION,
           frontText: '',
           backText: '',
+        },
+        createOptions(),
+      ),
+    ).rejects.toMatchObject({
+      fieldErrors: {
+        frontMedia: 'Adicione audio, gravacao ou TTS na frente.',
+      },
+    });
+  });
+
+  it('creates a pronunciation card with front audio and an empty back', async () => {
+    const aggregate = await createCard(
+      {
+        collectionId: 'collection-pt-en',
+        deckId: 'deck-travel',
+        type: CARD_TYPES.PRONUNCIATION,
+        frontText: '',
+        backText: '',
+        media: [
+          {
+            side: MEDIA_SIDES.FRONT,
+            type: MEDIA_TYPES.RECORDING,
+            uri: 'file://cache/pronunciation.m4a',
+            mimeType: 'audio/m4a',
+          },
+        ],
+      },
+      createOptions(),
+    );
+
+    expect(aggregate.card).toMatchObject({
+      type: CARD_TYPES.PRONUNCIATION,
+      front: '',
+      back: '',
+    });
+    expect(aggregate.media).toHaveLength(1);
+    expect(aggregate.media[0]).toMatchObject({
+      side: MEDIA_SIDES.FRONT,
+      type: MEDIA_TYPES.RECORDING,
+    });
+  });
+
+  it('creates a listening card with front audio only and an empty back', async () => {
+    const aggregate = await createCard(
+      {
+        collectionId: 'collection-pt-en',
+        deckId: 'deck-travel',
+        type: CARD_TYPES.LISTENING,
+        frontText: '',
+        backText: '',
+        media: [
+          {
+            side: MEDIA_SIDES.FRONT,
+            type: MEDIA_TYPES.AUDIO,
+            uri: 'file://cache/listen.mp3',
+            mimeType: 'audio/mpeg',
+          },
+        ],
+      },
+      createOptions(),
+    );
+
+    expect(aggregate.card).toMatchObject({ type: CARD_TYPES.LISTENING, back: '' });
+    expect(aggregate.media).toHaveLength(1);
+    expect(aggregate.media[0]).toMatchObject({ side: MEDIA_SIDES.FRONT, type: MEDIA_TYPES.AUDIO });
+  });
+
+  it('rejects media on the back of a vocabulary card', async () => {
+    await expect(
+      createCard(
+        {
+          collectionId: 'collection-pt-en',
+          deckId: 'deck-travel',
+          type: CARD_TYPES.VOCABULARY,
+          frontText: 'house',
+          backText: 'casa',
           media: [
             {
-              side: MEDIA_SIDES.FRONT,
-              type: MEDIA_TYPES.RECORDING,
-              uri: 'file://cache/pronunciation.m4a',
-              mimeType: 'audio/m4a',
+              side: MEDIA_SIDES.BACK,
+              type: MEDIA_TYPES.IMAGE,
+              uri: 'file://cache/casa.png',
+              mimeType: 'image/png',
             },
           ],
         },
@@ -403,7 +461,7 @@ describe('createCard', () => {
       ),
     ).rejects.toMatchObject({
       fieldErrors: {
-        backText: 'Informe o texto que sera falado no verso.',
+        backMedia: 'Verso do vocabulario aceita apenas texto.',
       },
     });
   });

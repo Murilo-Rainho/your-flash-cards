@@ -124,17 +124,6 @@ function hasSideAudioLikeMedia(media: readonly CreateCardMediaInput[], side: Med
   return media.some((item) => item.side === side && audioLikeMediaTypes.has(item.type));
 }
 
-function hasSideRecordedOrAttachedAudio(
-  media: readonly CreateCardMediaInput[],
-  side: MediaSide,
-): boolean {
-  return media.some(
-    (item) =>
-      item.side === side &&
-      (item.type === MEDIA_TYPES.AUDIO || item.type === MEDIA_TYPES.RECORDING),
-  );
-}
-
 function hasImageMedia(media: readonly CreateCardMediaInput[]): boolean {
   return media.some((item) => item.type === MEDIA_TYPES.IMAGE);
 }
@@ -260,6 +249,8 @@ function sanitizeInput(
     return { fieldErrors };
   }
 
+  // Escuta e Pronúncia não usam o verso na criação (a comparação acontece na revisão).
+  const backIsUsed = type !== CARD_TYPES.LISTENING && type !== CARD_TYPES.PRONUNCIATION;
   const hasFrontContent = hasText(frontText) || hasSideMedia(media, MEDIA_SIDES.FRONT);
   const hasBackContent = hasText(backText) || hasSideMedia(media, MEDIA_SIDES.BACK);
 
@@ -267,7 +258,7 @@ function sanitizeInput(
     fieldErrors.frontText = 'Informe texto ou midia para a frente.';
   }
 
-  if (!hasBackContent) {
+  if (backIsUsed && !hasBackContent) {
     fieldErrors.backText = 'Informe texto ou midia para o verso.';
   }
 
@@ -295,6 +286,10 @@ function sanitizeInput(
     }
   }
 
+  if (type === CARD_TYPES.VOCABULARY && hasBackMedia(media)) {
+    fieldErrors.backMedia = 'Verso do vocabulario aceita apenas texto.';
+  }
+
   if (type === CARD_TYPES.LISTENING) {
     if (hasImageMedia(media)) {
       fieldErrors.frontMedia = 'Escuta nao aceita imagem.';
@@ -304,8 +299,8 @@ function sanitizeInput(
       fieldErrors.frontMedia = 'Adicione audio, gravacao ou TTS na frente.';
     }
 
-    if (!hasSideAudioLikeMedia(media, MEDIA_SIDES.BACK)) {
-      fieldErrors.backMedia = 'Adicione audio, gravacao ou TTS no verso.';
+    if (hasBackMedia(media)) {
+      fieldErrors.backMedia = 'Escuta nao usa o verso na criacao.';
     }
   }
 
@@ -328,20 +323,16 @@ function sanitizeInput(
   }
 
   if (type === CARD_TYPES.PRONUNCIATION) {
-    if (hasText(frontText)) {
-      fieldErrors.frontText = 'Use audio na frente do card de pronuncia.';
-    }
-
     if (hasImageMedia(media)) {
       fieldErrors.frontMedia = 'Pronuncia nao aceita imagem.';
     }
 
-    if (!hasSideRecordedOrAttachedAudio(media, MEDIA_SIDES.FRONT)) {
-      fieldErrors.frontMedia = 'Adicione audio ou gravacao na frente.';
+    if (!hasSideAudioLikeMedia(media, MEDIA_SIDES.FRONT)) {
+      fieldErrors.frontMedia = 'Adicione audio, gravacao ou TTS na frente.';
     }
 
-    if (!hasText(backText)) {
-      fieldErrors.backText = 'Informe o texto que sera falado no verso.';
+    if (hasBackMedia(media)) {
+      fieldErrors.backMedia = 'Pronuncia nao usa o verso na criacao.';
     }
   }
 

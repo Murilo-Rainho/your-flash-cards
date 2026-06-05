@@ -1,0 +1,138 @@
+import { View } from 'react-native';
+
+import { SelectField } from '@/components/forms/SelectField';
+import { TextAreaField } from '@/components/forms/TextAreaField';
+import { MEDIA_TYPES } from '@/domain/entities/Media';
+
+import {
+  VOCABULARY_FRONT_MODE_OPTIONS,
+  VOCABULARY_FRONT_MODES,
+  type VocabularyFrontMode,
+} from '../config/vocabularyFrontMode';
+import type { ListeningInputMode } from '../config/listeningInputMode';
+import type { CreateCardMediaInput } from '../services/createCard';
+import { ListeningSideField } from './ListeningSideField';
+import { MediaControls } from './MediaControls';
+
+type VocabularyFrontFieldProps = {
+  mode: VocabularyFrontMode;
+  text: string;
+  textPlaceholder: string;
+  textError?: string;
+  mediaError?: string;
+  media: CreateCardMediaInput[];
+  listeningMode: ListeningInputMode;
+  isSaving: boolean;
+  isRecording: boolean;
+  isRecordingThisSide: boolean;
+  recordingDurationMs: number;
+  onModeChange: (mode: VocabularyFrontMode) => void;
+  onChangeText: (value: string) => void;
+  onListeningModeChange: (mode: ListeningInputMode) => void;
+  onPickImage: (source: 'library' | 'camera') => void;
+  onPickAudio: () => void;
+  onStartRecording: () => void;
+  onStopRecording: () => void;
+  onRemoveMedia: (type: CreateCardMediaInput['type']) => void;
+  onPlayAudio: (uri: string) => void;
+  onTestAudio: () => void;
+};
+
+/** Frente do card de Vocabulário: escolhe entre texto simples, imagem ou áudio. */
+export function VocabularyFrontField({
+  mode,
+  text,
+  textPlaceholder,
+  textError,
+  mediaError,
+  media,
+  listeningMode,
+  isSaving,
+  isRecording,
+  isRecordingThisSide,
+  recordingDurationMs,
+  onModeChange,
+  onChangeText,
+  onListeningModeChange,
+  onPickImage,
+  onPickAudio,
+  onStartRecording,
+  onStopRecording,
+  onRemoveMedia,
+  onPlayAudio,
+  onTestAudio,
+}: VocabularyFrontFieldProps) {
+  return (
+    <View className="gap-3">
+      <SelectField
+        label="Frente"
+        value={mode}
+        placeholder="Escolha o tipo da frente"
+        disabled={isSaving}
+        options={VOCABULARY_FRONT_MODE_OPTIONS.map((option) => ({
+          value: option.value,
+          label: option.label,
+        }))}
+        onChange={(value) => onModeChange(value as VocabularyFrontMode)}
+      />
+
+      {mode === VOCABULARY_FRONT_MODES.TEXT ? (
+        <TextAreaField
+          label="Texto"
+          value={text}
+          placeholder={textPlaceholder}
+          error={textError}
+          disabled={isSaving}
+          onChangeText={onChangeText}
+        />
+      ) : null}
+
+      {mode === VOCABULARY_FRONT_MODES.IMAGE ? (
+        <MediaControls
+          label="Frente"
+          media={media}
+          textForTts=""
+          ttsLanguage=""
+          isSaving={isSaving}
+          isRecording={isRecording}
+          isRecordingThisSide={isRecordingThisSide}
+          recordingDurationMs={recordingDurationMs}
+          allowImage
+          onPickImage={() => onPickImage('library')}
+          onTakePhoto={() => onPickImage('camera')}
+          onPickAudio={onPickAudio}
+          onStartRecording={onStartRecording}
+          onStopRecording={onStopRecording}
+          onRemoveMedia={onRemoveMedia}
+          onPlayAudio={onPlayAudio}
+          onToggleTts={() => undefined}
+          onSpeakTts={() => undefined}
+          onTtsLanguageChange={() => undefined}
+        />
+      ) : null}
+
+      {mode === VOCABULARY_FRONT_MODES.AUDIO ? (
+        <ListeningSideField
+          label="Frente"
+          mode={listeningMode}
+          text={text}
+          textPlaceholder={textPlaceholder}
+          media={media}
+          textError={textError}
+          mediaError={mediaError}
+          isSaving={isSaving}
+          isRecording={isRecording}
+          isRecordingThisSide={isRecordingThisSide}
+          recordingDurationMs={recordingDurationMs}
+          onModeChange={onListeningModeChange}
+          onChangeText={onChangeText}
+          onPickAudio={onPickAudio}
+          onStartRecording={onStartRecording}
+          onStopRecording={onStopRecording}
+          onRemoveMedia={() => onRemoveMedia(MEDIA_TYPES.AUDIO)}
+          onTestAudio={onTestAudio}
+        />
+      ) : null}
+    </View>
+  );
+}

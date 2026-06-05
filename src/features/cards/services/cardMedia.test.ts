@@ -25,6 +25,12 @@ const backTts: CreateCardMediaInput = {
   language: 'pt-BR',
 };
 
+const frontTts: CreateCardMediaInput = {
+  side: MEDIA_SIDES.FRONT,
+  type: MEDIA_TYPES.TTS,
+  language: 'en-US',
+};
+
 describe('mediaGroup', () => {
   it('classifies image vs audio-like types', () => {
     expect(mediaGroup(MEDIA_TYPES.IMAGE)).toBe('image');
@@ -50,9 +56,9 @@ describe('sanitizeMediaForType', () => {
     expect(sanitizeMediaForType(CARD_TYPES.CLOZE, [frontImage, frontAudio])).toEqual([]);
   });
 
-  it('keeps non-image media on both sides for listening', () => {
+  it('keeps only non-image front media for listening', () => {
     const result = sanitizeMediaForType(CARD_TYPES.LISTENING, [frontImage, frontAudio, backTts]);
-    expect(result).toEqual([frontAudio, backTts]);
+    expect(result).toEqual([frontAudio]);
   });
 
   it('keeps only non-image front media for typing', () => {
@@ -60,17 +66,18 @@ describe('sanitizeMediaForType', () => {
     expect(result).toEqual([frontAudio]);
   });
 
-  it('keeps front audio and back TTS for pronunciation', () => {
+  it('keeps only non-image front media (audio or TTS) for pronunciation', () => {
     const result = sanitizeMediaForType(CARD_TYPES.PRONUNCIATION, [
       frontImage,
       frontAudio,
+      frontTts,
       backTts,
     ]);
-    expect(result).toEqual([frontAudio, backTts]);
+    expect(result).toEqual([frontAudio, frontTts]);
   });
 
-  it('keeps everything for vocabulary', () => {
-    const media = [frontImage, frontAudio, backTts];
-    expect(sanitizeMediaForType(CARD_TYPES.VOCABULARY, media)).toEqual(media);
+  it('keeps only front media for vocabulary', () => {
+    const result = sanitizeMediaForType(CARD_TYPES.VOCABULARY, [frontImage, frontAudio, backTts]);
+    expect(result).toEqual([frontImage, frontAudio]);
   });
 });
