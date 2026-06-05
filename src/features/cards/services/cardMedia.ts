@@ -31,17 +31,23 @@ export function sanitizeMediaForType(
     return media.filter((item) => item.side === MEDIA_SIDES.FRONT);
   }
 
-  if (type === CARD_TYPES.LISTENING || type === CARD_TYPES.PRONUNCIATION) {
-    // Áudio/TTS apenas na frente; verso não é usado na criação.
+  if (type === CARD_TYPES.LISTENING) {
+    // Áudio/TTS apenas na frente; o verso usa apenas texto (transcrição).
     return media.filter(
       (item) => item.side === MEDIA_SIDES.FRONT && item.type !== MEDIA_TYPES.IMAGE,
     );
   }
 
-  if (type === CARD_TYPES.TYPING) {
+  if (type === CARD_TYPES.PRONUNCIATION) {
+    // Inverso da Escuta: o texto fica na frente; o áudio/TTS modelo fica no verso.
     return media.filter(
-      (item) => item.side === MEDIA_SIDES.FRONT && item.type !== MEDIA_TYPES.IMAGE,
+      (item) => item.side === MEDIA_SIDES.BACK && item.type !== MEDIA_TYPES.IMAGE,
     );
+  }
+
+  if (type === CARD_TYPES.TYPING) {
+    // Frente aceita áudio/gravação/TTS ou imagem; o verso é apenas a resposta digitada.
+    return media.filter((item) => item.side === MEDIA_SIDES.FRONT);
   }
 
   return [...media];

@@ -23,24 +23,27 @@ describe('cardTypeForm config', () => {
     expect(config.back.media).toBeNull();
   });
 
-  it('disallows images on typing front media', () => {
+  it('uses the typing layout: media front and text-only back', () => {
     const config = getCardTypeFormConfig(CARD_TYPES.TYPING);
-    expect(config.front.media?.allowImage).toBe(false);
+    expect(config.layout).toBe('typing');
+    expect(config.front.showText).toBe(false);
+    expect(config.front.media).toBeNull();
+    expect(config.back.showText).toBe(true);
     expect(config.back.media).toBeNull();
   });
 
-  it('pronunciation front hides text, allows audio/TTS and has no back', () => {
+  it('pronunciation shows front text and allows audio/TTS on the back', () => {
     const config = getCardTypeFormConfig(CARD_TYPES.PRONUNCIATION);
     expect(config.layout).toBe('pronunciation');
-    expect(config.front.showText).toBe(false);
-    expect(config.front.media).toEqual({
+    expect(config.front.showText).toBe(true);
+    expect(config.front.media).toBeNull();
+    expect(config.back.showText).toBe(false);
+    expect(config.back.media).toEqual({
       allowImage: false,
       allowAudioFile: true,
       allowRecording: true,
       allowTts: true,
     });
-    expect(config.back.showText).toBe(false);
-    expect(config.back.media).toBeNull();
   });
 
   it('uses the vocabulary layout with a text-only back', () => {

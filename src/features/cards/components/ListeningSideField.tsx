@@ -26,6 +26,11 @@ type ListeningSideFieldProps = {
   isRecording: boolean;
   isRecordingThisSide: boolean;
   recordingDurationMs: number;
+  /**
+   * Quando true, o modo TTS NÃO renderiza um campo de texto próprio: a frase falada vem de
+   * outro lado do card (ex.: Pronúncia reutiliza o texto da frente). `text` é só leitura aqui.
+   */
+  reuseTextForTts?: boolean;
   onModeChange: (mode: ListeningInputMode) => void;
   onChangeText: (value: string) => void;
   onPickAudio: () => void;
@@ -48,6 +53,7 @@ export function ListeningSideField({
   isRecording,
   isRecordingThisSide,
   recordingDurationMs,
+  reuseTextForTts = false,
   onModeChange,
   onChangeText,
   onPickAudio,
@@ -83,7 +89,7 @@ export function ListeningSideField({
         onChange={(value) => onModeChange(value as ListeningInputMode)}
       />
 
-      {mode === LISTENING_INPUT_MODES.TTS ? (
+      {mode === LISTENING_INPUT_MODES.TTS && !reuseTextForTts ? (
         <TextAreaField
           label="Texto"
           value={text}
@@ -92,6 +98,10 @@ export function ListeningSideField({
           disabled={isSaving}
           onChangeText={onChangeText}
         />
+      ) : null}
+
+      {mode === LISTENING_INPUT_MODES.TTS && reuseTextForTts ? (
+        <Text className="text-xs text-textSecondary">O TTS le o texto da frente.</Text>
       ) : null}
 
       {mode === LISTENING_INPUT_MODES.AUDIO_FILE ? (

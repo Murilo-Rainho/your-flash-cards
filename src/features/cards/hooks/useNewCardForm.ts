@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { BackHandler } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'expo-router';
 
@@ -14,10 +15,14 @@ import { useActiveCollections } from '@/features/collections/hooks/useActiveColl
 import { useActiveDecks } from '@/features/decks/hooks/useActiveDecks';
 import { useGoBack } from '@/hooks/useGoBack';
 import { applyFieldErrors } from '@/utils/forms';
-import { splitTags } from '@/utils/text';
 
 import { CARD_TYPE_FORM_CONFIGS, getCardTypeFormConfig } from '../config/cardTypeForm';
 import { LISTENING_INPUT_MODES, type ListeningInputMode } from '../config/listeningInputMode';
+import {
+  TYPING_FRONT_MODES,
+  type TypingFrontMode,
+  typingFrontModeToListeningMode,
+} from '../config/typingFrontMode';
 import { VOCABULARY_FRONT_MODES, type VocabularyFrontMode } from '../config/vocabularyFrontMode';
 import { sanitizeMediaForType } from '../services/cardMedia';
 import {
@@ -28,6 +33,7 @@ import {
 } from '../services/createCard';
 import { useAudioRecording } from './useAudioRecording';
 import { useCardMedia } from './useCardMedia';
+import { useCardTestReview } from './useCardTestReview';
 import { useCardTts } from './useCardTts';
 import { useCreateCard } from './useCreateCard';
 
@@ -50,7 +56,7 @@ export type CardFormValues = {
   frontMedia: string;
   backMedia: string;
   notes: string;
-  tags: string;
+  tags: string[];
 };
 
 const defaultValues: CardFormValues = {
@@ -68,7 +74,7 @@ const defaultValues: CardFormValues = {
   frontMedia: '',
   backMedia: '',
   notes: '',
-  tags: '',
+  tags: [],
 };
 
 const emptyCollections: Collection[] = [];
@@ -99,6 +105,9 @@ export function useNewCardForm() {
     useState<Record<MediaSide, ListeningInputMode>>(defaultListeningModes);
   const [vocabularyFrontMode, setVocabularyFrontMode] = useState<VocabularyFrontMode>(
     VOCABULARY_FRONT_MODES.TEXT,
+  );
+  const [typingFrontMode, setTypingFrontMode] = useState<TypingFrontMode>(
+    TYPING_FRONT_MODES.AUDIO_FILE,
   );
 
   const clearSuccess = useCallback(() => setSuccessMessage(null), []);
@@ -188,6 +197,7 @@ export function useNewCardForm() {
     media.clearMedia();
     setListeningModes(defaultListeningModes);
     setVocabularyFrontMode(VOCABULARY_FRONT_MODES.TEXT);
+    setTypingFrontMode(TYPING_FRONT_MODES.AUDIO_FILE);
     setShowOptionalFields(false);
     clearErrors(['frontText', 'backText', 'frontMedia', 'backMedia', 'tags', 'notes']);
     setValue('frontText', '', { shouldDirty: false, shouldValidate: false });
@@ -198,7 +208,7 @@ export function useNewCardForm() {
     setValue('clozeBackGap', '', { shouldDirty: false, shouldValidate: false });
     setValue('clozeBackAfter', '', { shouldDirty: false, shouldValidate: false });
     setValue('backText', '', { shouldDirty: false, shouldValidate: false });
-    setValue('tags', '', { shouldDirty: false, shouldValidate: false });
+    setValue('tags', [], { shouldDirty: false, shouldValidate: false });
     setValue('notes', '', { shouldDirty: false, shouldValidate: false });
   }, [clearErrors, media, setValue]);
 
@@ -247,6 +257,21 @@ export function useNewCardForm() {
     goBack();
   }, [goBack, step]);
 
+  // Intercepta o back nativo (botão/gesto de hardware do Android) na etapa de conteúdo,
+  // para voltar à etapa de setup em vez de fechar a tela inteira.
+  useEffect(() => {
+    if (step !== 'content') {
+      return;
+    }
+
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      setStep('setup');
+      return true;
+    });
+
+    return () => subscription.remove();
+  }, [step]);
+
   const handleCollectionChange = useCallback(
     (collectionId: string) => {
       setValue('collectionId', collectionId, { shouldDirty: true, shouldValidate: false });
@@ -279,6 +304,7 @@ export function useNewCardForm() {
       media.sanitizeForType(nextType);
       setListeningModes(defaultListeningModes);
       setVocabularyFrontMode(VOCABULARY_FRONT_MODES.TEXT);
+      setTypingFrontMode(TYPING_FRONT_MODES.AUDIO_FILE);
       setSuccessMessage(null);
       setFormError(null);
     },
@@ -304,13 +330,50 @@ export function useNewCardForm() {
     [clearErrors, media, setValue],
   );
 
+  const handleTypingFrontModeChange = useCallback(
+    (mode: TypingFrontMode) => {
+      setTypingFrontMode(mode);
+      setFormError(null);
+      clearErrors(['frontText', 'frontMedia', 'backText']);
+      media.removeSideMedia(MEDIA_SIDES.FRONT, MEDIA_TYPES.IMAGE);
+      media.removeSideMedia(MEDIA_SIDES.FRONT, MEDIA_TYPES.AUDIO);
+      setValue('frontText', '', { shouldDirty: true });
+      // O verso é redefinido: no modo TTS ele passa a espelhar o texto da frente (sem campo
+      // próprio); nos demais modos volta a ser a resposta digitada manualmente.
+      setValue('backText', '', { shouldDirty: true });
+      // Reaproveita a plumbing de áudio/TTS (teste de áudio e materialização do TTS no envio).
+      setListeningModes((current) => ({ ...current, front: typingFrontModeToListeningMode(mode) }));
+    },
+    [clearErrors, media, setValue],
+  );
+
   const handleChangeText = useCallback(
     (side: MediaSide, value: string) => {
       setValue(side === MEDIA_SIDES.FRONT ? 'frontText' : 'backText', value, {
         shouldDirty: true,
       });
+
+      // Escuta em modo TTS: a frase falada (frente) também é a transcrição esperada (verso).
+      // Escrita em modo TTS: a resposta esperada (verso) é o próprio texto falado da frente.
+      // Em ambos `listeningModes.front` está sincronizado em TTS.
+      if (
+        side === MEDIA_SIDES.FRONT &&
+        listeningModes.front === LISTENING_INPUT_MODES.TTS &&
+        (selectedType === CARD_TYPES.LISTENING || selectedType === CARD_TYPES.TYPING)
+      ) {
+        setValue('backText', value, { shouldDirty: true });
+      }
+
+      // Pronúncia em modo TTS: o áudio modelo (verso) reutiliza o texto da frente.
+      if (
+        side === MEDIA_SIDES.FRONT &&
+        selectedType === CARD_TYPES.PRONUNCIATION &&
+        listeningModes.back === LISTENING_INPUT_MODES.TTS
+      ) {
+        setValue('backText', value, { shouldDirty: true });
+      }
     },
-    [setValue],
+    [listeningModes.back, listeningModes.front, selectedType, setValue],
   );
 
   const syncClozeFrontText = useCallback(
@@ -415,13 +478,25 @@ export function useNewCardForm() {
       setListeningModes((current) => ({ ...current, [side]: mode }));
       media.removeSideMedia(side, MEDIA_TYPES.AUDIO);
 
+      const isListeningFront = selectedType === CARD_TYPES.LISTENING && side === MEDIA_SIDES.FRONT;
+      // Pronúncia: o modo de áudio mora no verso e o texto falado vem da frente.
+      const isPronunciationBack =
+        selectedType === CARD_TYPES.PRONUNCIATION && side === MEDIA_SIDES.BACK;
+
       if (mode !== LISTENING_INPUT_MODES.TTS) {
         setValue(side === MEDIA_SIDES.FRONT ? 'frontText' : 'backText', '', {
           shouldDirty: true,
         });
+        // Escuta saindo do TTS: o revisor digitará a transcrição manualmente.
+        if (isListeningFront) {
+          setValue('backText', '', { shouldDirty: true });
+        }
+      } else if (isListeningFront || isPronunciationBack) {
+        // Entrando no TTS, o lado do áudio espelha o texto da frente (transcrição/frase falada).
+        setValue('backText', getValues('frontText'), { shouldDirty: true });
       }
     },
-    [media, setValue],
+    [getValues, media, selectedType, setValue],
   );
 
   const testListeningAudio = useCallback(
@@ -459,14 +534,21 @@ export function useNewCardForm() {
     async (values: CardFormValues): Promise<CreateCardMediaInput[]> => {
       let nextMedia = sanitizeMediaForType(values.type, media.media);
 
-      // Escuta, Pronúncia e Vocabulário (modo áudio) constroem o TTS da frente no envio,
-      // a partir do texto digitado e do idioma da frente.
+      // Escuta e Vocabulário (modo áudio) constroem o TTS da frente no envio, a partir do
+      // texto digitado e do idioma da frente.
       const usesFrontTts =
-        ((values.type === CARD_TYPES.LISTENING || values.type === CARD_TYPES.PRONUNCIATION) &&
+        (values.type === CARD_TYPES.LISTENING &&
           listeningModes.front === LISTENING_INPUT_MODES.TTS) ||
         (values.type === CARD_TYPES.VOCABULARY &&
           vocabularyFrontMode === VOCABULARY_FRONT_MODES.AUDIO &&
-          listeningModes.front === LISTENING_INPUT_MODES.TTS);
+          listeningModes.front === LISTENING_INPUT_MODES.TTS) ||
+        // Escrita em modo TTS: a frente lê o texto-fonte digitado, com o idioma da frente.
+        (values.type === CARD_TYPES.TYPING && typingFrontMode === TYPING_FRONT_MODES.TTS);
+
+      // Pronúncia em modo TTS: o áudio modelo (verso) lê o texto da frente, com idioma do verso.
+      const usesBackTts =
+        values.type === CARD_TYPES.PRONUNCIATION &&
+        listeningModes.back === LISTENING_INPUT_MODES.TTS;
 
       if (usesFrontTts && values.frontText.trim()) {
         const language = ttsLanguages.front;
@@ -483,9 +565,24 @@ export function useNewCardForm() {
         ];
       }
 
+      if (usesBackTts && values.frontText.trim()) {
+        const language = ttsLanguages.back;
+
+        if (!(await tts.isAvailable(language))) {
+          throw new Error('TTS_UNAVAILABLE');
+        }
+
+        nextMedia = [
+          ...nextMedia.filter(
+            (item) => !(item.side === MEDIA_SIDES.BACK && item.type === MEDIA_TYPES.TTS),
+          ),
+          { side: MEDIA_SIDES.BACK, type: MEDIA_TYPES.TTS, language },
+        ];
+      }
+
       return nextMedia;
     },
-    [listeningModes, media.media, tts, ttsLanguages, vocabularyFrontMode],
+    [listeningModes, media.media, tts, ttsLanguages, typingFrontMode, vocabularyFrontMode],
   );
 
   const onSubmit = handleSubmit(async (values) => {
@@ -511,18 +608,16 @@ export function useNewCardForm() {
           '')
         : values.backText;
 
-    const backIsContentless =
-      values.type === CARD_TYPES.LISTENING || values.type === CARD_TYPES.PRONUNCIATION;
-
     const input: CreateCardInput = {
       collectionId: values.collectionId,
       deckId: values.deckId,
       type: values.type,
       frontText: values.type === CARD_TYPES.CLOZE ? clozeFrontText : values.frontText,
-      backText:
-        values.type === CARD_TYPES.CLOZE ? clozeBackText : backIsContentless ? '' : values.backText,
+      // Pronúncia em modo TTS espelha o texto da frente no verso (frase falada); nos modos de
+      // áudio o verso fica sem texto (só mídia). A Escuta usa a transcrição no verso.
+      backText: values.type === CARD_TYPES.CLOZE ? clozeBackText : values.backText,
       notes: values.notes,
-      tags: splitTags(values.tags),
+      tags: values.tags,
       media: submitMedia,
     };
 
@@ -551,6 +646,22 @@ export function useNewCardForm() {
     clearErrors(['collectionId', 'deckId', 'type']);
     setStep('content');
   }, [clearErrors]);
+
+  const testReview = useCardTestReview({
+    type: selectedType,
+    frontText,
+    backText,
+    cloze: {
+      front: { before: clozeBefore, gap: clozeGap, after: clozeAfter },
+      back: { before: clozeBackBefore, gap: clozeBackGap, after: clozeBackAfter },
+    },
+    frontMedia,
+    backMedia,
+    onPlayAudio: recording.playAudio,
+    onSpeakTts: (side: MediaSide) => {
+      void speakTts(side);
+    },
+  });
 
   return {
     step,
@@ -589,16 +700,19 @@ export function useNewCardForm() {
     ttsLanguages,
     listeningModes,
     vocabularyFrontMode,
+    typingFrontMode,
     recordingSide: recording.recordingSide,
     recordingDurationMs: recording.recordingDurationMs,
     tags,
     notes,
     showOptionalFields,
+    testReview,
     handleBack,
     onCollectionChange: handleCollectionChange,
     onDeckChange: handleDeckChange,
     onTypeChange: handleTypeChange,
     onVocabularyFrontModeChange: handleVocabularyFrontModeChange,
+    onTypingFrontModeChange: handleTypingFrontModeChange,
     onNext,
     onSubmit,
     goToCreateCollection: () => router.replace(ROUTES.COLLECTION_NEW),
@@ -631,7 +745,7 @@ export function useNewCardForm() {
       void testListeningAudio(side);
     },
     onToggleOptional: () => setShowOptionalFields((current) => !current),
-    onChangeTags: (value: string) => setValue('tags', value, { shouldDirty: true }),
+    onChangeTags: (names: string[]) => setValue('tags', names, { shouldDirty: true }),
     onChangeNotes: (value: string) => setValue('notes', value, { shouldDirty: true }),
   };
 }

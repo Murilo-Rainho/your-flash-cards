@@ -2,9 +2,11 @@ import { Text, View } from 'react-native';
 
 import { PrimaryButton } from '@/components/common/PrimaryButton';
 import { ScreenHeader } from '@/components/common/ScreenHeader';
+import { SecondaryButton } from '@/components/common/SecondaryButton';
 import { StateCard } from '@/components/common/StateCard';
 import { FormScreen } from '@/components/forms/FormScreen';
 import { SelectField } from '@/components/forms/SelectField';
+import { FlashcardReview } from '@/components/review';
 
 import { CardTypeFields } from '../components/CardTypeFields';
 import { OptionalCardFields } from '../components/OptionalCardFields';
@@ -144,9 +146,11 @@ export function NewCardScreen() {
           ttsLanguages={form.ttsLanguages}
           listeningModes={form.listeningModes}
           vocabularyFrontMode={form.vocabularyFrontMode}
+          typingFrontMode={form.typingFrontMode}
           onChangeText={form.onChangeText}
           onListeningModeChange={form.onListeningModeChange}
           onVocabularyFrontModeChange={form.onVocabularyFrontModeChange}
+          onTypingFrontModeChange={form.onTypingFrontModeChange}
           onTestListeningAudio={form.onTestListeningAudio}
           onChangeCloze={form.onChangeCloze}
           onPickImage={form.onPickImage}
@@ -180,12 +184,28 @@ export function NewCardScreen() {
           <Text className="text-sm font-medium text-danger">{form.formError}</Text>
         ) : null}
 
+        <SecondaryButton
+          label="Testar"
+          accessibilityLabel="Testar card antes de salvar"
+          disabled={form.isSaving || form.isRecording}
+          onPress={form.testReview.open}
+        />
+
         <PrimaryButton
           label={saveLabel}
           accessibilityLabel="Salvar card"
           disabled={form.isSaveDisabled}
           onPress={form.onSubmit}
         />
+
+        {form.testReview.isOpen && form.testReview.viewModel ? (
+          <FlashcardReview
+            visible
+            card={form.testReview.viewModel}
+            onRate={form.testReview.handleRate}
+            onClose={form.testReview.close}
+          />
+        ) : null}
       </>
     );
   };

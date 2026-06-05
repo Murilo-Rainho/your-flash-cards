@@ -19,6 +19,14 @@ const frontAudio: CreateCardMediaInput = {
   mimeType: 'audio/mpeg',
 };
 
+const backAudio: CreateCardMediaInput = {
+  side: MEDIA_SIDES.BACK,
+  type: MEDIA_TYPES.AUDIO,
+  uri: 'file:///back.mp3',
+  mimeType: 'audio/mpeg',
+  fileName: 'back.mp3',
+};
+
 const backTts: CreateCardMediaInput = {
   side: MEDIA_SIDES.BACK,
   type: MEDIA_TYPES.TTS,
@@ -61,19 +69,20 @@ describe('sanitizeMediaForType', () => {
     expect(result).toEqual([frontAudio]);
   });
 
-  it('keeps only non-image front media for typing', () => {
+  it('keeps front media (image or audio) and drops back media for typing', () => {
     const result = sanitizeMediaForType(CARD_TYPES.TYPING, [frontImage, frontAudio, backTts]);
-    expect(result).toEqual([frontAudio]);
+    expect(result).toEqual([frontImage, frontAudio]);
   });
 
-  it('keeps only non-image front media (audio or TTS) for pronunciation', () => {
+  it('keeps only non-image back media (audio or TTS) for pronunciation', () => {
     const result = sanitizeMediaForType(CARD_TYPES.PRONUNCIATION, [
       frontImage,
       frontAudio,
       frontTts,
+      backAudio,
       backTts,
     ]);
-    expect(result).toEqual([frontAudio, frontTts]);
+    expect(result).toEqual([backAudio, backTts]);
   });
 
   it('keeps only front media for vocabulary', () => {

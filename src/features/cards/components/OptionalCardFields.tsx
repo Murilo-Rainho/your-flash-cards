@@ -1,17 +1,17 @@
 import { Pressable, Text, View } from 'react-native';
 
 import { TextAreaField } from '@/components/forms/TextAreaField';
-import { TextField } from '@/components/forms/TextField';
+import { TagPicker } from '@/features/tags/components/TagPicker';
 
 type OptionalCardFieldsProps = {
   expanded: boolean;
-  tags: string;
+  tags: string[];
   notes: string;
   disabled: boolean;
   tagsError?: string;
   notesError?: string;
   onToggle: () => void;
-  onChangeTags: (value: string) => void;
+  onChangeTags: (names: string[]) => void;
   onChangeNotes: (value: string) => void;
 };
 
@@ -44,14 +44,7 @@ export function OptionalCardFields({
 
       {expanded ? (
         <>
-          <TextField
-            label="Tags"
-            value={tags}
-            placeholder="travel, listening"
-            error={tagsError}
-            disabled={disabled}
-            onChangeText={onChangeTags}
-          />
+          <TagPicker value={tags} error={tagsError} disabled={disabled} onChange={onChangeTags} />
 
           <TextAreaField
             label="Observacoes"

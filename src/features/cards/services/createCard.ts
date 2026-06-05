@@ -1,4 +1,5 @@
 import { CARD_TYPES, type CardType } from '@/constants/cardTypes';
+import { LIMITS } from '@/constants/limits';
 import { extractExpectedClozeAnswer, parseClozeFront } from '@/domain/cloze/cloze';
 import type { CollectionRepository } from '@/domain/repositories/CollectionRepository';
 import type { DeckRepository } from '@/domain/repositories/DeckRepository';
@@ -10,12 +11,12 @@ import { VARIANT_TYPES } from '@/domain/entities/CardVariant';
 import type { CardVariant } from '@/domain/entities/CardVariant';
 import type { Tag } from '@/domain/entities/Tag';
 import { createLocalId } from '@/utils/ids';
+import { normalizeTagKey, normalizeTagName } from '@/utils/normalizeText';
 import type { FieldErrors } from '@/utils/validation';
 
 const MAX_TEXT_LENGTH = 2000;
 const MAX_NOTES_LENGTH = 1000;
-const MAX_TAGS = 20;
-const MAX_TAG_LENGTH = 32;
+const { MAX_TAGS, MAX_TAG_LENGTH } = LIMITS;
 const TTS_MIME_TYPE = 'application/x-tts';
 
 const audioLikeMediaTypes: ReadonlySet<MediaType> = new Set([
@@ -103,17 +104,6 @@ function trimText(value: string | undefined): string {
 
 function hasText(value: string): boolean {
   return value.length > 0;
-}
-
-function normalizeTagName(value: string): string {
-  return value.trim().replace(/\s+/g, ' ');
-}
-
-function normalizeTagKey(value: string): string {
-  return normalizeTagName(value)
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
 }
 
 function hasSideMedia(media: readonly CreateCardMediaInput[], side: MediaSide): boolean {
@@ -249,7 +239,7 @@ function sanitizeInput(
     return { fieldErrors };
   }
 
-  // Escuta e Pronúncia não usam o verso na criação (a comparação acontece na revisão).
+  // Escuta e Pronúncia validam os dois lados em blocos próprios (transcrição / áudio modelo).
   const backIsUsed = type !== CARD_TYPES.LISTENING && type !== CARD_TYPES.PRONUNCIATION;
   const hasFrontContent = hasText(frontText) || hasSideMedia(media, MEDIA_SIDES.FRONT);
   const hasBackContent = hasText(backText) || hasSideMedia(media, MEDIA_SIDES.BACK);
@@ -300,21 +290,22 @@ function sanitizeInput(
     }
 
     if (hasBackMedia(media)) {
-      fieldErrors.backMedia = 'Escuta nao usa o verso na criacao.';
+      fieldErrors.backMedia = 'O verso da escuta usa apenas texto.';
+    }
+
+    if (!hasText(backText)) {
+      fieldErrors.backText = 'Escreva a transcricao da frase no verso.';
     }
   }
 
   if (type === CARD_TYPES.TYPING) {
-    if (hasImageMedia(media) || hasBackMedia(media)) {
-      fieldErrors.frontMedia = 'Escrita aceita audio apenas na frente.';
+    // A frente é sempre uma mídia (áudio/gravação/TTS ou imagem); o verso é a resposta digitada.
+    if (hasBackMedia(media)) {
       fieldErrors.backMedia = 'Use texto no verso do card de escrita.';
     }
 
-    const hasTypingFrontContent =
-      hasText(frontText) || hasSideAudioLikeMedia(media, MEDIA_SIDES.FRONT);
-
-    if (!hasTypingFrontContent) {
-      fieldErrors.frontText = 'Informe texto ou audio para a frente.';
+    if (!hasSideMedia(media, MEDIA_SIDES.FRONT)) {
+      fieldErrors.frontMedia = 'Escolha o conteudo da frente (audio, TTS ou imagem).';
     }
 
     if (!hasText(backText)) {
@@ -324,15 +315,19 @@ function sanitizeInput(
 
   if (type === CARD_TYPES.PRONUNCIATION) {
     if (hasImageMedia(media)) {
-      fieldErrors.frontMedia = 'Pronuncia nao aceita imagem.';
+      fieldErrors.backMedia = 'Pronuncia nao aceita imagem.';
     }
 
-    if (!hasSideAudioLikeMedia(media, MEDIA_SIDES.FRONT)) {
-      fieldErrors.frontMedia = 'Adicione audio, gravacao ou TTS na frente.';
+    if (hasSideMedia(media, MEDIA_SIDES.FRONT)) {
+      fieldErrors.frontMedia = 'A frente da pronuncia usa apenas texto.';
     }
 
-    if (hasBackMedia(media)) {
-      fieldErrors.backMedia = 'Pronuncia nao usa o verso na criacao.';
+    if (!hasText(frontText)) {
+      fieldErrors.frontText = 'Informe o texto para pronunciar na frente.';
+    }
+
+    if (!hasSideAudioLikeMedia(media, MEDIA_SIDES.BACK)) {
+      fieldErrors.backMedia = 'Adicione audio, gravacao ou TTS no verso.';
     }
   }
 

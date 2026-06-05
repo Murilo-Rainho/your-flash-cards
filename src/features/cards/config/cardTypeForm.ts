@@ -18,7 +18,13 @@ export type CardSideConfig = {
 };
 
 /** Layout do formulário de conteúdo por tipo de card. */
-export type CardTypeLayout = 'cloze' | 'standard' | 'pronunciation' | 'listening' | 'vocabulary';
+export type CardTypeLayout =
+  | 'cloze'
+  | 'standard'
+  | 'pronunciation'
+  | 'listening'
+  | 'vocabulary'
+  | 'typing';
 
 export type CardTypeFormConfig = {
   type: CardType;
@@ -70,33 +76,43 @@ export const CARD_TYPE_FORM_CONFIGS: readonly CardTypeFormConfig[] = [
   {
     type: CARD_TYPES.LISTENING,
     label: 'Escuta',
-    description: 'Audio na frente e no verso',
+    description: 'Ouca o audio e escreva ou repita a frase',
     recommended: false,
     layout: 'listening',
-    front: { showText: false, textPlaceholder: 'Texto para ouvir na revisao', media: null },
-    back: { showText: false, textPlaceholder: 'Texto para ouvir na revisao', media: null },
+    front: { showText: false, textPlaceholder: 'Frase que sera falada (TTS)', media: null },
+    back: { showText: false, textPlaceholder: 'Escreva a frase do audio', media: null },
   },
   {
     type: CARD_TYPES.TYPING,
     label: 'Escrita',
-    description: 'Resposta digitada',
+    description: 'Audio ou imagem na frente, resposta digitada',
     recommended: false,
-    layout: 'standard',
-    front: { showText: true, textPlaceholder: 'Estou cansado agora.', media: AUDIO_AND_TTS_MEDIA },
-    back: { showText: true, textPlaceholder: "I'm tired now.", media: null },
+    layout: 'typing',
+    // A frente é sempre mídia (áudio/gravação/TTS/imagem); o texto da frente só existe como
+    // fonte do TTS. O verso é a resposta esperada (texto), comparada com o que for digitado.
+    front: { showText: false, textPlaceholder: 'Texto que sera falado (TTS)', media: null },
+    back: {
+      showText: true,
+      textPlaceholder: "Resposta esperada (ex.: I'm tired now)",
+      media: null,
+    },
   },
   {
     type: CARD_TYPES.PRONUNCIATION,
     label: 'Pronuncia',
-    description: 'Audio modelo para repetir',
+    description: 'Texto na frente, audio modelo no verso',
     recommended: false,
     layout: 'pronunciation',
     front: {
+      showText: true,
+      textPlaceholder: "Texto para pronunciar (ex.: I'm tired now)",
+      media: null,
+    },
+    back: {
       showText: false,
-      textPlaceholder: 'Texto para ouvir na revisao',
+      textPlaceholder: 'Texto que sera falado (TTS)',
       media: AUDIO_AND_TTS_MEDIA,
     },
-    back: { showText: false, textPlaceholder: '', media: null },
   },
 ];
 

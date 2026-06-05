@@ -6,6 +6,13 @@ export type ParsedClozeFront = {
 
 const CLOZE_GAP_PATTERN = /\{([^{}]*)\}/g;
 
+// Junta os trechos da frase com um único espaço, descartando partes vazias.
+// Assim o usuário não precisa controlar os espaços manualmente: "I'm" + "tired"
+// + "now" vira "I'm tired now" em vez de "I'm tirednow".
+function joinClozeParts(parts: string[]): string {
+  return parts.filter((part) => part.length > 0).join(' ');
+}
+
 export function composeClozeFront(before: string, gap: string, after: string): string | null {
   const trimmedGap = gap.trim();
 
@@ -13,7 +20,7 @@ export function composeClozeFront(before: string, gap: string, after: string): s
     return null;
   }
 
-  return `${before}{${trimmedGap}}${after}`;
+  return joinClozeParts([before.trim(), `{${trimmedGap}}`, after.trim()]);
 }
 
 export function composeClozeBack(before: string, gap: string, after: string): string | null {
@@ -23,7 +30,7 @@ export function composeClozeBack(before: string, gap: string, after: string): st
     return null;
   }
 
-  return `${before}${trimmedGap}${after}`;
+  return joinClozeParts([before.trim(), trimmedGap, after.trim()]);
 }
 
 export function parseClozeFront(front: string): ParsedClozeFront | null {
@@ -53,7 +60,9 @@ export function toClozeDisplayFront(front: string): string | null {
     return null;
   }
 
-  return `${parsed.before}____${parsed.after}`;
+  // Mantém a dica na língua base entre chaves (ex.: "{portanto}") para indicar
+  // qual trecho preencher, em vez de esconder tudo atrás de "____".
+  return `${parsed.before}{${parsed.gap}}${parsed.after}`;
 }
 
 export function extractExpectedClozeAnswer(front: string, back: string): string | null {

@@ -363,7 +363,7 @@ describe('createCard', () => {
     });
   });
 
-  it('rejects pronunciation cards without front audio', async () => {
+  it('rejects pronunciation cards without front text', async () => {
     await expect(
       createCard(
         {
@@ -372,27 +372,54 @@ describe('createCard', () => {
           type: CARD_TYPES.PRONUNCIATION,
           frontText: '',
           backText: '',
+          media: [
+            {
+              side: MEDIA_SIDES.BACK,
+              type: MEDIA_TYPES.RECORDING,
+              uri: 'file://cache/pronunciation.m4a',
+              mimeType: 'audio/m4a',
+            },
+          ],
         },
         createOptions(),
       ),
     ).rejects.toMatchObject({
       fieldErrors: {
-        frontMedia: 'Adicione audio, gravacao ou TTS na frente.',
+        frontText: 'Informe o texto para pronunciar na frente.',
       },
     });
   });
 
-  it('creates a pronunciation card with front audio and an empty back', async () => {
+  it('rejects pronunciation cards without back audio', async () => {
+    await expect(
+      createCard(
+        {
+          collectionId: 'collection-pt-en',
+          deckId: 'deck-travel',
+          type: CARD_TYPES.PRONUNCIATION,
+          frontText: "I'm tired now.",
+          backText: '',
+        },
+        createOptions(),
+      ),
+    ).rejects.toMatchObject({
+      fieldErrors: {
+        backMedia: 'Adicione audio, gravacao ou TTS no verso.',
+      },
+    });
+  });
+
+  it('creates a pronunciation card with front text and a back model recording', async () => {
     const aggregate = await createCard(
       {
         collectionId: 'collection-pt-en',
         deckId: 'deck-travel',
         type: CARD_TYPES.PRONUNCIATION,
-        frontText: '',
+        frontText: "I'm tired now.",
         backText: '',
         media: [
           {
-            side: MEDIA_SIDES.FRONT,
+            side: MEDIA_SIDES.BACK,
             type: MEDIA_TYPES.RECORDING,
             uri: 'file://cache/pronunciation.m4a',
             mimeType: 'audio/m4a',
@@ -404,24 +431,24 @@ describe('createCard', () => {
 
     expect(aggregate.card).toMatchObject({
       type: CARD_TYPES.PRONUNCIATION,
-      front: '',
+      front: "I'm tired now.",
       back: '',
     });
     expect(aggregate.media).toHaveLength(1);
     expect(aggregate.media[0]).toMatchObject({
-      side: MEDIA_SIDES.FRONT,
+      side: MEDIA_SIDES.BACK,
       type: MEDIA_TYPES.RECORDING,
     });
   });
 
-  it('creates a listening card with front audio only and an empty back', async () => {
+  it('creates a listening card with front audio and a mandatory back transcription', async () => {
     const aggregate = await createCard(
       {
         collectionId: 'collection-pt-en',
         deckId: 'deck-travel',
         type: CARD_TYPES.LISTENING,
         frontText: '',
-        backText: '',
+        backText: "I'm tired now.",
         media: [
           {
             side: MEDIA_SIDES.FRONT,
@@ -434,9 +461,35 @@ describe('createCard', () => {
       createOptions(),
     );
 
-    expect(aggregate.card).toMatchObject({ type: CARD_TYPES.LISTENING, back: '' });
+    expect(aggregate.card).toMatchObject({ type: CARD_TYPES.LISTENING, back: "I'm tired now." });
     expect(aggregate.media).toHaveLength(1);
     expect(aggregate.media[0]).toMatchObject({ side: MEDIA_SIDES.FRONT, type: MEDIA_TYPES.AUDIO });
+  });
+
+  it('rejects a listening card without a back transcription', async () => {
+    await expect(
+      createCard(
+        {
+          collectionId: 'collection-pt-en',
+          deckId: 'deck-travel',
+          type: CARD_TYPES.LISTENING,
+          backText: '',
+          media: [
+            {
+              side: MEDIA_SIDES.FRONT,
+              type: MEDIA_TYPES.AUDIO,
+              uri: 'file://cache/listen.mp3',
+              mimeType: 'audio/mpeg',
+            },
+          ],
+        },
+        createOptions(),
+      ),
+    ).rejects.toMatchObject({
+      fieldErrors: {
+        backText: 'Escreva a transcricao da frase no verso.',
+      },
+    });
   });
 
   it('rejects media on the back of a vocabulary card', async () => {

@@ -4,11 +4,13 @@ import type { CardType } from '@/constants/cardTypes';
 import { MEDIA_SIDES, MEDIA_TYPES, type MediaSide } from '@/domain/entities/Media';
 
 import { getCardTypeFormConfig } from '../config/cardTypeForm';
-import type { ListeningInputMode } from '../config/listeningInputMode';
+import { LISTENING_INPUT_MODES, type ListeningInputMode } from '../config/listeningInputMode';
+import { TYPING_FRONT_MODES, type TypingFrontMode } from '../config/typingFrontMode';
 import type { VocabularyFrontMode } from '../config/vocabularyFrontMode';
 import type { CreateCardMediaInput } from '../services/createCard';
 import { ListeningSideField } from './ListeningSideField';
 import { MediaControls } from './MediaControls';
+import { TypingFrontField } from './TypingFrontField';
 import { VocabularyFrontField } from './VocabularyFrontField';
 
 type CardTypeFieldsErrors = {
@@ -36,9 +38,11 @@ type CardTypeFieldsProps = {
   ttsLanguages: Record<MediaSide, string>;
   listeningModes: Record<MediaSide, ListeningInputMode>;
   vocabularyFrontMode: VocabularyFrontMode;
+  typingFrontMode: TypingFrontMode;
   onChangeText: (side: MediaSide, value: string) => void;
   onListeningModeChange: (side: MediaSide, mode: ListeningInputMode) => void;
   onVocabularyFrontModeChange: (mode: VocabularyFrontMode) => void;
+  onTypingFrontModeChange: (mode: TypingFrontMode) => void;
   onTestListeningAudio: (side: MediaSide) => void;
   onChangeCloze: (side: 'front' | 'back', part: 'before' | 'gap' | 'after', value: string) => void;
   onPickImage: (side: MediaSide, source: 'library' | 'camera') => void;
@@ -69,9 +73,11 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
     ttsLanguages,
     listeningModes,
     vocabularyFrontMode,
+    typingFrontMode,
     onChangeText,
     onListeningModeChange,
     onVocabularyFrontModeChange,
+    onTypingFrontModeChange,
     onTestListeningAudio,
     onChangeCloze,
     onPickImage,
@@ -205,28 +211,126 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
     );
   }
 
-  if (config.layout === 'listening' || config.layout === 'pronunciation') {
+  if (config.layout === 'typing') {
+    // Escrita (§11): a frente é uma mídia (áudio/gravação/TTS/imagem) escolhida no select; o
+    // verso é a resposta esperada (texto), comparada com o que o revisor digitar. No modo TTS
+    // a resposta já é o próprio texto falado, então o verso reutiliza o texto da frente (sem
+    // campo separado), como na Escuta.
+    const showBackText = typingFrontMode !== TYPING_FRONT_MODES.TTS;
+
     return (
-      <ListeningSideField
-        label="Frente"
-        mode={listeningModes.front}
-        text={frontText}
-        textPlaceholder={config.front.textPlaceholder}
-        media={frontMedia}
-        textError={errors.frontText}
-        mediaError={errors.frontMedia}
-        isSaving={isSaving}
-        isRecording={isRecording}
-        isRecordingThisSide={recordingSide === MEDIA_SIDES.FRONT}
-        recordingDurationMs={recordingDurationMs}
-        onModeChange={(mode) => onListeningModeChange(MEDIA_SIDES.FRONT, mode)}
-        onChangeText={(value) => onChangeText(MEDIA_SIDES.FRONT, value)}
-        onPickAudio={() => onPickAudio(MEDIA_SIDES.FRONT)}
-        onStartRecording={() => onStartRecording(MEDIA_SIDES.FRONT)}
-        onStopRecording={onStopRecording}
-        onRemoveMedia={() => onRemoveMedia(MEDIA_SIDES.FRONT, MEDIA_TYPES.AUDIO)}
-        onTestAudio={() => onTestListeningAudio(MEDIA_SIDES.FRONT)}
-      />
+      <>
+        <TypingFrontField
+          mode={typingFrontMode}
+          text={frontText}
+          textPlaceholder={config.front.textPlaceholder}
+          media={frontMedia}
+          textError={errors.frontText}
+          mediaError={errors.frontMedia}
+          isSaving={isSaving}
+          isRecording={isRecording}
+          isRecordingThisSide={recordingSide === MEDIA_SIDES.FRONT}
+          recordingDurationMs={recordingDurationMs}
+          onModeChange={onTypingFrontModeChange}
+          onChangeText={(value) => onChangeText(MEDIA_SIDES.FRONT, value)}
+          onPickImage={(source) => onPickImage(MEDIA_SIDES.FRONT, source)}
+          onPickAudio={() => onPickAudio(MEDIA_SIDES.FRONT)}
+          onStartRecording={() => onStartRecording(MEDIA_SIDES.FRONT)}
+          onStopRecording={onStopRecording}
+          onRemoveMedia={(mediaType) => onRemoveMedia(MEDIA_SIDES.FRONT, mediaType)}
+          onTestAudio={() => onTestListeningAudio(MEDIA_SIDES.FRONT)}
+        />
+        {showBackText ? (
+          <TextAreaField
+            label="Verso"
+            value={backText}
+            placeholder={config.back.textPlaceholder}
+            error={errors.backText}
+            disabled={isSaving}
+            onChangeText={(value) => onChangeText(MEDIA_SIDES.BACK, value)}
+          />
+        ) : null}
+      </>
+    );
+  }
+
+  if (config.layout === 'listening') {
+    // Escuta: a transcrição (verso) é obrigatória. No modo TTS ela já é a própria frase
+    // falada (espelhada na frente), então o campo separado só aparece nos modos de áudio.
+    const showTranscript = listeningModes.front !== LISTENING_INPUT_MODES.TTS;
+
+    return (
+      <>
+        <ListeningSideField
+          label="Frente"
+          mode={listeningModes.front}
+          text={frontText}
+          textPlaceholder={config.front.textPlaceholder}
+          media={frontMedia}
+          textError={errors.frontText}
+          mediaError={errors.frontMedia}
+          isSaving={isSaving}
+          isRecording={isRecording}
+          isRecordingThisSide={recordingSide === MEDIA_SIDES.FRONT}
+          recordingDurationMs={recordingDurationMs}
+          onModeChange={(mode) => onListeningModeChange(MEDIA_SIDES.FRONT, mode)}
+          onChangeText={(value) => onChangeText(MEDIA_SIDES.FRONT, value)}
+          onPickAudio={() => onPickAudio(MEDIA_SIDES.FRONT)}
+          onStartRecording={() => onStartRecording(MEDIA_SIDES.FRONT)}
+          onStopRecording={onStopRecording}
+          onRemoveMedia={() => onRemoveMedia(MEDIA_SIDES.FRONT, MEDIA_TYPES.AUDIO)}
+          onTestAudio={() => onTestListeningAudio(MEDIA_SIDES.FRONT)}
+        />
+        {showTranscript ? (
+          <TextAreaField
+            label="Verso"
+            value={backText}
+            placeholder={config.back.textPlaceholder}
+            error={errors.backText}
+            disabled={isSaving}
+            onChangeText={(value) => onChangeText(MEDIA_SIDES.BACK, value)}
+          />
+        ) : null}
+      </>
+    );
+  }
+
+  if (config.layout === 'pronunciation') {
+    // Pronúncia: inverso da Escuta. O texto a pronunciar fica na frente; o áudio modelo
+    // (arquivo, gravação ou TTS) fica no verso. No modo TTS, a fala reutiliza o texto da
+    // frente, sem campo de texto duplicado no verso.
+    return (
+      <>
+        <TextAreaField
+          label="Frente"
+          value={frontText}
+          placeholder={config.front.textPlaceholder}
+          error={errors.frontText}
+          disabled={isSaving}
+          onChangeText={(value) => onChangeText(MEDIA_SIDES.FRONT, value)}
+        />
+        <ListeningSideField
+          label="Verso"
+          mode={listeningModes.back}
+          text={frontText}
+          reuseTextForTts
+          textPlaceholder={config.back.textPlaceholder}
+          media={backMedia}
+          textError={errors.backText}
+          mediaError={errors.backMedia}
+          isSaving={isSaving}
+          isRecording={isRecording}
+          isRecordingThisSide={recordingSide === MEDIA_SIDES.BACK}
+          recordingDurationMs={recordingDurationMs}
+          onModeChange={(mode) => onListeningModeChange(MEDIA_SIDES.BACK, mode)}
+          onChangeText={(value) => onChangeText(MEDIA_SIDES.BACK, value)}
+          onPickAudio={() => onPickAudio(MEDIA_SIDES.BACK)}
+          onStartRecording={() => onStartRecording(MEDIA_SIDES.BACK)}
+          onStopRecording={onStopRecording}
+          onRemoveMedia={() => onRemoveMedia(MEDIA_SIDES.BACK, MEDIA_TYPES.AUDIO)}
+          onTestAudio={() => onTestListeningAudio(MEDIA_SIDES.BACK)}
+        />
+      </>
     );
   }
 

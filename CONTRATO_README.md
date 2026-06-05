@@ -299,12 +299,27 @@ Fluxo recomendado:
 
 ```txt
 Usuário cria o card
-Usuário escolhe se quer adicionar áudio
-Usuário escolhe se quer usar TTS local
-Usuário escolhe se quer gravar/enviar áudio próprio
+Usuário escolhe a fonte do áudio (gravar na hora, enviar arquivo ou TTS local)
+Usuário escreve a transcrição da frase (verso, obrigatória)
 ```
 
-O usuário pode escolher ter áudio na frente ou no verso.
+### Criação
+
+- O **áudio fica na frente** e pode vir de gravação na hora, arquivo enviado ou TTS local.
+- O **verso é a transcrição** da frase (texto), **obrigatório** — é o que o usuário escreve.
+- No modo **TTS**, a frase digitada já é a transcrição: o TTS lê o próprio texto do verso
+  (uma só digitação, sem campo duplicado).
+
+### Revisão
+
+- **Frente**: o áudio para ouvir + um campo para **escrever** o que ouviu **ou** um botão
+  para **gravar** a própria fala. O usuário usa o que preferir.
+- **Verso**: reouve o áudio do card, vê a transcrição e a própria tentativa:
+  - se **escreveu** → comparação local (normalizada, como na Escrita §11), com override manual;
+  - se **gravou** → **sem comparação automática**: apenas um botão para reouvir a própria
+    gravação e comparar manualmente com o card.
+
+Tudo é local (gravação, TTS e comparação) — permanece Free e offline-first (§4/§29).
 
 ---
 
@@ -312,11 +327,29 @@ O usuário pode escolher ter áudio na frente ou no verso.
 
 O card de digitação deve exigir que o usuário escreva a resposta.
 
+### Criação
+
+- A **frente é sempre uma mídia** (o enunciado) escolhida num seletor com as opções:
+  enviar arquivo de áudio, gravar áudio, **texto para TTS na revisão**, tirar foto com a
+  câmera ou escolher imagem da galeria. Não há campo de texto livre na frente — no modo
+  TTS o texto digitado é apenas a fonte falada na revisão.
+- O **verso é a resposta esperada** (texto), obrigatório — **exceto no modo TTS**: nele o
+  verso reutiliza automaticamente o próprio texto digitado na frente (sem campo separado),
+  como na Escuta. O exercício vira um ditado/transcrição do que foi falado.
+- O **idioma do TTS** vem automaticamente da coleção (como nos demais tipos), sem seletor
+  manual no formulário.
+
+### Revisão
+
+- **Frente**: o áudio/imagem do enunciado + um campo para o usuário **escrever** a resposta.
+- **Verso**: mostra a resposta esperada e o resultado da comparação local (normalizada),
+  com **override manual** (marcar como certo/errado).
+
 Exemplo:
 
 ```txt
-Frente:
-Estou cansado agora.
+Frente (enunciado):
+[áudio/TTS: "Estou cansado agora."]  (ou uma imagem)
 
 Input do usuário:
 I'm tired now.

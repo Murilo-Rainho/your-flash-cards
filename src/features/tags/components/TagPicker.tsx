@@ -1,0 +1,194 @@
+import { useMemo, useState } from 'react';
+import { Pressable, Text, TextInput, View } from 'react-native';
+
+import { FieldError } from '@/components/common/FieldError';
+import { SelectableChip } from '@/components/forms/SelectableChip';
+import { LIMITS } from '@/constants/limits';
+import type { Tag } from '@/domain/entities/Tag';
+import { colors } from '@/theme';
+import { normalizeTagKey, normalizeTagName } from '@/utils/normalizeText';
+
+import { isCreateTagInputError } from '../services/createTag';
+import { useCreateTag } from '../hooks/useCreateTag';
+import { useTags } from '../hooks/useTags';
+
+const { MAX_TAGS, MAX_TAG_LENGTH } = LIMITS;
+
+type TagPickerProps = {
+  /** Nomes das tags selecionadas (fonte da verdade no formulário). */
+  value: string[];
+  onChange: (names: string[]) => void;
+  disabled?: boolean;
+  error?: string;
+};
+
+type PickerChip = {
+  key: string;
+  name: string;
+  selected: boolean;
+};
+
+function createErrorMessage(error: unknown): string | undefined {
+  if (isCreateTagInputError(error)) {
+    return error.fieldErrors.name;
+  }
+
+  if (error instanceof Error) {
+    return 'Nao foi possivel criar a tag. Tente novamente.';
+  }
+
+  return undefined;
+}
+
+/**
+ * Seleciona tags existentes (chips) e cria novas tags inline.
+ *
+ * A criação persiste a tag imediatamente (offline, SQLite) e a lista é revalidada via
+ * React Query, então a nova tag aparece na hora — sem reload. A comparação é feita por
+ * `normalizedName` para evitar duplicatas como "verbs" vs "Verb" (§6/§30.7).
+ */
+export function TagPicker({ value, onChange, disabled = false, error }: TagPickerProps) {
+  const tagsQuery = useTags();
+  const createTagMutation = useCreateTag();
+  const [draft, setDraft] = useState('');
+
+  const tags = useMemo<Tag[]>(() => tagsQuery.data ?? [], [tagsQuery.data]);
+
+  const selectedKeys = useMemo(() => new Set(value.map(normalizeTagKey)), [value]);
+  const knownKeys = useMemo(() => new Set(tags.map((tag) => tag.normalizedName)), [tags]);
+
+  const chips = useMemo<PickerChip[]>(() => {
+    const fromRepository = tags.map<PickerChip>((tag) => ({
+      key: tag.normalizedName,
+      name: tag.name,
+      selected: selectedKeys.has(tag.normalizedName),
+    }));
+
+    // Defensivo: nomes selecionados que ainda não estão na lista do banco.
+    const extras = value
+      .filter((name) => !knownKeys.has(normalizeTagKey(name)))
+      .map<PickerChip>((name) => ({ key: normalizeTagKey(name), name, selected: true }));
+
+    return [...fromRepository, ...extras];
+  }, [tags, value, selectedKeys, knownKeys]);
+
+  const atMaxTags = value.length >= MAX_TAGS;
+
+  const toggle = (chip: PickerChip) => {
+    if (chip.selected) {
+      onChange(value.filter((name) => normalizeTagKey(name) !== chip.key));
+      return;
+    }
+
+    if (atMaxTags) {
+      return;
+    }
+
+    onChange([...value, chip.name]);
+  };
+
+  const draftName = normalizeTagName(draft);
+  const draftKey = normalizeTagKey(draftName);
+  const isDuplicate =
+    draftKey.length > 0 && (knownKeys.has(draftKey) || selectedKeys.has(draftKey));
+  const isTooLong = draftName.length > MAX_TAG_LENGTH;
+  const canCreate =
+    !disabled &&
+    !createTagMutation.isPending &&
+    !atMaxTags &&
+    draftName.length > 0 &&
+    !isTooLong &&
+    !isDuplicate;
+
+  const handleCreate = () => {
+    if (!canCreate) {
+      return;
+    }
+
+    createTagMutation.mutate(
+      { name: draftName },
+      {
+        onSuccess: (created) => {
+          setDraft('');
+
+          if (!normalizeTagKey(created.name) || selectedKeys.has(created.normalizedName)) {
+            return;
+          }
+
+          onChange([...value, created.name]);
+        },
+      },
+    );
+  };
+
+  const createHint = (() => {
+    if (isDuplicate) {
+      return 'Essa tag ja esta na lista.';
+    }
+
+    if (isTooLong) {
+      return `Use tags com no maximo ${MAX_TAG_LENGTH} caracteres.`;
+    }
+
+    if (atMaxTags) {
+      return `Limite de ${MAX_TAGS} tags por card atingido.`;
+    }
+
+    return createErrorMessage(createTagMutation.error);
+  })();
+
+  return (
+    <View className="gap-3">
+      <Text className="text-sm font-semibold text-textPrimary">Tags</Text>
+
+      {chips.length > 0 ? (
+        <View className="flex-row flex-wrap gap-2">
+          {chips.map((chip) => (
+            <SelectableChip
+              key={chip.key}
+              label={chip.name}
+              selected={chip.selected}
+              disabled={disabled || (!chip.selected && atMaxTags)}
+              accessibilityLabel={`Tag ${chip.name}`}
+              onPress={() => toggle(chip)}
+            />
+          ))}
+        </View>
+      ) : (
+        <Text className="text-sm text-textSecondary">
+          Nenhuma tag ainda. Crie a primeira abaixo.
+        </Text>
+      )}
+
+      <View className="flex-row items-center gap-2">
+        <TextInput
+          value={draft}
+          onChangeText={setDraft}
+          placeholder="Criar nova tag"
+          placeholderTextColor={colors.textSecondary}
+          editable={!disabled}
+          autoCapitalize="none"
+          returnKeyType="done"
+          onSubmitEditing={handleCreate}
+          className="flex-1 rounded-xl border border-border bg-surface px-4 py-3 text-base text-textPrimary"
+        />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Criar tag"
+          accessibilityState={{ disabled: !canCreate }}
+          disabled={!canCreate}
+          onPress={handleCreate}
+          className={`items-center justify-center rounded-xl border border-primary px-4 py-3 ${
+            canCreate ? 'bg-primary active:bg-surface' : 'bg-background opacity-50'
+          }`}
+        >
+          <Text className={`text-lg font-bold ${canCreate ? 'text-background' : 'text-primary'}`}>
+            +
+          </Text>
+        </Pressable>
+      </View>
+
+      <FieldError message={error ?? createHint} />
+    </View>
+  );
+}

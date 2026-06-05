@@ -13,6 +13,16 @@ describe('composeClozeFront', () => {
     expect(composeClozeFront("I'm ", 'cansado', ' now')).toBe("I'm {cansado} now");
   });
 
+  it('trims each part and joins with a single space', () => {
+    expect(composeClozeFront("I'm", 'cansado', 'now')).toBe("I'm {cansado} now");
+    expect(composeClozeFront('  I am  ', '  cansado  ', '  now  ')).toBe('I am {cansado} now');
+  });
+
+  it('omits empty before/after parts without leaving stray spaces', () => {
+    expect(composeClozeFront('', 'cansado', 'now')).toBe('{cansado} now');
+    expect(composeClozeFront('I am', 'cansado', '')).toBe('I am {cansado}');
+  });
+
   it('returns null when gap is empty or whitespace', () => {
     expect(composeClozeFront("I'm ", '', ' now')).toBeNull();
     expect(composeClozeFront("I'm ", '   ', ' now')).toBeNull();
@@ -22,6 +32,16 @@ describe('composeClozeFront', () => {
 describe('composeClozeBack', () => {
   it('composes before, gap, and after without braces', () => {
     expect(composeClozeBack("I'm ", 'tired', ' now')).toBe("I'm tired now");
+  });
+
+  it('trims each part and joins with a single space', () => {
+    expect(composeClozeBack("I'm", 'tired', 'now')).toBe("I'm tired now");
+    expect(composeClozeBack('  I am  ', '  tired  ', '  now  ')).toBe('I am tired now');
+  });
+
+  it('omits empty before/after parts without leaving stray spaces', () => {
+    expect(composeClozeBack('', 'tired', 'now')).toBe('tired now');
+    expect(composeClozeBack('I am', 'tired', '')).toBe('I am tired');
   });
 
   it('returns null when gap is empty or whitespace', () => {
@@ -53,8 +73,8 @@ describe('parseClozeFront', () => {
 });
 
 describe('toClozeDisplayFront', () => {
-  it('replaces the gap with underscores for review display', () => {
-    expect(toClozeDisplayFront("I'm {cansado} now")).toBe("I'm ____ now");
+  it('keeps the base-language hint in braces for review display', () => {
+    expect(toClozeDisplayFront("I'm {cansado} now")).toBe("I'm {cansado} now");
   });
 
   it('returns null for invalid fronts', () => {
@@ -98,13 +118,16 @@ describe('isClozeAnswerCorrect', () => {
 });
 
 describe('compose and parse round-trip', () => {
-  it('preserves before, gap, and after', () => {
-    const composed = composeClozeFront('Hello ', 'world', '!');
-    expect(composed).not.toBeNull();
-    expect(parseClozeFront(composed!)).toEqual({
-      before: 'Hello ',
-      gap: 'world',
-      after: '!',
+  it('keeps front and back aligned so the expected answer can be extracted', () => {
+    const composedFront = composeClozeFront('I am', 'cansado', 'now');
+    const composedBack = composeClozeBack('I am', 'tired', 'now');
+    expect(composedFront).toBe('I am {cansado} now');
+    expect(composedBack).toBe('I am tired now');
+    expect(parseClozeFront(composedFront!)).toEqual({
+      before: 'I am ',
+      gap: 'cansado',
+      after: ' now',
     });
+    expect(extractExpectedClozeAnswer(composedFront!, composedBack!)).toBe('tired');
   });
 });

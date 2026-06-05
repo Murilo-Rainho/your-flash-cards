@@ -67,6 +67,7 @@ function ClozeSideField({
           placeholder={placeholders.gap}
           placeholderTextColor={colors.textSecondary}
           editable={!disabled}
+          autoCapitalize="none"
           className={clozeInputClassName}
         />
         <Text className="text-base font-semibold text-textPrimary">{'}'}</Text>
@@ -76,6 +77,7 @@ function ClozeSideField({
           placeholder={placeholders.after}
           placeholderTextColor={colors.textSecondary}
           editable={!disabled}
+          autoCapitalize="none"
           className={clozeInputClassName}
         />
       </ClozeInputShell>
