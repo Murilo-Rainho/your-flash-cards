@@ -1,7 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 
-import { shadows } from '@/theme';
 import type { CollectionSummary } from '@/features/home/types';
+import { useTheme } from '@/theme/useTheme';
 
 type CollectionSummaryCardProps = {
   summary: CollectionSummary;
@@ -10,6 +10,7 @@ type CollectionSummaryCardProps = {
 
 /** Resumo de uma coleção: nome, par de idiomas e progresso. */
 export function CollectionSummaryCard({ summary, onPress }: CollectionSummaryCardProps) {
+  const { colors, shadows } = useTheme();
   const { collection, totalCards, dueCards, masteredPercentage } = summary;
   const languagePair = `${collection.baseLanguage.toUpperCase()} → ${collection.targetLanguage.toUpperCase()}`;
 
@@ -18,16 +19,26 @@ export function CollectionSummaryCard({ summary, onPress }: CollectionSummaryCar
       accessibilityRole="button"
       accessibilityLabel={`Coleção ${collection.name}, ${dueCards} cards vencidos`}
       onPress={onPress}
-      style={shadows.sm}
-      className="rounded-2xl border border-border bg-background p-4 active:opacity-90"
+      style={{
+        borderColor: colors.border,
+        backgroundColor: colors.background,
+        ...shadows.sm,
+      }}
+      className="rounded-2xl border p-4 active:opacity-90"
     >
       <View className="flex-row items-center justify-between">
-        <Text className="flex-1 text-lg font-semibold text-textPrimary" numberOfLines={1}>
+        <Text
+          style={{ color: colors.textPrimary }}
+          className="flex-1 text-lg font-semibold"
+          numberOfLines={1}
+        >
           {collection.name}
         </Text>
-        <Text className="ml-2 text-xs font-medium text-textSecondary">{languagePair}</Text>
+        <Text style={{ color: colors.textSecondary }} className="ml-2 text-xs font-medium">
+          {languagePair}
+        </Text>
       </View>
-      <Text className="mt-2 text-sm text-textSecondary">
+      <Text style={{ color: colors.textSecondary }} className="mt-2 text-sm">
         {totalCards} cards • {dueCards} vencidos • {masteredPercentage}% dominados
       </Text>
     </Pressable>

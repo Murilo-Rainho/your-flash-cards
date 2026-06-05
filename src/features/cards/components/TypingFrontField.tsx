@@ -4,6 +4,7 @@ import { FieldError } from '@/components/common/FieldError';
 import { SelectField } from '@/components/forms/SelectField';
 import { TextAreaField } from '@/components/forms/TextAreaField';
 import { MEDIA_TYPES } from '@/domain/entities/Media';
+import { useTheme } from '@/theme/useTheme';
 import { formatRecordingDuration } from '@/utils/format';
 
 import {
@@ -61,6 +62,7 @@ export function TypingFrontField({
   onRemoveMedia,
   onTestAudio,
 }: TypingFrontFieldProps) {
+  const { colors } = useTheme();
   const audioMedia = media.find((item) => item.type !== MEDIA_TYPES.IMAGE);
   const imageMedia = media.find((item) => item.type === MEDIA_TYPES.IMAGE);
   const sideError = mediaError ?? textError;
@@ -102,7 +104,7 @@ export function TypingFrontField({
             disabled={isSaving}
             onChangeText={onChangeText}
           />
-          <Text className="text-xs text-textSecondary">
+          <Text style={{ color: colors.textSecondary }} className="text-xs">
             A resposta esperada sera este mesmo texto (o verso reutiliza o que voce escrever aqui).
           </Text>
         </View>
@@ -111,8 +113,11 @@ export function TypingFrontField({
       {mode === TYPING_FRONT_MODES.AUDIO_FILE ? (
         <View className="gap-2">
           {audioMedia?.type === MEDIA_TYPES.AUDIO ? (
-            <View className="gap-2 rounded-xl border border-border bg-surface p-3">
-              <Text className="text-sm text-textSecondary" numberOfLines={1}>
+            <View
+              style={{ borderColor: colors.border, backgroundColor: colors.surface }}
+              className="gap-2 rounded-xl border p-3"
+            >
+              <Text style={{ color: colors.textSecondary }} className="text-sm" numberOfLines={1}>
                 {getMediaLabel(audioMedia)}
               </Text>
               <Pressable
@@ -120,9 +125,12 @@ export function TypingFrontField({
                 accessibilityLabel="Remover arquivo de audio da frente"
                 disabled={isSaving}
                 onPress={() => onRemoveMedia(MEDIA_TYPES.AUDIO)}
-                className="items-center rounded-xl border border-border bg-background px-4 py-3 active:bg-surface"
+                style={{ borderColor: colors.border, backgroundColor: colors.background }}
+                className="items-center rounded-xl border px-4 py-3 active:opacity-90"
               >
-                <Text className="text-sm font-semibold text-textPrimary">Remover arquivo</Text>
+                <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+                  Remover arquivo
+                </Text>
               </Pressable>
             </View>
           ) : (
@@ -131,9 +139,10 @@ export function TypingFrontField({
               accessibilityLabel="Enviar arquivo de audio da frente"
               disabled={isSaving || isRecording}
               onPress={onPickAudio}
-              className="items-center rounded-xl border border-border bg-background px-4 py-3 active:bg-surface"
+              style={{ borderColor: colors.border, backgroundColor: colors.background }}
+              className="items-center rounded-xl border px-4 py-3 active:opacity-90"
             >
-              <Text className="text-sm font-semibold text-textPrimary">
+              <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
                 Enviar arquivo de audio
               </Text>
             </Pressable>
@@ -144,16 +153,24 @@ export function TypingFrontField({
       {mode === TYPING_FRONT_MODES.RECORDING ? (
         <View className="gap-2">
           {audioMedia?.type === MEDIA_TYPES.RECORDING ? (
-            <View className="gap-2 rounded-xl border border-border bg-surface p-3">
-              <Text className="text-sm text-textSecondary">Gravacao pronta</Text>
+            <View
+              style={{ borderColor: colors.border, backgroundColor: colors.surface }}
+              className="gap-2 rounded-xl border p-3"
+            >
+              <Text style={{ color: colors.textSecondary }} className="text-sm">
+                Gravacao pronta
+              </Text>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Remover gravacao da frente"
                 disabled={isSaving}
                 onPress={() => onRemoveMedia(MEDIA_TYPES.RECORDING)}
-                className="items-center rounded-xl border border-border bg-background px-4 py-3 active:bg-surface"
+                style={{ borderColor: colors.border, backgroundColor: colors.background }}
+                className="items-center rounded-xl border px-4 py-3 active:opacity-90"
               >
-                <Text className="text-sm font-semibold text-textPrimary">Remover gravacao</Text>
+                <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+                  Remover gravacao
+                </Text>
               </Pressable>
             </View>
           ) : (
@@ -164,9 +181,10 @@ export function TypingFrontField({
               }
               disabled={isSaving || (isRecording && !isRecordingThisSide)}
               onPress={isRecordingThisSide ? onStopRecording : onStartRecording}
-              className="items-center rounded-xl border border-border bg-background px-4 py-3 active:bg-surface"
+              style={{ borderColor: colors.border, backgroundColor: colors.background }}
+              className="items-center rounded-xl border px-4 py-3 active:opacity-90"
             >
-              <Text className="text-sm font-semibold text-textPrimary">
+              <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
                 {isRecordingThisSide
                   ? `Parar ${formatRecordingDuration(recordingDurationMs)}`
                   : 'Gravar audio'}
@@ -182,7 +200,8 @@ export function TypingFrontField({
             <View className="gap-2">
               <Image
                 source={{ uri: imageMedia.uri }}
-                className="h-36 w-full rounded-xl bg-surface"
+                style={{ backgroundColor: colors.surface }}
+                className="h-36 w-full rounded-xl"
                 resizeMode="cover"
               />
               <Pressable
@@ -190,9 +209,12 @@ export function TypingFrontField({
                 accessibilityLabel="Remover imagem da frente"
                 disabled={isSaving}
                 onPress={() => onRemoveMedia(MEDIA_TYPES.IMAGE)}
-                className="items-center rounded-xl border border-border bg-background px-4 py-3 active:bg-surface"
+                style={{ borderColor: colors.border, backgroundColor: colors.background }}
+                className="items-center rounded-xl border px-4 py-3 active:opacity-90"
               >
-                <Text className="text-sm font-semibold text-textPrimary">Remover imagem</Text>
+                <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+                  Remover imagem
+                </Text>
               </Pressable>
             </View>
           ) : (
@@ -207,9 +229,10 @@ export function TypingFrontField({
               onPress={() =>
                 onPickImage(mode === TYPING_FRONT_MODES.IMAGE_CAMERA ? 'camera' : 'library')
               }
-              className="items-center rounded-xl border border-border bg-background px-4 py-3 active:bg-surface"
+              style={{ borderColor: colors.border, backgroundColor: colors.background }}
+              className="items-center rounded-xl border px-4 py-3 active:opacity-90"
             >
-              <Text className="text-sm font-semibold text-textPrimary">
+              <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
                 {mode === TYPING_FRONT_MODES.IMAGE_CAMERA ? 'Tirar foto' : 'Escolher da galeria'}
               </Text>
             </Pressable>
@@ -223,11 +246,16 @@ export function TypingFrontField({
           accessibilityLabel="Testar audio da frente"
           disabled={isSaving || !canTestAudio}
           onPress={onTestAudio}
-          className={`items-center rounded-xl border border-border bg-surface px-4 py-3 active:bg-background ${
-            !canTestAudio ? 'opacity-50' : ''
-          }`}
+          style={{
+            borderColor: colors.border,
+            backgroundColor: colors.surface,
+            opacity: !canTestAudio ? 0.5 : 1,
+          }}
+          className="items-center rounded-xl border px-4 py-3 active:opacity-90"
         >
-          <Text className="text-base font-semibold text-textPrimary">Testar audio</Text>
+          <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
+            Testar audio
+          </Text>
         </Pressable>
       ) : null}
 

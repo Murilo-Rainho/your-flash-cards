@@ -1,5 +1,7 @@
 import { Pressable, Text } from 'react-native';
 
+import { useTheme } from '@/theme/useTheme';
+
 type SelectableCardProps = {
   title: string;
   subtitle?: string;
@@ -18,6 +20,8 @@ export function SelectableCard({
   accessibilityLabel,
   disabled = false,
 }: SelectableCardProps) {
+  const { colors } = useTheme();
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -25,12 +29,20 @@ export function SelectableCard({
       accessibilityState={{ selected }}
       disabled={disabled}
       onPress={onPress}
-      className={`rounded-xl border p-3 ${
-        selected ? 'border-primary bg-surface' : 'border-border bg-background'
-      }`}
+      style={{
+        borderColor: selected ? colors.primary : colors.border,
+        backgroundColor: selected ? colors.surface : colors.background,
+      }}
+      className="rounded-xl border p-3"
     >
-      <Text className="text-base font-semibold text-textPrimary">{title}</Text>
-      {subtitle ? <Text className="mt-1 text-sm text-textSecondary">{subtitle}</Text> : null}
+      <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
+        {title}
+      </Text>
+      {subtitle ? (
+        <Text style={{ color: colors.textSecondary }} className="mt-1 text-sm">
+          {subtitle}
+        </Text>
+      ) : null}
     </Pressable>
   );
 }

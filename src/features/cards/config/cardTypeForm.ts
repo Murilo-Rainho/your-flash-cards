@@ -1,4 +1,5 @@
 import { CARD_TYPES, type CardType } from '@/constants/cardTypes';
+import type { StringCatalog } from '@/strings/types';
 
 /**
  * Capacidades de mídia de um lado do card (frente/verso) na UI de criação.
@@ -54,68 +55,94 @@ const AUDIO_AND_TTS_MEDIA: SideMediaCapabilities = {
  * Fonte única de metadados/capacidades por tipo de card, consumida tanto pela lista de
  * seleção (etapa 1) quanto pelo render do conteúdo (etapa 2).
  */
-export const CARD_TYPE_FORM_CONFIGS: readonly CardTypeFormConfig[] = [
-  {
-    type: CARD_TYPES.CLOZE,
-    label: 'Preencher lacuna',
-    description: 'Frase com lacuna manual',
-    recommended: true,
-    layout: 'cloze',
-    front: { showText: false, textPlaceholder: '', media: null },
-    back: { showText: true, textPlaceholder: "I'm tired now", media: null },
-  },
-  {
-    type: CARD_TYPES.VOCABULARY,
-    label: 'Vocabulario',
-    description: 'Texto, imagem ou audio na frente',
-    recommended: false,
-    layout: 'vocabulary',
-    front: { showText: true, textPlaceholder: 'apple', media: ALL_MEDIA },
-    back: { showText: true, textPlaceholder: 'maca', media: null },
-  },
-  {
-    type: CARD_TYPES.LISTENING,
-    label: 'Escuta',
-    description: 'Ouca o audio e escreva ou repita a frase',
-    recommended: false,
-    layout: 'listening',
-    front: { showText: false, textPlaceholder: 'Frase que sera falada (TTS)', media: null },
-    back: { showText: false, textPlaceholder: 'Escreva a frase do audio', media: null },
-  },
-  {
-    type: CARD_TYPES.TYPING,
-    label: 'Escrita',
-    description: 'Audio ou imagem na frente, resposta digitada',
-    recommended: false,
-    layout: 'typing',
-    // A frente é sempre mídia (áudio/gravação/TTS/imagem); o texto da frente só existe como
-    // fonte do TTS. O verso é a resposta esperada (texto), comparada com o que for digitado.
-    front: { showText: false, textPlaceholder: 'Texto que sera falado (TTS)', media: null },
-    back: {
-      showText: true,
-      textPlaceholder: "Resposta esperada (ex.: I'm tired now)",
-      media: null,
+export function buildCardTypeFormConfigs(
+  cardStrings: StringCatalog['cards']['cardTypes'],
+): readonly CardTypeFormConfig[] {
+  return [
+    {
+      type: CARD_TYPES.CLOZE,
+      label: cardStrings.cloze.label,
+      description: cardStrings.cloze.description,
+      recommended: true,
+      layout: 'cloze',
+      front: { showText: false, textPlaceholder: '', media: null },
+      back: { showText: true, textPlaceholder: cardStrings.cloze.backPlaceholder, media: null },
     },
-  },
-  {
-    type: CARD_TYPES.PRONUNCIATION,
-    label: 'Pronuncia',
-    description: 'Texto na frente, audio modelo no verso',
-    recommended: false,
-    layout: 'pronunciation',
-    front: {
-      showText: true,
-      textPlaceholder: "Texto para pronunciar (ex.: I'm tired now)",
-      media: null,
+    {
+      type: CARD_TYPES.VOCABULARY,
+      label: cardStrings.vocabulary.label,
+      description: cardStrings.vocabulary.description,
+      recommended: false,
+      layout: 'vocabulary',
+      front: {
+        showText: true,
+        textPlaceholder: cardStrings.vocabulary.frontPlaceholder,
+        media: ALL_MEDIA,
+      },
+      back: {
+        showText: true,
+        textPlaceholder: cardStrings.vocabulary.backPlaceholder,
+        media: null,
+      },
     },
-    back: {
-      showText: false,
-      textPlaceholder: 'Texto que sera falado (TTS)',
-      media: AUDIO_AND_TTS_MEDIA,
+    {
+      type: CARD_TYPES.LISTENING,
+      label: cardStrings.listening.label,
+      description: cardStrings.listening.description,
+      recommended: false,
+      layout: 'listening',
+      front: {
+        showText: false,
+        textPlaceholder: cardStrings.listening.frontPlaceholder,
+        media: null,
+      },
+      back: {
+        showText: false,
+        textPlaceholder: cardStrings.listening.backPlaceholder,
+        media: null,
+      },
     },
-  },
-];
+    {
+      type: CARD_TYPES.TYPING,
+      label: cardStrings.typing.label,
+      description: cardStrings.typing.description,
+      recommended: false,
+      layout: 'typing',
+      front: {
+        showText: false,
+        textPlaceholder: cardStrings.typing.frontPlaceholder,
+        media: null,
+      },
+      back: {
+        showText: true,
+        textPlaceholder: cardStrings.typing.backPlaceholder,
+        media: null,
+      },
+    },
+    {
+      type: CARD_TYPES.PRONUNCIATION,
+      label: cardStrings.pronunciation.label,
+      description: cardStrings.pronunciation.description,
+      recommended: false,
+      layout: 'pronunciation',
+      front: {
+        showText: true,
+        textPlaceholder: cardStrings.pronunciation.frontPlaceholder,
+        media: null,
+      },
+      back: {
+        showText: false,
+        textPlaceholder: cardStrings.pronunciation.backPlaceholder,
+        media: AUDIO_AND_TTS_MEDIA,
+      },
+    },
+  ];
+}
 
-export function getCardTypeFormConfig(type: CardType): CardTypeFormConfig {
-  return CARD_TYPE_FORM_CONFIGS.find((config) => config.type === type) ?? CARD_TYPE_FORM_CONFIGS[0];
+export function getCardTypeFormConfig(
+  type: CardType,
+  cardStrings: StringCatalog['cards']['cardTypes'],
+): CardTypeFormConfig {
+  const configs = buildCardTypeFormConfigs(cardStrings);
+  return configs.find((config) => config.type === type) ?? configs[0];
 }

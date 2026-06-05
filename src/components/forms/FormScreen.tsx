@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { colors } from '@/theme';
+import { useTheme } from '@/theme/useTheme';
 
 type FormScreenProps = {
   children: ReactNode;
@@ -16,6 +16,8 @@ export function FormScreen({
   children,
   contentClassName = 'gap-6 px-4 pb-10 pt-2',
 }: FormScreenProps) {
+  const { colors } = useTheme();
+
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.background }}>
       <KeyboardAvoidingView

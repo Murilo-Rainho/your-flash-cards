@@ -1,5 +1,7 @@
 import { Pressable, Text } from 'react-native';
 
+import { useTheme } from '@/theme/useTheme';
+
 type PrimaryButtonProps = {
   label: string;
   onPress: () => void;
@@ -14,6 +16,8 @@ export function PrimaryButton({
   accessibilityLabel,
   disabled = false,
 }: PrimaryButtonProps) {
+  const { colors } = useTheme();
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -21,11 +25,12 @@ export function PrimaryButton({
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
-      className={`items-center rounded-xl bg-primary px-4 py-4 active:opacity-90 ${
-        disabled ? 'opacity-50' : ''
-      }`}
+      style={{ backgroundColor: colors.primary, opacity: disabled ? 0.5 : 1 }}
+      className="items-center rounded-xl px-4 py-4 active:opacity-90"
     >
-      <Text className="text-base font-bold text-background">{label}</Text>
+      <Text style={{ color: colors.background }} className="text-base font-bold">
+        {label}
+      </Text>
     </Pressable>
   );
 }

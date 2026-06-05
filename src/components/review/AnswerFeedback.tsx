@@ -1,5 +1,8 @@
 import { Pressable, Text, View } from 'react-native';
 
+import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+import { useTheme } from '@/theme/useTheme';
+
 type AnswerFeedbackProps = {
   /** Resultado efetivo (já considerando override manual, quando houver). */
   correct: boolean;
@@ -18,23 +21,37 @@ export function AnswerFeedback({
   expected,
   onToggleOverride,
 }: AnswerFeedbackProps) {
+  const { colors } = useTheme();
+  const strings = useStrings();
   const trimmedTyped = typed.trim();
 
   return (
-    <View className="gap-2 rounded-xl border border-border bg-surface p-4">
-      <Text className={`text-base font-bold ${correct ? 'text-success' : 'text-danger'}`}>
-        {correct ? 'Você acertou' : 'Não foi dessa vez'}
+    <View
+      style={{ borderColor: colors.border, backgroundColor: colors.surface }}
+      className="gap-2 rounded-xl border p-4"
+    >
+      <Text
+        style={{ color: correct ? colors.success : colors.danger }}
+        className="text-base font-bold"
+      >
+        {correct ? strings.review.correct : strings.review.incorrect}
       </Text>
 
       {!correct && trimmedTyped ? (
-        <Text className="text-sm text-textSecondary">
-          Você escreveu: <Text className="font-semibold text-textPrimary">{trimmedTyped}</Text>
+        <Text style={{ color: colors.textSecondary }} className="text-sm">
+          Você escreveu:{' '}
+          <Text style={{ color: colors.textPrimary }} className="font-semibold">
+            {trimmedTyped}
+          </Text>
         </Text>
       ) : null}
 
       {expected ? (
-        <Text className="text-sm text-textSecondary">
-          Resposta esperada: <Text className="font-semibold text-textPrimary">{expected}</Text>
+        <Text style={{ color: colors.textSecondary }} className="text-sm">
+          {strings.review.expectedAnswer}{' '}
+          <Text style={{ color: colors.textPrimary }} className="font-semibold">
+            {expected}
+          </Text>
         </Text>
       ) : null}
 
@@ -45,8 +62,8 @@ export function AnswerFeedback({
           onPress={onToggleOverride}
           className="self-start active:opacity-70"
         >
-          <Text className="text-sm font-medium text-primary">
-            {correct ? 'Na verdade, errei' : 'Na verdade, acertei'}
+          <Text style={{ color: colors.primary }} className="text-sm font-medium">
+            {strings.review.actuallyWrong}
           </Text>
         </Pressable>
       ) : null}

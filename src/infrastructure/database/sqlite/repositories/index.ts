@@ -1,3 +1,4 @@
+import type { AppSettingsRepository } from '@/domain/repositories/AppSettingsRepository';
 import type { CardRepository } from '@/domain/repositories/CardRepository';
 import type { CollectionRepository } from '@/domain/repositories/CollectionRepository';
 import type { DeckRepository } from '@/domain/repositories/DeckRepository';
@@ -5,6 +6,7 @@ import type { HomeReadRepository } from '@/domain/repositories/HomeReadRepositor
 import type { TagRepository } from '@/domain/repositories/TagRepository';
 import { getAppDatabase } from '@/infrastructure/database/sqlite/database';
 
+import { SQLiteAppSettingsRepository } from './SQLiteAppSettingsRepository';
 import { SQLiteCardRepository } from './SQLiteCardRepository';
 import { SQLiteCollectionRepository } from './SQLiteCollectionRepository';
 import { SQLiteDeckRepository } from './SQLiteDeckRepository';
@@ -16,6 +18,7 @@ let collectionRepository: CollectionRepository | null = null;
 let deckRepository: DeckRepository | null = null;
 let cardRepository: CardRepository | null = null;
 let tagRepository: TagRepository | null = null;
+let appSettingsRepository: AppSettingsRepository | null = null;
 
 export function getSQLiteHomeReadRepository(): HomeReadRepository {
   if (!homeReadRepository) {
@@ -55,4 +58,12 @@ export function getSQLiteTagRepository(): TagRepository {
   }
 
   return tagRepository;
+}
+
+export function getSQLiteAppSettingsRepository(): AppSettingsRepository {
+  if (!appSettingsRepository) {
+    appSettingsRepository = new SQLiteAppSettingsRepository(getAppDatabase);
+  }
+
+  return appSettingsRepository;
 }

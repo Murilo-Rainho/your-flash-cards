@@ -1,0 +1,15 @@
+export const common = {
+  save: 'Salvar',
+  saving: 'Salvando...',
+  cancel: 'Cancelar',
+  next: 'Próximo',
+  back: 'Voltar',
+  loading: 'Carregando...',
+  retry: 'Tentar novamente',
+  retryHint: 'Toque para tentar novamente.',
+  settings: 'Configurações',
+  front: 'Frente',
+  backSide: 'Verso',
+  recommended: 'Recomendado',
+  none: 'Nenhum',
+} as const;

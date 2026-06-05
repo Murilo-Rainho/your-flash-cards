@@ -9,14 +9,16 @@ import { FormScreen } from '@/components/forms/FormScreen';
 import { TextAreaField } from '@/components/forms/TextAreaField';
 import { TextField } from '@/components/forms/TextField';
 import { ROUTES } from '@/constants/routes';
-import { useGoBack } from '@/hooks/useGoBack';
-import { applyFieldErrors } from '@/utils/forms';
 import { LanguagePicker } from '@/features/collections/components/LanguagePicker';
 import { useCreateCollection } from '@/features/collections/hooks/useCreateCollection';
 import {
   isCreateCollectionInputError,
   type CreateCollectionInput,
 } from '@/features/collections/services/createCollection';
+import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+import { useTheme } from '@/theme/useTheme';
+import { useGoBack } from '@/hooks/useGoBack';
+import { applyFieldErrors } from '@/utils/forms';
 
 const defaultValues: CreateCollectionInput = {
   name: '',
@@ -28,6 +30,8 @@ const defaultValues: CreateCollectionInput = {
 export function NewCollectionScreen() {
   const router = useRouter();
   const goBack = useGoBack();
+  const strings = useStrings();
+  const { colors } = useTheme();
   const createCollectionMutation = useCreateCollection();
   const [formError, setFormError] = useState<string | null>(null);
   const {
@@ -54,22 +58,22 @@ export function NewCollectionScreen() {
         return;
       }
 
-      setFormError('Não foi possível criar a coleção local.');
+      setFormError(strings.collections.createError);
     }
   });
 
   return (
     <FormScreen>
-      <ScreenHeader title="Nova Coleção" onBack={goBack} />
+      <ScreenHeader title={strings.collections.newTitle} onBack={goBack} />
 
       <Controller
         control={control}
         name="name"
         render={({ field: { onBlur, onChange, value } }) => (
           <TextField
-            label="Nome"
+            label={strings.collections.nameLabel}
             value={value}
-            placeholder="Português para Inglês"
+            placeholder={strings.collections.namePlaceholder}
             error={errors.name?.message}
             disabled={isSaving}
             onChangeText={onChange}
@@ -79,10 +83,10 @@ export function NewCollectionScreen() {
       />
 
       <LanguagePicker
-        label="Idioma base"
+        label={strings.collections.baseLanguageLabel}
         value={baseLanguage}
         disabled={isSaving}
-        accessibilityPrefix="Idioma base"
+        accessibilityPrefix={strings.collections.baseLanguageLabel}
         error={errors.baseLanguage?.message}
         onChange={(code) =>
           setValue('baseLanguage', code, { shouldDirty: true, shouldValidate: false })
@@ -90,10 +94,10 @@ export function NewCollectionScreen() {
       />
 
       <LanguagePicker
-        label="Idioma alvo"
+        label={strings.collections.targetLanguageLabel}
         value={targetLanguage}
         disabled={isSaving}
-        accessibilityPrefix="Idioma alvo"
+        accessibilityPrefix={strings.collections.targetLanguageLabel}
         error={errors.targetLanguage?.message}
         onChange={(code) =>
           setValue('targetLanguage', code, { shouldDirty: true, shouldValidate: false })
@@ -105,9 +109,9 @@ export function NewCollectionScreen() {
         name="description"
         render={({ field: { onBlur, onChange, value } }) => (
           <TextAreaField
-            label="Descrição"
+            label={strings.collections.descriptionLabel}
             value={value ?? ''}
-            placeholder="Opcional"
+            placeholder={strings.collections.descriptionPlaceholder}
             error={errors.description?.message}
             disabled={isSaving}
             minHeight={96}
@@ -117,11 +121,15 @@ export function NewCollectionScreen() {
         )}
       />
 
-      {formError ? <Text className="text-sm font-medium text-danger">{formError}</Text> : null}
+      {formError ? (
+        <Text style={{ color: colors.danger }} className="text-sm font-medium">
+          {formError}
+        </Text>
+      ) : null}
 
       <PrimaryButton
-        label={isSaving ? 'Salvando...' : 'Salvar coleção'}
-        accessibilityLabel="Salvar coleção"
+        label={isSaving ? strings.common.saving : strings.collections.saveLabel}
+        accessibilityLabel={strings.collections.saveA11y}
         disabled={isSaving}
         onPress={onSubmit}
       />

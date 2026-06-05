@@ -1,0 +1,74 @@
+import { SQLiteAppSettingsRepository } from './SQLiteAppSettingsRepository';
+import type { SqliteDatabaseConnection } from '../types';
+
+class FakeAppSettingsDatabase {
+  runCalls: Array<{ source: string; params: unknown }> = [];
+  firstCalls: Array<{ source: string; params: unknown }> = [];
+  allCalls: Array<{ source: string; params: unknown }> = [];
+
+  firstRow: unknown | null = null;
+  allRows: unknown[] = [];
+
+  async execAsync(): Promise<void> {}
+
+  async runAsync(source: string, params?: unknown): Promise<unknown> {
+    this.runCalls.push({ source, params });
+    return {};
+  }
+
+  async getFirstAsync<T>(source: string, params?: unknown): Promise<T | null> {
+    this.firstCalls.push({ source, params });
+    return this.firstRow as T | null;
+  }
+
+  async getAllAsync<T>(source: string, params?: unknown): Promise<T[]> {
+    this.allCalls.push({ source, params });
+    return this.allRows as T[];
+  }
+
+  async withTransactionAsync(task: () => Promise<void>): Promise<void> {
+    await task();
+  }
+
+  asConnection(): SqliteDatabaseConnection {
+    return this as unknown as SqliteDatabaseConnection;
+  }
+}
+
+function createRepository(db: FakeAppSettingsDatabase): SQLiteAppSettingsRepository {
+  return new SQLiteAppSettingsRepository(async () => db.asConnection());
+}
+
+describe('SQLiteAppSettingsRepository', () => {
+  it('retorna null quando a chave não existe', async () => {
+    const db = new FakeAppSettingsDatabase();
+    db.firstRow = null;
+
+    await expect(createRepository(db).get('ui.locale')).resolves.toBeNull();
+    expect(db.firstCalls[0]?.source).toContain('FROM app_settings');
+  });
+
+  it('persiste valor com upsert', async () => {
+    const db = new FakeAppSettingsDatabase();
+
+    await createRepository(db).set('ui.locale', 'en-US');
+
+    expect(db.runCalls[0]?.source).toContain('INSERT INTO app_settings');
+    expect(db.runCalls[0]?.source).toContain('ON CONFLICT(key) DO UPDATE');
+    expect(db.runCalls[0]?.params).toEqual({
+      $key: 'ui.locale',
+      $value: 'en-US',
+      $updatedAt: expect.any(String),
+    });
+  });
+
+  it('retorna mapa com null para chaves ausentes em getMany', async () => {
+    const db = new FakeAppSettingsDatabase();
+    db.allRows = [{ key: 'ui.locale', value: 'pt-BR' }];
+
+    await expect(createRepository(db).getMany(['ui.locale', 'theme.palette'])).resolves.toEqual({
+      'ui.locale': 'pt-BR',
+      'theme.palette': null,
+    });
+  });
+});

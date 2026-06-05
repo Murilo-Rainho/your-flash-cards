@@ -2,13 +2,18 @@ import type { ReactNode } from 'react';
 import { Text, TextInput, View } from 'react-native';
 
 import { FieldError } from '@/components/common/FieldError';
-import { colors } from '@/theme';
+import { useTheme } from '@/theme/useTheme';
 
-const clozeInputClassName = 'min-w-[72px] flex-1 text-base text-textPrimary';
+const clozeInputClassName = 'min-w-[72px] flex-1 text-base';
 
 function ClozeInputShell({ children }: { children: ReactNode }) {
+  const { colors } = useTheme();
+
   return (
-    <View className="flex-row flex-wrap items-center gap-2 rounded-xl border border-border bg-surface px-3 py-3">
+    <View
+      style={{ borderColor: colors.border, backgroundColor: colors.surface }}
+      className="flex-row flex-wrap items-center gap-2 rounded-xl border px-3 py-3"
+    >
       {children}
     </View>
   );
@@ -47,10 +52,18 @@ function ClozeSideField({
   onChangeGap,
   onChangeAfter,
 }: ClozeSideFieldProps) {
+  const { colors } = useTheme();
+
   return (
     <View className="gap-2">
-      <Text className="text-sm font-semibold text-textPrimary">{label}</Text>
-      {description ? <Text className="text-sm text-textSecondary">{description}</Text> : null}
+      <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+        {label}
+      </Text>
+      {description ? (
+        <Text style={{ color: colors.textSecondary }} className="text-sm">
+          {description}
+        </Text>
+      ) : null}
       <ClozeInputShell>
         <TextInput
           value={before}
@@ -58,9 +71,12 @@ function ClozeSideField({
           placeholder={placeholders.before}
           placeholderTextColor={colors.textSecondary}
           editable={!disabled}
+          style={{ color: colors.textPrimary }}
           className={clozeInputClassName}
         />
-        <Text className="text-base font-semibold text-textPrimary">{'{'}</Text>
+        <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
+          {'{'}
+        </Text>
         <TextInput
           value={gap}
           onChangeText={onChangeGap}
@@ -68,9 +84,12 @@ function ClozeSideField({
           placeholderTextColor={colors.textSecondary}
           editable={!disabled}
           autoCapitalize="none"
+          style={{ color: colors.textPrimary }}
           className={clozeInputClassName}
         />
-        <Text className="text-base font-semibold text-textPrimary">{'}'}</Text>
+        <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
+          {'}'}
+        </Text>
         <TextInput
           value={after}
           onChangeText={onChangeAfter}
@@ -78,6 +97,7 @@ function ClozeSideField({
           placeholderTextColor={colors.textSecondary}
           editable={!disabled}
           autoCapitalize="none"
+          style={{ color: colors.textPrimary }}
           className={clozeInputClassName}
         />
       </ClozeInputShell>

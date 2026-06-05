@@ -1,5 +1,7 @@
 import { type Href, useRouter } from 'expo-router';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+
+import { ROUTES } from '@/constants/routes';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { QuickAction } from '@/domain/entities/QuickAction';
@@ -11,7 +13,8 @@ import { ReviewNowCard } from '@/features/home/components/ReviewNowCard';
 import { useHomeData } from '@/features/home/hooks/useHomeData';
 import { getReviewNowCardState } from '@/features/home/services/getReviewNowCardState';
 import type { CollectionSummary } from '@/features/home/types';
-import { colors } from '@/theme';
+import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+import { useTheme } from '@/theme/useTheme';
 
 /**
  * Home/Dashboard (§33) — hub que responde "o que preciso estudar hoje?".
@@ -21,12 +24,15 @@ import { colors } from '@/theme';
  */
 export function HomeScreen() {
   const router = useRouter();
+  const strings = useStrings();
+  const { colors } = useTheme();
   const { greeting, summary, collections, quickActions, error, isLoading, isRefreshing, refetch } =
     useHomeData();
   const loadedCollections = !isLoading && !error ? collections : undefined;
   const reviewNowCardState = getReviewNowCardState({
     dueCards: summary.dueCards,
     collections: loadedCollections,
+    strings: strings.home.reviewNow,
   });
   const shouldGuideFirstCollection = reviewNowCardState.action === 'create-collection';
 
@@ -67,12 +73,29 @@ export function HomeScreen() {
         }
       >
         <View className="gap-6 px-4 pb-28 pt-2">
-          <HomeHeader greeting={greeting} dueCards={summary.dueCards} />
+          <View className="flex-row items-start justify-between gap-3">
+            <View className="flex-1">
+              <HomeHeader greeting={greeting} dueCards={summary.dueCards} />
+            </View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={strings.common.settings}
+              onPress={() => router.push(ROUTES.SETTINGS as Href)}
+              style={{ borderColor: colors.border, backgroundColor: colors.surface }}
+              className="rounded-xl border px-3 py-2 active:opacity-90"
+            >
+              <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+                {strings.common.settings}
+              </Text>
+            </Pressable>
+          </View>
 
           <ReviewNowCard state={reviewNowCardState} onPress={handleReviewPress} />
 
           <View className="gap-3">
-            <Text className="text-lg font-semibold text-textPrimary">Progresso Hoje</Text>
+            <Text style={{ color: colors.textPrimary }} className="text-lg font-semibold">
+              {strings.home.progressTitle}
+            </Text>
             <ProgressStatsGrid
               reviewedToday={summary.reviewedToday}
               retentionPercentage={summary.retentionPercentage}
@@ -82,25 +105,32 @@ export function HomeScreen() {
           </View>
 
           <View className="gap-3">
-            <Text className="text-lg font-semibold text-textPrimary">Coleções</Text>
+            <Text style={{ color: colors.textPrimary }} className="text-lg font-semibold">
+              {strings.home.collectionsTitle}
+            </Text>
             {isLoading ? (
-              <Text className="text-sm text-textSecondary">Carregando dados locais...</Text>
+              <Text style={{ color: colors.textSecondary }} className="text-sm">
+                {strings.home.loadingLocalData}
+              </Text>
             ) : error ? (
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Tentar carregar a Home novamente"
+                accessibilityLabel={strings.home.loadErrorRetryA11y}
                 onPress={refetch}
-                className="rounded-2xl border border-border bg-surface p-4 active:opacity-90"
+                style={{ borderColor: colors.border, backgroundColor: colors.surface }}
+                className="rounded-2xl border p-4 active:opacity-90"
               >
-                <Text className="text-base font-semibold text-textPrimary">
-                  Não foi possível carregar os dados locais
+                <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
+                  {strings.home.loadErrorTitle}
                 </Text>
-                <Text className="mt-1 text-sm text-textSecondary">
-                  Toque para tentar novamente.
+                <Text style={{ color: colors.textSecondary }} className="mt-1 text-sm">
+                  {strings.common.retryHint}
                 </Text>
               </Pressable>
             ) : collections.length === 0 ? (
-              <Text className="text-sm text-textSecondary">Nenhuma coleção criada ainda.</Text>
+              <Text style={{ color: colors.textSecondary }} className="text-sm">
+                {strings.home.noCollections}
+              </Text>
             ) : (
               collections.map((item) => (
                 <CollectionSummaryCard

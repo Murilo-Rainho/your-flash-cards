@@ -5,7 +5,8 @@ import { FieldError } from '@/components/common/FieldError';
 import { SelectableChip } from '@/components/forms/SelectableChip';
 import { LIMITS } from '@/constants/limits';
 import type { Tag } from '@/domain/entities/Tag';
-import { colors } from '@/theme';
+import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+import { useTheme } from '@/theme/useTheme';
 import { normalizeTagKey, normalizeTagName } from '@/utils/normalizeText';
 
 import { isCreateTagInputError } from '../services/createTag';
@@ -28,13 +29,13 @@ type PickerChip = {
   selected: boolean;
 };
 
-function createErrorMessage(error: unknown): string | undefined {
+function createErrorMessage(error: unknown, fallback: string): string | undefined {
   if (isCreateTagInputError(error)) {
     return error.fieldErrors.name;
   }
 
   if (error instanceof Error) {
-    return 'Nao foi possivel criar a tag. Tente novamente.';
+    return fallback;
   }
 
   return undefined;
@@ -48,6 +49,8 @@ function createErrorMessage(error: unknown): string | undefined {
  * `normalizedName` para evitar duplicatas como "verbs" vs "Verb" (§6/§30.7).
  */
 export function TagPicker({ value, onChange, disabled = false, error }: TagPickerProps) {
+  const strings = useStrings();
+  const { colors } = useTheme();
   const tagsQuery = useTags();
   const createTagMutation = useCreateTag();
   const [draft, setDraft] = useState('');
@@ -134,12 +137,14 @@ export function TagPicker({ value, onChange, disabled = false, error }: TagPicke
       return `Limite de ${MAX_TAGS} tags por card atingido.`;
     }
 
-    return createErrorMessage(createTagMutation.error);
+    return createErrorMessage(createTagMutation.error, strings.tags.createError);
   })();
 
   return (
     <View className="gap-3">
-      <Text className="text-sm font-semibold text-textPrimary">Tags</Text>
+      <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+        {strings.tags.title}
+      </Text>
 
       {chips.length > 0 ? (
         <View className="flex-row flex-wrap gap-2">
@@ -155,7 +160,7 @@ export function TagPicker({ value, onChange, disabled = false, error }: TagPicke
           ))}
         </View>
       ) : (
-        <Text className="text-sm text-textSecondary">
+        <Text style={{ color: colors.textSecondary }} className="text-sm">
           Nenhuma tag ainda. Crie a primeira abaixo.
         </Text>
       )}
@@ -164,13 +169,18 @@ export function TagPicker({ value, onChange, disabled = false, error }: TagPicke
         <TextInput
           value={draft}
           onChangeText={setDraft}
-          placeholder="Criar nova tag"
+          placeholder={strings.tags.createPlaceholder}
           placeholderTextColor={colors.textSecondary}
           editable={!disabled}
           autoCapitalize="none"
           returnKeyType="done"
           onSubmitEditing={handleCreate}
-          className="flex-1 rounded-xl border border-border bg-surface px-4 py-3 text-base text-textPrimary"
+          style={{
+            borderColor: colors.border,
+            backgroundColor: colors.surface,
+            color: colors.textPrimary,
+          }}
+          className="flex-1 rounded-xl border px-4 py-3 text-base"
         />
         <Pressable
           accessibilityRole="button"
@@ -178,11 +188,17 @@ export function TagPicker({ value, onChange, disabled = false, error }: TagPicke
           accessibilityState={{ disabled: !canCreate }}
           disabled={!canCreate}
           onPress={handleCreate}
-          className={`items-center justify-center rounded-xl border border-primary px-4 py-3 ${
-            canCreate ? 'bg-primary active:bg-surface' : 'bg-background opacity-50'
-          }`}
+          style={{
+            borderColor: colors.primary,
+            backgroundColor: canCreate ? colors.primary : colors.background,
+            opacity: canCreate ? 1 : 0.5,
+          }}
+          className="items-center justify-center rounded-xl border px-4 py-3 active:opacity-90"
         >
-          <Text className={`text-lg font-bold ${canCreate ? 'text-background' : 'text-primary'}`}>
+          <Text
+            style={{ color: canCreate ? colors.background : colors.primary }}
+            className="text-lg font-bold"
+          >
             +
           </Text>
         </Pressable>

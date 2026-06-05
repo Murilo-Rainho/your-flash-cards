@@ -1,5 +1,6 @@
 import { ROUTES, type Route } from '@/constants/routes';
 import type { CollectionSummary } from '@/features/home/types';
+import type { StringCatalog } from '@/strings/types';
 
 type ReviewNowCardAction = 'create-collection' | 'create-deck' | 'create-card' | 'review' | 'done';
 
@@ -14,22 +15,25 @@ export type ReviewNowCardState = {
 type GetReviewNowCardStateInput = {
   dueCards: number;
   collections?: CollectionSummary[];
+  strings: StringCatalog['home']['reviewNow'];
 };
 
-function formatDueCards(dueCards: number): string {
-  return `${dueCards} ${dueCards === 1 ? 'card vencido' : 'cards vencidos'}`;
+function formatDueCards(dueCards: number, strings: StringCatalog['home']['reviewNow']): string {
+  const label = dueCards === 1 ? strings.dueCardSingular : strings.dueCardPlural;
+  return `${dueCards} ${label}`;
 }
 
 export function getReviewNowCardState({
   dueCards,
   collections,
+  strings,
 }: GetReviewNowCardStateInput): ReviewNowCardState {
   if (collections && collections.length === 0) {
     return {
       action: 'create-collection',
-      title: 'Crie sua primeira coleção',
-      subtitle: 'Comece criando uma coleção para organizar seus idiomas.',
-      accessibilityLabel: 'Crie sua primeira coleção para organizar seus idiomas',
+      title: strings.createCollectionTitle,
+      subtitle: strings.createCollectionSubtitle,
+      accessibilityLabel: strings.createCollectionA11y,
       route: ROUTES.COLLECTION_NEW,
     };
   }
@@ -40,9 +44,9 @@ export function getReviewNowCardState({
     if (totalDecks === 0) {
       return {
         action: 'create-deck',
-        title: 'Crie seu primeiro deck',
-        subtitle: 'Adicione um deck à sua coleção para separar seus estudos por tema.',
-        accessibilityLabel: 'Crie seu primeiro deck para separar seus estudos por tema',
+        title: strings.createDeckTitle,
+        subtitle: strings.createDeckSubtitle,
+        accessibilityLabel: strings.createDeckA11y,
         route: ROUTES.DECK_NEW,
       };
     }
@@ -52,29 +56,29 @@ export function getReviewNowCardState({
     if (totalCards === 0) {
       return {
         action: 'create-card',
-        title: 'Crie seu primeiro card',
-        subtitle: 'Adicione um card ao deck para começar suas revisões.',
-        accessibilityLabel: 'Crie seu primeiro card para começar suas revisões',
+        title: strings.createCardTitle,
+        subtitle: strings.createCardSubtitle,
+        accessibilityLabel: strings.createCardA11y,
         route: ROUTES.CARD_NEW,
       };
     }
   }
 
   if (dueCards > 0) {
-    const dueCardsLabel = formatDueCards(dueCards);
+    const dueCardsLabel = formatDueCards(dueCards, strings);
 
     return {
       action: 'review',
-      title: 'Revisar agora',
+      title: strings.reviewTitle,
       subtitle: dueCardsLabel,
-      accessibilityLabel: `Revisar agora, ${dueCardsLabel}`,
+      accessibilityLabel: `${strings.reviewA11yPrefix} ${dueCardsLabel}`,
     };
   }
 
   return {
     action: 'done',
-    title: 'Tudo revisado por hoje',
-    subtitle: 'Volte amanhã para manter o seu streak 🔥',
-    accessibilityLabel: 'Tudo revisado por hoje',
+    title: strings.doneTitle,
+    subtitle: strings.doneSubtitle,
+    accessibilityLabel: strings.doneA11y,
   };
 }

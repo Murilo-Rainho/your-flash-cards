@@ -7,6 +7,18 @@
 export { colors } from './colors';
 export type { Colors, ColorToken } from './colors';
 
+export {
+  DEFAULT_THEME_PALETTE_PRESET,
+  THEME_PALETTE_PRESETS,
+  isThemePalettePresetId,
+  resolvePalette,
+} from './palettes';
+export type { ColorPalette, ThemePalettePresetId } from './palettes';
+
+export { ThemeProvider } from './ThemeContext';
+export { useTheme } from './useTheme';
+export { createShadows, withAlpha } from './createShadows';
+
 export { spacing } from './spacing';
 export type { Spacing, SpacingToken } from './spacing';
 

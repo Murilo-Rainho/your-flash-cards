@@ -1,4 +1,6 @@
-import { REVIEW_RATING_LABELS, REVIEW_RATING_ORDER, REVIEW_RATINGS } from './reviewRatings';
+import { resolveStrings } from '@/strings';
+
+import { REVIEW_RATING_ORDER, REVIEW_RATINGS } from './reviewRatings';
 
 describe('reviewRatings', () => {
   it('expõe as 4 avaliações na ordem do mais difícil ao mais fácil', () => {
@@ -10,8 +12,8 @@ describe('reviewRatings', () => {
     ]);
   });
 
-  it('mapeia rótulos PT-BR amigáveis (§19)', () => {
-    expect(REVIEW_RATING_LABELS).toEqual({
+  it('mapeia rótulos PT-BR amigáveis via catálogo de strings (§19)', () => {
+    expect(resolveStrings('pt-BR').review.ratings).toEqual({
       again: 'Errei',
       hard: 'Difícil',
       good: 'Médio',

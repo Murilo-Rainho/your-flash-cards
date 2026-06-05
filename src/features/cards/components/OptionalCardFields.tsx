@@ -2,6 +2,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { TextAreaField } from '@/components/forms/TextAreaField';
 import { TagPicker } from '@/features/tags/components/TagPicker';
+import { useTheme } from '@/theme/useTheme';
 
 type OptionalCardFieldsProps = {
   expanded: boolean;
@@ -27,6 +28,8 @@ export function OptionalCardFields({
   onChangeTags,
   onChangeNotes,
 }: OptionalCardFieldsProps) {
+  const { colors } = useTheme();
+
   return (
     <View className="gap-3">
       <Pressable
@@ -35,9 +38,10 @@ export function OptionalCardFields({
         accessibilityState={{ expanded }}
         disabled={disabled}
         onPress={onToggle}
-        className="rounded-xl border border-border bg-surface px-4 py-3 active:bg-background"
+        style={{ borderColor: colors.border, backgroundColor: colors.surface }}
+        className="rounded-xl border px-4 py-3 active:opacity-90"
       >
-        <Text className="text-base font-semibold text-textPrimary">
+        <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
           {expanded ? 'Ocultar opcionais' : 'Tags e observacoes'}
         </Text>
       </Pressable>

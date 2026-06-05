@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Modal, Pressable, Text, View } from 'react-native';
 
-import { colors, shadows } from '@/theme';
 import type { QuickAction } from '@/domain/entities/QuickAction';
+import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+import { useTheme } from '@/theme/useTheme';
 
 type QuickActionsFabProps = {
   actions: QuickAction[];
@@ -20,6 +21,8 @@ export function QuickActionsFab({
   onActionPress,
 }: QuickActionsFabProps) {
   const [open, setOpen] = useState(false);
+  const strings = useStrings();
+  const { colors, shadows } = useTheme();
 
   const handleActionPress = (action: QuickAction) => {
     setOpen(false);
@@ -35,8 +38,13 @@ export function QuickActionsFab({
           importantForAccessibility="no-hide-descendants"
           className="absolute bottom-24 right-4 items-end"
         >
-          <View style={[shadows.md, { maxWidth: 160 }]} className="rounded-lg bg-warning px-3 py-2">
-            <Text className="text-sm font-bold text-textPrimary">Clique aqui!</Text>
+          <View
+            style={{ backgroundColor: colors.warning, maxWidth: 160, ...shadows.md }}
+            className="rounded-lg px-3 py-2"
+          >
+            <Text style={{ color: colors.textPrimary }} className="text-sm font-bold">
+              {strings.home.quickActions.hintClickHere}
+            </Text>
           </View>
           <View
             style={{
@@ -55,26 +63,35 @@ export function QuickActionsFab({
         accessibilityRole="button"
         accessibilityLabel={
           showFirstCollectionHint
-            ? 'Ações rápidas. Clique aqui para criar sua primeira coleção'
-            : 'Ações rápidas'
+            ? `${strings.home.quickActions.hintClickHere} ${strings.home.quickActions.hintStartHere}`
+            : strings.home.quickActions.newCollection
         }
         onPress={() => setOpen(true)}
-        style={shadows.lg}
-        className={`absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full bg-primary active:opacity-90 ${
-          showFirstCollectionHint ? 'border-4 border-warning' : ''
-        }`}
+        style={{
+          backgroundColor: colors.primary,
+          borderColor: showFirstCollectionHint ? colors.warning : undefined,
+          borderWidth: showFirstCollectionHint ? 4 : 0,
+          ...shadows.lg,
+        }}
+        className="absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full active:opacity-90"
       >
-        <Text className="text-3xl leading-none text-background">+</Text>
+        <Text style={{ color: colors.background }} className="text-3xl leading-none">
+          +
+        </Text>
       </Pressable>
 
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Fechar ações rápidas"
+          accessibilityLabel={strings.home.quickActions.closeA11y}
           onPress={() => setOpen(false)}
-          className="flex-1 justify-end bg-textPrimary/40 p-6"
+          style={{ backgroundColor: `${colors.textPrimary}66` }}
+          className="flex-1 justify-end p-6"
         >
-          <View style={shadows.lg} className="gap-1 rounded-2xl bg-background p-2">
+          <View
+            style={{ backgroundColor: colors.background, ...shadows.lg }}
+            className="gap-1 rounded-2xl p-2"
+          >
             {actions.map((action) => {
               const shouldHighlightAction =
                 showFirstCollectionHint && action.id === 'new-collection';
@@ -84,23 +101,33 @@ export function QuickActionsFab({
                   key={action.id}
                   accessibilityRole="button"
                   accessibilityLabel={
-                    shouldHighlightAction ? `${action.label}, comece aqui` : action.label
+                    shouldHighlightAction
+                      ? `${action.label}, ${strings.home.quickActions.hintStartHere}`
+                      : action.label
                   }
                   accessibilityState={{ disabled: action.disabled }}
                   disabled={action.disabled}
                   onPress={() => handleActionPress(action)}
-                  className={`flex-row items-center gap-3 rounded-xl p-3 active:bg-surface ${
+                  className={`flex-row items-center gap-3 rounded-xl p-3 active:opacity-90 ${
                     action.disabled ? 'opacity-40' : ''
                   }`}
                 >
                   <Text className="text-xl">{action.icon}</Text>
                   <View className="min-w-0 flex-1 flex-row items-center gap-2">
-                    <Text className="shrink text-base font-medium text-textPrimary">
+                    <Text
+                      style={{ color: colors.textPrimary }}
+                      className="shrink text-base font-medium"
+                    >
                       {action.label}
                     </Text>
                     {shouldHighlightAction ? (
-                      <View className="rounded-lg bg-warning px-2 py-1">
-                        <Text className="text-xs font-bold text-textPrimary">Comece aqui</Text>
+                      <View
+                        style={{ backgroundColor: colors.warning }}
+                        className="rounded-lg px-2 py-1"
+                      >
+                        <Text style={{ color: colors.textPrimary }} className="text-xs font-bold">
+                          {strings.home.quickActions.hintStartHere}
+                        </Text>
                       </View>
                     ) : null}
                   </View>

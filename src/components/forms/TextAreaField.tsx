@@ -1,7 +1,7 @@
 import { Text, TextInput, View } from 'react-native';
 
 import { FieldError } from '@/components/common/FieldError';
-import { colors } from '@/theme';
+import { useTheme } from '@/theme/useTheme';
 
 type TextAreaFieldProps = {
   label: string;
@@ -25,9 +25,13 @@ export function TextAreaField({
   onChangeText,
   onBlur,
 }: TextAreaFieldProps) {
+  const { colors } = useTheme();
+
   return (
     <View className="gap-2">
-      <Text className="text-sm font-semibold text-textPrimary">{label}</Text>
+      <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+        {label}
+      </Text>
       <TextInput
         value={value}
         onChangeText={onChangeText}
@@ -37,8 +41,13 @@ export function TextAreaField({
         editable={!disabled}
         multiline
         textAlignVertical="top"
-        style={{ minHeight }}
-        className="rounded-xl border border-border bg-surface px-4 py-3 text-base text-textPrimary"
+        style={{
+          minHeight,
+          borderColor: colors.border,
+          backgroundColor: colors.surface,
+          color: colors.textPrimary,
+        }}
+        className="rounded-xl border px-4 py-3 text-base"
       />
       <FieldError message={error} />
     </View>

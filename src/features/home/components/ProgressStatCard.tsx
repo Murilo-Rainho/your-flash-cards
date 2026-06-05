@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 
-import { shadows } from '@/theme';
+import { useTheme } from '@/theme/useTheme';
 
 type ProgressStatCardProps = {
   label: string;
@@ -9,10 +9,23 @@ type ProgressStatCardProps = {
 
 /** Tile pequeno e reutilizável de uma métrica de progresso. */
 export function ProgressStatCard({ label, value }: ProgressStatCardProps) {
+  const { colors, shadows } = useTheme();
+
   return (
-    <View style={shadows.sm} className="flex-1 rounded-2xl border border-border bg-surface p-4">
-      <Text className="text-2xl font-bold text-textPrimary">{value}</Text>
-      <Text className="mt-1 text-sm text-textSecondary">{label}</Text>
+    <View
+      style={{
+        borderColor: colors.border,
+        backgroundColor: colors.surface,
+        ...shadows.sm,
+      }}
+      className="flex-1 rounded-2xl border p-4"
+    >
+      <Text style={{ color: colors.textPrimary }} className="text-2xl font-bold">
+        {value}
+      </Text>
+      <Text style={{ color: colors.textSecondary }} className="mt-1 text-sm">
+        {label}
+      </Text>
     </View>
   );
 }

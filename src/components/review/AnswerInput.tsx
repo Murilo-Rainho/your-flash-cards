@@ -1,6 +1,6 @@
 import { Pressable, Text, TextInput, View } from 'react-native';
 
-import { colors } from '@/theme';
+import { useTheme } from '@/theme/useTheme';
 
 import type { ReviewAnswerBehavior } from './types';
 
@@ -14,6 +14,8 @@ type AnswerInputProps = {
 
 /** Afordância de resposta no estado QUESTION, conforme o tipo de card. */
 export function AnswerInput({ answer, typed, onChangeTyped, disabled = false }: AnswerInputProps) {
+  const { colors } = useTheme();
+
   if (answer.kind === 'reveal') {
     return null;
   }
@@ -24,7 +26,7 @@ export function AnswerInput({ answer, typed, onChangeTyped, disabled = false }: 
 
     return (
       <View className="gap-2">
-        <Text className="text-sm font-semibold text-textPrimary">
+        <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
           {answer.promptLabel ?? defaultLabel}
         </Text>
         <TextInput
@@ -35,7 +37,12 @@ export function AnswerInput({ answer, typed, onChangeTyped, disabled = false }: 
           placeholderTextColor={colors.textSecondary}
           autoCapitalize="none"
           autoCorrect={false}
-          className="rounded-xl border border-border bg-surface px-4 py-3 text-base text-textPrimary"
+          style={{
+            borderColor: colors.border,
+            backgroundColor: colors.surface,
+            color: colors.textPrimary,
+          }}
+          className="rounded-xl border px-4 py-3 text-base"
         />
       </View>
     );
@@ -45,7 +52,7 @@ export function AnswerInput({ answer, typed, onChangeTyped, disabled = false }: 
     return (
       <View className="gap-3">
         <View className="gap-2">
-          <Text className="text-sm font-semibold text-textPrimary">
+          <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
             {answer.promptLabel ?? 'Escreva o que você ouviu'}
           </Text>
           <TextInput
@@ -56,10 +63,17 @@ export function AnswerInput({ answer, typed, onChangeTyped, disabled = false }: 
             placeholderTextColor={colors.textSecondary}
             autoCapitalize="none"
             autoCorrect={false}
-            className="rounded-xl border border-border bg-surface px-4 py-3 text-base text-textPrimary"
+            style={{
+              borderColor: colors.border,
+              backgroundColor: colors.surface,
+              color: colors.textPrimary,
+            }}
+            className="rounded-xl border px-4 py-3 text-base"
           />
         </View>
-        <Text className="text-center text-xs text-textSecondary">ou grave sua resposta</Text>
+        <Text style={{ color: colors.textSecondary }} className="text-center text-xs">
+          ou grave sua resposta
+        </Text>
         <RecordingButton
           accessibilityLabel={answer.isRecording ? 'Parar gravação' : 'Gravar resposta'}
           label={answer.isRecording ? 'Parar gravação' : 'Gravar resposta'}
@@ -129,6 +143,8 @@ function RecordingButton({
   busy = false,
   disabled = false,
 }: RecordingButtonProps) {
+  const { colors } = useTheme();
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -136,11 +152,18 @@ function RecordingButton({
       accessibilityState={{ disabled, busy }}
       disabled={disabled}
       onPress={onPress}
-      className={`items-center rounded-xl border bg-surface px-4 py-3 active:opacity-90 ${
-        busy ? 'border-danger' : 'border-border'
-      } ${disabled ? 'opacity-50' : ''}`}
+      style={{
+        borderColor: busy ? colors.danger : colors.border,
+        backgroundColor: colors.surface,
+      }}
+      className={`items-center rounded-xl border px-4 py-3 active:opacity-90 ${
+        disabled ? 'opacity-50' : ''
+      }`}
     >
-      <Text className={`text-base font-medium ${busy ? 'text-danger' : 'text-textPrimary'}`}>
+      <Text
+        style={{ color: busy ? colors.danger : colors.textPrimary }}
+        className="text-base font-medium"
+      >
         {label}
       </Text>
     </Pressable>

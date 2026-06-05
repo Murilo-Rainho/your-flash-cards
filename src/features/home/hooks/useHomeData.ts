@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getSQLiteHomeReadRepository } from '@/infrastructure/database/sqlite/repositories';
+import type { DailyStudySummary } from '@/domain/entities/DailyStudySummary';
+import { usePreferences } from '@/features/settings/providers/PreferencesProvider';
 import { getGreeting } from '@/features/home/services/getGreeting';
 import { getHomeData, type HomeData } from '@/features/home/services/getHomeData';
 import { getHomeQuickActions } from '@/features/home/services/homeQuickActions';
-import type { DailyStudySummary } from '@/domain/entities/DailyStudySummary';
+import { getSQLiteHomeReadRepository } from '@/infrastructure/database/sqlite/repositories';
 
 const emptySummary: DailyStudySummary = {
   dueCards: 0,
@@ -25,11 +26,14 @@ export type HomeDataState = HomeData & {
 };
 
 export function useHomeData(): HomeDataState {
+  const { strings } = usePreferences();
+
   const query = useQuery<HomeData, Error>({
     queryKey: HOME_DATA_QUERY_KEY,
     queryFn: () =>
       getHomeData({
         repository: getSQLiteHomeReadRepository(),
+        homeStrings: strings.home,
         now: new Date(),
       }),
   });
@@ -37,10 +41,10 @@ export function useHomeData(): HomeDataState {
   const data =
     query.data ??
     ({
-      greeting: getGreeting(),
+      greeting: getGreeting(strings.home.greeting),
       summary: emptySummary,
       collections: [],
-      quickActions: getHomeQuickActions(),
+      quickActions: getHomeQuickActions(strings.home.quickActions),
     } satisfies HomeData);
 
   return {

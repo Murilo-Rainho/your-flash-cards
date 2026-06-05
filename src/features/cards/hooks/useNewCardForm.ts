@@ -16,7 +16,9 @@ import { useActiveDecks } from '@/features/decks/hooks/useActiveDecks';
 import { useGoBack } from '@/hooks/useGoBack';
 import { applyFieldErrors } from '@/utils/forms';
 
-import { CARD_TYPE_FORM_CONFIGS, getCardTypeFormConfig } from '../config/cardTypeForm';
+import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+
+import { buildCardTypeFormConfigs, getCardTypeFormConfig } from '../config/cardTypeForm';
 import { LISTENING_INPUT_MODES, type ListeningInputMode } from '../config/listeningInputMode';
 import {
   TYPING_FRONT_MODES,
@@ -159,7 +161,9 @@ export function useNewCardForm() {
     (collection) => collection.id === selectedCollectionId,
   );
   const selectedDeck = decks.find((deck) => deck.id === selectedDeckId);
-  const selectedTypeConfig = getCardTypeFormConfig(selectedType);
+  const strings = useStrings();
+  const cardTypeStrings = strings.cards.cardTypes;
+  const selectedTypeConfig = getCardTypeFormConfig(selectedType, cardTypeStrings);
   const isSaving = createCardMutation.isPending;
   const isRecording = recording.isRecording;
   const isSetupLoading = activeCollectionsQuery.isLoading || activeDecksQuery.isLoading;
@@ -183,14 +187,14 @@ export function useNewCardForm() {
     value: deck.id,
     label: deck.name,
     description: deck.autoGenerateReverseCards
-      ? 'Reverso automatico ativo'
-      : 'Somente card original',
+      ? strings.cards.reverseModeAuto
+      : strings.cards.reverseModeOriginalOnly,
   }));
-  const typeOptions = CARD_TYPE_FORM_CONFIGS.map<SelectOption>((config) => ({
+  const typeOptions = buildCardTypeFormConfigs(cardTypeStrings).map<SelectOption>((config) => ({
     value: config.type,
     label: config.label,
     description: config.description,
-    badge: config.recommended ? 'Recomendado' : undefined,
+    badge: config.recommended ? strings.common.recommended : undefined,
   }));
 
   const clearCardContent = useCallback(() => {
@@ -631,7 +635,7 @@ export function useNewCardForm() {
         type: values.type,
       });
       setStep('content');
-      setSuccessMessage('Card salvo. Proximo card pronto.');
+      setSuccessMessage(strings.cards.savedNextReady);
     } catch (error) {
       if (isCreateCardInputError(error)) {
         applyFieldErrors(setError, error.fieldErrors);

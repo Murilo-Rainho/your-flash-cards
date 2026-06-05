@@ -1,5 +1,7 @@
 import { View } from 'react-native';
 
+import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+
 import { ProgressStatCard } from './ProgressStatCard';
 
 type ProgressStatsGridProps = {
@@ -16,15 +18,17 @@ export function ProgressStatsGrid({
   streakDays,
   masteredCards,
 }: ProgressStatsGridProps) {
+  const strings = useStrings();
+
   return (
     <View className="gap-3">
       <View className="flex-row gap-3">
-        <ProgressStatCard label="Revisados hoje" value={String(reviewedToday)} />
-        <ProgressStatCard label="Retenção" value={`${retentionPercentage}%`} />
+        <ProgressStatCard label={strings.home.stats.reviewedToday} value={String(reviewedToday)} />
+        <ProgressStatCard label={strings.home.stats.retention} value={`${retentionPercentage}%`} />
       </View>
       <View className="flex-row gap-3">
-        <ProgressStatCard label="Streak" value={`🔥 ${streakDays} dias`} />
-        <ProgressStatCard label="Dominados" value={String(masteredCards)} />
+        <ProgressStatCard label={strings.home.stats.streak} value={`🔥 ${streakDays} dias`} />
+        <ProgressStatCard label={strings.home.stats.mastered} value={String(masteredCards)} />
       </View>
     </View>
   );

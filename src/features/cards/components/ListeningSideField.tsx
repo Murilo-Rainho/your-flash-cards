@@ -4,6 +4,7 @@ import { FieldError } from '@/components/common/FieldError';
 import { SelectField } from '@/components/forms/SelectField';
 import { TextAreaField } from '@/components/forms/TextAreaField';
 import { MEDIA_TYPES } from '@/domain/entities/Media';
+import { useTheme } from '@/theme/useTheme';
 import { formatRecordingDuration } from '@/utils/format';
 
 import {
@@ -62,6 +63,7 @@ export function ListeningSideField({
   onRemoveMedia,
   onTestAudio,
 }: ListeningSideFieldProps) {
+  const { colors } = useTheme();
   const audioMedia = media.find((item) => item.type !== MEDIA_TYPES.IMAGE);
   const sideError = textError ?? mediaError;
 
@@ -75,7 +77,9 @@ export function ListeningSideField({
 
   return (
     <View className="gap-3">
-      <Text className="text-sm font-semibold text-textPrimary">{label}</Text>
+      <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+        {label}
+      </Text>
 
       <SelectField
         label="Como adicionar o audio"
@@ -101,14 +105,19 @@ export function ListeningSideField({
       ) : null}
 
       {mode === LISTENING_INPUT_MODES.TTS && reuseTextForTts ? (
-        <Text className="text-xs text-textSecondary">O TTS le o texto da frente.</Text>
+        <Text style={{ color: colors.textSecondary }} className="text-xs">
+          O TTS le o texto da frente.
+        </Text>
       ) : null}
 
       {mode === LISTENING_INPUT_MODES.AUDIO_FILE ? (
         <View className="gap-2">
           {audioMedia?.type === MEDIA_TYPES.AUDIO ? (
-            <View className="gap-2 rounded-xl border border-border bg-surface p-3">
-              <Text className="text-sm text-textSecondary" numberOfLines={1}>
+            <View
+              style={{ borderColor: colors.border, backgroundColor: colors.surface }}
+              className="gap-2 rounded-xl border p-3"
+            >
+              <Text style={{ color: colors.textSecondary }} className="text-sm" numberOfLines={1}>
                 {getMediaLabel(audioMedia)}
               </Text>
               <Pressable
@@ -116,9 +125,12 @@ export function ListeningSideField({
                 accessibilityLabel={`Remover arquivo de audio de ${label}`}
                 disabled={isSaving}
                 onPress={onRemoveMedia}
-                className="items-center rounded-xl border border-border bg-background px-4 py-3 active:bg-surface"
+                style={{ borderColor: colors.border, backgroundColor: colors.background }}
+                className="items-center rounded-xl border px-4 py-3 active:opacity-90"
               >
-                <Text className="text-sm font-semibold text-textPrimary">Remover arquivo</Text>
+                <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+                  Remover arquivo
+                </Text>
               </Pressable>
             </View>
           ) : (
@@ -127,9 +139,10 @@ export function ListeningSideField({
               accessibilityLabel={`Enviar arquivo de audio de ${label}`}
               disabled={isSaving || isRecording}
               onPress={onPickAudio}
-              className="items-center rounded-xl border border-border bg-background px-4 py-3 active:bg-surface"
+              style={{ borderColor: colors.border, backgroundColor: colors.background }}
+              className="items-center rounded-xl border px-4 py-3 active:opacity-90"
             >
-              <Text className="text-sm font-semibold text-textPrimary">
+              <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
                 Enviar arquivo de audio
               </Text>
             </Pressable>
@@ -140,16 +153,24 @@ export function ListeningSideField({
       {mode === LISTENING_INPUT_MODES.RECORDING ? (
         <View className="gap-2">
           {audioMedia?.type === MEDIA_TYPES.RECORDING ? (
-            <View className="gap-2 rounded-xl border border-border bg-surface p-3">
-              <Text className="text-sm text-textSecondary">Gravacao pronta</Text>
+            <View
+              style={{ borderColor: colors.border, backgroundColor: colors.surface }}
+              className="gap-2 rounded-xl border p-3"
+            >
+              <Text style={{ color: colors.textSecondary }} className="text-sm">
+                Gravacao pronta
+              </Text>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={`Remover gravacao de ${label}`}
                 disabled={isSaving}
                 onPress={onRemoveMedia}
-                className="items-center rounded-xl border border-border bg-background px-4 py-3 active:bg-surface"
+                style={{ borderColor: colors.border, backgroundColor: colors.background }}
+                className="items-center rounded-xl border px-4 py-3 active:opacity-90"
               >
-                <Text className="text-sm font-semibold text-textPrimary">Remover gravacao</Text>
+                <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+                  Remover gravacao
+                </Text>
               </Pressable>
             </View>
           ) : (
@@ -160,9 +181,10 @@ export function ListeningSideField({
               }
               disabled={isSaving || (isRecording && !isRecordingThisSide)}
               onPress={isRecordingThisSide ? onStopRecording : onStartRecording}
-              className="items-center rounded-xl border border-border bg-background px-4 py-3 active:bg-surface"
+              style={{ borderColor: colors.border, backgroundColor: colors.background }}
+              className="items-center rounded-xl border px-4 py-3 active:opacity-90"
             >
-              <Text className="text-sm font-semibold text-textPrimary">
+              <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
                 {isRecordingThisSide
                   ? `Parar ${formatRecordingDuration(recordingDurationMs)}`
                   : 'Gravar audio'}
@@ -177,11 +199,16 @@ export function ListeningSideField({
         accessibilityLabel={`Testar audio de ${label}`}
         disabled={isSaving || !canTestAudio}
         onPress={onTestAudio}
-        className={`items-center rounded-xl border border-border bg-surface px-4 py-3 active:bg-background ${
-          !canTestAudio ? 'opacity-50' : ''
-        }`}
+        style={{
+          borderColor: colors.border,
+          backgroundColor: colors.surface,
+          opacity: !canTestAudio ? 0.5 : 1,
+        }}
+        className="items-center rounded-xl border px-4 py-3 active:opacity-90"
       >
-        <Text className="text-base font-semibold text-textPrimary">Testar audio</Text>
+        <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
+          Testar audio
+        </Text>
       </Pressable>
 
       <FieldError message={sideError} />

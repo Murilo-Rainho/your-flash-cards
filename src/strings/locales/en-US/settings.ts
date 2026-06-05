@@ -1,0 +1,13 @@
+export const settings = {
+  title: 'Settings',
+  languageSection: 'Interface language',
+  languageDescription: 'Changes labels, placeholders, and app messages.',
+  themeSection: 'App colors',
+  themeDescription: 'Choose the main color palette.',
+  paletteDefault: 'Default',
+  paletteOcean: 'Ocean',
+  paletteForest: 'Forest',
+  paletteMidnight: 'Midnight',
+  paletteCarbon: 'Carbon',
+  saved: 'Preferences saved.',
+} as const;

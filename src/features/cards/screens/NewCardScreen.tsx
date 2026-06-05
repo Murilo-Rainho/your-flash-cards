@@ -7,6 +7,8 @@ import { StateCard } from '@/components/common/StateCard';
 import { FormScreen } from '@/components/forms/FormScreen';
 import { SelectField } from '@/components/forms/SelectField';
 import { FlashcardReview } from '@/components/review';
+import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+import { useTheme } from '@/theme/useTheme';
 
 import { CardTypeFields } from '../components/CardTypeFields';
 import { OptionalCardFields } from '../components/OptionalCardFields';
@@ -18,25 +20,31 @@ import { useNewCardForm } from '../hooks/useNewCardForm';
  */
 export function NewCardScreen() {
   const form = useNewCardForm();
+  const strings = useStrings();
+  const { colors } = useTheme();
 
   const saveLabel = form.isSaving
-    ? 'Salvando...'
+    ? strings.cards.savingLabel
     : form.isRecording
-      ? 'Pare a gravacao para salvar'
-      : 'Salvar card';
+      ? strings.cards.stopRecordingToSave
+      : strings.cards.saveLabel;
 
   const renderBody = () => {
     if (form.collectionsLoading) {
-      return <Text className="text-sm text-textSecondary">Carregando colecoes locais...</Text>;
+      return (
+        <Text style={{ color: colors.textSecondary }} className="text-sm">
+          {strings.cards.loadingCollections}
+        </Text>
+      );
     }
 
     if (form.collectionsError) {
       return (
         <StateCard
-          title="Nao foi possivel carregar as colecoes"
+          title={strings.cards.loadCollectionsError}
           action={{
-            label: 'Tentar novamente',
-            accessibilityLabel: 'Tentar carregar colecoes novamente',
+            label: strings.common.retry,
+            accessibilityLabel: strings.cards.loadCollectionsRetryA11y,
             variant: 'secondary',
             onPress: form.onRetryCollections,
           }}
@@ -47,10 +55,10 @@ export function NewCardScreen() {
     if (form.collections.length === 0) {
       return (
         <StateCard
-          title="Nenhuma colecao criada ainda"
+          title={strings.cards.noCollections}
           action={{
-            label: 'Criar colecao',
-            accessibilityLabel: 'Criar colecao',
+            label: strings.cards.createCollection,
+            accessibilityLabel: strings.cards.createCollectionA11y,
             onPress: form.goToCreateCollection,
           }}
         />
@@ -61,9 +69,9 @@ export function NewCardScreen() {
       return (
         <>
           <SelectField
-            label="Colecao"
+            label={strings.cards.collectionLabel}
             value={form.selectedCollectionId}
-            placeholder="Escolha uma colecao"
+            placeholder={strings.cards.collectionPlaceholder}
             disabled={form.isSaving}
             options={form.collectionOptions}
             error={form.errors.collectionId?.message}
@@ -72,18 +80,20 @@ export function NewCardScreen() {
 
           {form.decksEmpty ? (
             <StateCard
-              title="Nenhum deck nesta colecao"
+              title={strings.cards.noDecksInCollection}
               action={{
-                label: 'Criar deck',
-                accessibilityLabel: 'Criar deck',
+                label: strings.cards.createDeck,
+                accessibilityLabel: strings.cards.createDeckA11y,
                 onPress: form.goToCreateDeck,
               }}
             />
           ) : (
             <SelectField
-              label="Deck"
+              label={strings.cards.deckLabel}
               value={form.selectedDeckId}
-              placeholder={form.decksLoading ? 'Carregando decks...' : 'Escolha um deck'}
+              placeholder={
+                form.decksLoading ? strings.cards.loadingDecks : strings.cards.deckPlaceholder
+              }
               disabled={!form.selectedCollectionId || form.decksLoading}
               options={form.deckOptions}
               error={form.errors.deckId?.message}
@@ -92,9 +102,9 @@ export function NewCardScreen() {
           )}
 
           <SelectField
-            label="Tipo"
+            label={strings.cards.typeLabel}
             value={form.selectedType}
-            placeholder="Escolha um tipo"
+            placeholder={strings.cards.typePlaceholder}
             disabled={form.isSaving}
             options={form.typeOptions}
             error={form.errors.type?.message}
@@ -102,12 +112,14 @@ export function NewCardScreen() {
           />
 
           {form.formError ? (
-            <Text className="text-sm font-medium text-danger">{form.formError}</Text>
+            <Text style={{ color: colors.danger }} className="text-sm font-medium">
+              {form.formError}
+            </Text>
           ) : null}
 
           <PrimaryButton
-            label="Proximo"
-            accessibilityLabel="Proximo"
+            label={strings.common.next}
+            accessibilityLabel={strings.common.next}
             disabled={!form.canGoNext}
             onPress={form.onNext}
           />
@@ -117,11 +129,14 @@ export function NewCardScreen() {
 
     return (
       <>
-        <View className="gap-2 rounded-xl border border-border bg-surface p-4">
-          <Text className="text-sm font-semibold text-textPrimary">
+        <View
+          style={{ borderColor: colors.border, backgroundColor: colors.surface }}
+          className="gap-2 rounded-xl border p-4"
+        >
+          <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
             {form.selectedCollectionName}
           </Text>
-          <Text className="text-sm text-textSecondary">
+          <Text style={{ color: colors.textSecondary }} className="text-sm">
             {form.selectedDeckName} - {form.selectedTypeLabel}
           </Text>
         </View>
@@ -177,23 +192,27 @@ export function NewCardScreen() {
         />
 
         {form.successMessage ? (
-          <Text className="text-sm font-semibold text-success">{form.successMessage}</Text>
+          <Text style={{ color: colors.success }} className="text-sm font-semibold">
+            {form.successMessage}
+          </Text>
         ) : null}
 
         {form.formError ? (
-          <Text className="text-sm font-medium text-danger">{form.formError}</Text>
+          <Text style={{ color: colors.danger }} className="text-sm font-medium">
+            {form.formError}
+          </Text>
         ) : null}
 
         <SecondaryButton
-          label="Testar"
-          accessibilityLabel="Testar card antes de salvar"
+          label={strings.cards.testLabel}
+          accessibilityLabel={strings.cards.testA11y}
           disabled={form.isSaving || form.isRecording}
           onPress={form.testReview.open}
         />
 
         <PrimaryButton
           label={saveLabel}
-          accessibilityLabel="Salvar card"
+          accessibilityLabel={strings.cards.saveA11y}
           disabled={form.isSaveDisabled}
           onPress={form.onSubmit}
         />
@@ -213,8 +232,8 @@ export function NewCardScreen() {
   return (
     <FormScreen>
       <ScreenHeader
-        title="Novo Card"
-        subtitle={form.step === 'setup' ? 'Etapa 1 de 2' : 'Etapa 2 de 2'}
+        title={strings.cards.newTitle}
+        subtitle={form.step === 'setup' ? strings.cards.stepSetup : strings.cards.stepContent}
         onBack={form.handleBack}
       />
       {renderBody()}

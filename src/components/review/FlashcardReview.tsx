@@ -13,7 +13,9 @@ import {
 import Animated from 'react-native-reanimated';
 
 import { PrimaryButton } from '@/components/common/PrimaryButton';
-import { shadows } from '@/theme';
+import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+import { useTheme } from '@/theme/useTheme';
+import { withAlpha } from '@/theme/createShadows';
 
 import { AnswerFeedback } from './AnswerFeedback';
 import { AnswerInput } from './AnswerInput';
@@ -23,7 +25,6 @@ import type { CheckedAnswer, FlashcardReviewProps } from './types';
 import { useFlipAnimation } from './useFlipAnimation';
 
 const FLIP_HEIGHT = 360;
-const BACKDROP_COLOR = 'rgba(15, 23, 42, 0.6)'; // colors.textPrimary com opacidade
 
 /**
  * Card de revisão flutuante com animação de flip (§35).
@@ -40,6 +41,8 @@ export function FlashcardReview({
   onFlip,
   reduceMotion,
 }: FlashcardReviewProps) {
+  const { colors, shadows } = useTheme();
+  const strings = useStrings();
   const [typed, setTyped] = useState('');
   const [checked, setChecked] = useState<CheckedAnswer | null>(null);
   const [override, setOverride] = useState<boolean | null>(null);
@@ -76,8 +79,8 @@ export function FlashcardReview({
   // Escuta digitada e Escrita verificam; nos demais casos é só virar.
   const flipLabel =
     answer.kind === 'typing' || (answer.kind === 'listening' && hasTyped)
-      ? 'Verificar'
-      : 'Virar card';
+      ? strings.review.flipVerify
+      : strings.review.flipCard;
   const allowOverride = answer.kind === 'typing' || answer.kind === 'listening';
   // Escuta e Pronúncia: ao virar, o verso reouve a própria gravação para comparar com o card.
   const showRecordedOnBack =
@@ -91,7 +94,7 @@ export function FlashcardReview({
       <Pressable
         accessibilityLabel="Fechar teclado"
         onPress={Keyboard.dismiss}
-        style={[styles.backdrop, { backgroundColor: BACKDROP_COLOR }]}
+        style={[styles.backdrop, { backgroundColor: withAlpha(colors.textPrimary, 0.6) }]}
       >
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -99,19 +102,24 @@ export function FlashcardReview({
         >
           {/* Pressable interno "vazio" evita que toques no card fechem o teclado/repassem. */}
           <Pressable onPress={() => undefined} className="w-full">
-            <View className="w-full gap-4 rounded-2xl bg-background p-5" style={shadows.lg}>
+            <View
+              style={{ backgroundColor: colors.background, ...shadows.lg }}
+              className="w-full gap-4 rounded-2xl p-5"
+            >
               <View className="flex-row items-center justify-between">
-                <Text className="text-sm font-semibold text-textSecondary">
-                  {isFlipped ? 'Como você se saiu?' : 'Revisar card'}
+                <Text style={{ color: colors.textSecondary }} className="text-sm font-semibold">
+                  {isFlipped ? strings.review.howDidYouDo : strings.review.reviewCardTitle}
                 </Text>
                 {onClose ? (
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel="Fechar"
                     onPress={onClose}
-                    className="h-8 w-8 items-center justify-center rounded-full active:bg-surface"
+                    className="h-8 w-8 items-center justify-center rounded-full active:opacity-90"
                   >
-                    <Text className="text-lg text-textSecondary">✕</Text>
+                    <Text style={{ color: colors.textSecondary }} className="text-lg">
+                      ✕
+                    </Text>
                   </Pressable>
                 ) : null}
               </View>
@@ -176,18 +184,28 @@ export function FlashcardReview({
                       ) : null}
                       {showRecordedOnBack &&
                       (answer.kind === 'listening' || answer.kind === 'recording') ? (
-                        <View className="gap-2 rounded-xl border border-border bg-surface p-4">
-                          <Text className="text-sm text-textSecondary">
+                        <View
+                          style={{ borderColor: colors.border, backgroundColor: colors.surface }}
+                          className="gap-2 rounded-xl border p-4"
+                        >
+                          <Text style={{ color: colors.textSecondary }} className="text-sm">
                             Ouça sua resposta e compare com o card.
                           </Text>
                           <Pressable
                             accessibilityRole="button"
                             accessibilityLabel="Ouvir minha gravação"
                             onPress={answer.onPlayRecording}
-                            className="flex-row items-center gap-2 self-start rounded-xl border border-border bg-background px-4 py-3 active:opacity-90"
+                            style={{
+                              borderColor: colors.border,
+                              backgroundColor: colors.background,
+                            }}
+                            className="flex-row items-center gap-2 self-start rounded-xl border px-4 py-3 active:opacity-90"
                           >
                             <Text className="text-base">▶</Text>
-                            <Text className="text-base font-medium text-textPrimary">
+                            <Text
+                              style={{ color: colors.textPrimary }}
+                              className="text-base font-medium"
+                            >
                               Ouvir minha gravação
                             </Text>
                           </Pressable>

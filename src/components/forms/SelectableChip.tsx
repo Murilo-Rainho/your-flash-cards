@@ -1,5 +1,7 @@
 import { Pressable, Text } from 'react-native';
 
+import { useTheme } from '@/theme/useTheme';
+
 type SelectableChipProps = {
   label: string;
   selected: boolean;
@@ -16,6 +18,8 @@ export function SelectableChip({
   accessibilityLabel,
   disabled = false,
 }: SelectableChipProps) {
+  const { colors } = useTheme();
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -23,11 +27,15 @@ export function SelectableChip({
       accessibilityState={{ selected }}
       disabled={disabled}
       onPress={onPress}
-      className={`rounded-xl border px-3 py-2 ${
-        selected ? 'border-primary bg-surface' : 'border-border bg-background'
-      }`}
+      style={{
+        borderColor: selected ? colors.primary : colors.border,
+        backgroundColor: selected ? colors.surface : colors.background,
+      }}
+      className="rounded-xl border px-3 py-2"
     >
-      <Text className="text-sm font-medium text-textPrimary">{label}</Text>
+      <Text style={{ color: colors.textPrimary }} className="text-sm font-medium">
+        {label}
+      </Text>
     </Pressable>
   );
 }

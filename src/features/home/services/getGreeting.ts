@@ -1,12 +1,16 @@
+import type { StringCatalog } from '@/strings/types';
+
 /**
  * Saudação por faixa horária para o cabeçalho da Home.
  *
- * Função pura: recebe a data por injeção (default `new Date()`) para ser testável
- * sem depender do relógio do ambiente.
+ * Função pura: recebe strings e data por injeção para ser testável sem relógio/locale fixos.
  */
-export function getGreeting(date: Date = new Date()): string {
+export function getGreeting(
+  greetingStrings: StringCatalog['home']['greeting'],
+  date: Date = new Date(),
+): string {
   const hour = date.getHours();
-  if (hour < 12) return 'Bom dia 👋';
-  if (hour < 18) return 'Boa tarde 👋';
-  return 'Boa noite 👋';
+  if (hour < 12) return greetingStrings.morning;
+  if (hour < 18) return greetingStrings.afternoon;
+  return greetingStrings.evening;
 }

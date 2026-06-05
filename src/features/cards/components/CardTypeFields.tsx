@@ -3,6 +3,8 @@ import { TextAreaField } from '@/components/forms/TextAreaField';
 import type { CardType } from '@/constants/cardTypes';
 import { MEDIA_SIDES, MEDIA_TYPES, type MediaSide } from '@/domain/entities/Media';
 
+import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+
 import { getCardTypeFormConfig } from '../config/cardTypeForm';
 import { LISTENING_INPUT_MODES, type ListeningInputMode } from '../config/listeningInputMode';
 import { TYPING_FRONT_MODES, type TypingFrontMode } from '../config/typingFrontMode';
@@ -90,7 +92,8 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
     onSpeakTts,
     onTtsLanguageChange,
   } = props;
-  const config = getCardTypeFormConfig(type);
+  const strings = useStrings();
+  const config = getCardTypeFormConfig(type, strings.cards.cardTypes);
   const frontError = errors.frontText ?? errors.frontMedia;
   const backError = errors.backText ?? errors.backMedia;
 
@@ -105,7 +108,7 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
 
     return (
       <TextAreaField
-        label={isFront ? 'Frente' : 'Verso'}
+        label={isFront ? strings.common.front : strings.common.backSide}
         value={isFront ? frontText : backText}
         placeholder={sideConfig.textPlaceholder}
         error={isFront ? frontError : backError}
@@ -127,7 +130,7 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
 
     return (
       <MediaControls
-        label={isFront ? 'Frente' : 'Verso'}
+        label={isFront ? strings.common.front : strings.common.backSide}
         media={isFront ? frontMedia : backMedia}
         textForTts={isFront ? frontText : backText}
         ttsLanguage={ttsLanguages[side]}
@@ -242,7 +245,7 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
         />
         {showBackText ? (
           <TextAreaField
-            label="Verso"
+            label={strings.common.backSide}
             value={backText}
             placeholder={config.back.textPlaceholder}
             error={errors.backText}
@@ -262,7 +265,7 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
     return (
       <>
         <ListeningSideField
-          label="Frente"
+          label={strings.common.front}
           mode={listeningModes.front}
           text={frontText}
           textPlaceholder={config.front.textPlaceholder}
@@ -283,7 +286,7 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
         />
         {showTranscript ? (
           <TextAreaField
-            label="Verso"
+            label={strings.common.backSide}
             value={backText}
             placeholder={config.back.textPlaceholder}
             error={errors.backText}
@@ -302,7 +305,7 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
     return (
       <>
         <TextAreaField
-          label="Frente"
+          label={strings.common.front}
           value={frontText}
           placeholder={config.front.textPlaceholder}
           error={errors.frontText}
@@ -310,7 +313,7 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
           onChangeText={(value) => onChangeText(MEDIA_SIDES.FRONT, value)}
         />
         <ListeningSideField
-          label="Verso"
+          label={strings.common.backSide}
           mode={listeningModes.back}
           text={frontText}
           reuseTextForTts

@@ -1,7 +1,10 @@
 import type { CollectionSummary } from '@/features/home/types';
 import { ROUTES } from '@/constants/routes';
+import { ptBR } from '@/strings/locales/pt-BR';
 
 import { getReviewNowCardState } from './getReviewNowCardState';
+
+const reviewNowStrings = ptBR.home.reviewNow;
 
 const baseCollection = {
   id: 'collection-pt-en',
@@ -25,7 +28,9 @@ function collectionSummary(overrides: Partial<CollectionSummary> = {}): Collecti
 
 describe('getReviewNowCardState', () => {
   it('guides the user to create the first collection when none exist', () => {
-    expect(getReviewNowCardState({ dueCards: 0, collections: [] })).toMatchObject({
+    expect(
+      getReviewNowCardState({ dueCards: 0, collections: [], strings: reviewNowStrings }),
+    ).toMatchObject({
       action: 'create-collection',
       title: 'Crie sua primeira coleção',
       route: ROUTES.COLLECTION_NEW,
@@ -37,6 +42,7 @@ describe('getReviewNowCardState', () => {
       getReviewNowCardState({
         dueCards: 0,
         collections: [collectionSummary({ totalDecks: 0, totalCards: 0 })],
+        strings: reviewNowStrings,
       }),
     ).toMatchObject({
       action: 'create-deck',
@@ -50,6 +56,7 @@ describe('getReviewNowCardState', () => {
       getReviewNowCardState({
         dueCards: 0,
         collections: [collectionSummary({ totalDecks: 2, totalCards: 0 })],
+        strings: reviewNowStrings,
       }),
     ).toMatchObject({
       action: 'create-card',
@@ -63,6 +70,7 @@ describe('getReviewNowCardState', () => {
       getReviewNowCardState({
         dueCards: 1,
         collections: [collectionSummary({ totalDecks: 1, totalCards: 3 })],
+        strings: reviewNowStrings,
       }),
     ).toMatchObject({
       action: 'review',
@@ -76,6 +84,7 @@ describe('getReviewNowCardState', () => {
       getReviewNowCardState({
         dueCards: 0,
         collections: [collectionSummary({ totalDecks: 1, totalCards: 3 })],
+        strings: reviewNowStrings,
       }),
     ).toMatchObject({
       action: 'done',

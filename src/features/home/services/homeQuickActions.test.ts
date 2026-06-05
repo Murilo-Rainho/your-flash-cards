@@ -1,34 +1,34 @@
 import { ROUTES } from '@/constants/routes';
+import { ptBR } from '@/strings/locales/pt-BR';
 
 import { getHomeQuickActions } from './homeQuickActions';
 
 describe('getHomeQuickActions', () => {
-  it('points collection and deck actions to their creation routes', () => {
-    const actions = getHomeQuickActions();
+  it('retorna as quatro ações da Home com rotas conhecidas', () => {
+    const actions = getHomeQuickActions(ptBR.home.quickActions);
 
-    expect(actions).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ id: 'new-collection', route: ROUTES.COLLECTION_NEW }),
-        expect.objectContaining({ id: 'new-deck', route: ROUTES.DECK_NEW }),
-      ]),
-    );
+    expect(actions).toHaveLength(4);
+    expect(actions[0]).toMatchObject({
+      id: 'new-collection',
+      label: 'Nova Coleção',
+      route: ROUTES.COLLECTION_NEW,
+    });
+    expect(actions[1]?.route).toBe(ROUTES.DECK_NEW);
+    expect(actions[2]?.route).toBe(ROUTES.CARD_NEW);
+    expect(actions[3]).toMatchObject({ id: 'import', disabled: true });
   });
 
-  it('points card creation to its route and keeps import disabled', () => {
-    const actions = getHomeQuickActions();
-    const cardAction = actions.find((action) => action.id === 'new-card');
-    const importAction = actions.find((action) => action.id === 'import');
+  it('retorna cópias independentes a cada chamada', () => {
+    const actions = getHomeQuickActions(ptBR.home.quickActions);
+    actions[0]!.label = 'Alterado';
 
-    expect(cardAction).toMatchObject({ id: 'new-card', route: ROUTES.CARD_NEW });
-    expect(importAction).toMatchObject({ id: 'import', disabled: true });
-    expect(importAction).not.toHaveProperty('route');
+    expect(getHomeQuickActions(ptBR.home.quickActions)[0]?.label).toBe('Nova Coleção');
   });
 
-  it('returns clones instead of exposing the internal action list', () => {
-    const [firstAction] = getHomeQuickActions();
+  it('expõe a primeira ação como Nova Coleção', () => {
+    const [firstAction] = getHomeQuickActions(ptBR.home.quickActions);
 
-    firstAction.label = 'Changed';
-
-    expect(getHomeQuickActions()[0]?.label).toBe('Nova Coleção');
+    expect(firstAction?.id).toBe('new-collection');
+    expect(getHomeQuickActions(ptBR.home.quickActions)[0]?.label).toBe('Nova Coleção');
   });
 });

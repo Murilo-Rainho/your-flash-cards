@@ -21,11 +21,3 @@ export const REVIEW_RATING_ORDER = [
   REVIEW_RATINGS.GOOD,
   REVIEW_RATINGS.EASY,
 ] as const;
-
-/** Rótulos PT-BR amigáveis (§19: nunca apenas "acertei/errei"). */
-export const REVIEW_RATING_LABELS: Record<ReviewRating, string> = {
-  again: 'Errei',
-  hard: 'Difícil',
-  good: 'Médio',
-  easy: 'Fácil',
-};

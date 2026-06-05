@@ -1,5 +1,8 @@
 import { Text, View } from 'react-native';
 
+import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+import { useTheme } from '@/theme/useTheme';
+
 type HomeHeaderProps = {
   greeting: string;
   dueCards: number;
@@ -7,15 +10,20 @@ type HomeHeaderProps = {
 
 /** Cabeçalho de boas-vindas: saudação + quantos cards aguardam revisão hoje. */
 export function HomeHeader({ greeting, dueCards }: HomeHeaderProps) {
+  const strings = useStrings();
+  const { colors } = useTheme();
+
   const subtitle =
-    dueCards > 0
-      ? `${dueCards} ${dueCards === 1 ? 'card' : 'cards'} para revisar hoje`
-      : 'Nada para revisar agora';
+    dueCards > 0 ? `${dueCards} ${strings.home.dueCardsToday}` : strings.home.dueCardsTodayNone;
 
   return (
     <View className="gap-1">
-      <Text className="text-3xl font-bold text-textPrimary">{greeting}</Text>
-      <Text className="text-base text-textSecondary">{subtitle}</Text>
+      <Text style={{ color: colors.textPrimary }} className="text-3xl font-bold">
+        {greeting}
+      </Text>
+      <Text style={{ color: colors.textSecondary }} className="text-base">
+        {subtitle}
+      </Text>
     </View>
   );
 }

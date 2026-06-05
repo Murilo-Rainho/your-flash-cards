@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import { FieldError } from '@/components/common/FieldError';
 import { SelectableChip } from '@/components/forms/SelectableChip';
 import { LANGUAGES, type LanguageCode } from '@/constants/languages';
+import { useTheme } from '@/theme/useTheme';
 
 type LanguagePickerProps = {
   label: string;
@@ -22,9 +23,13 @@ export function LanguagePicker({
   error,
   disabled = false,
 }: LanguagePickerProps) {
+  const { colors } = useTheme();
+
   return (
     <View className="gap-3">
-      <Text className="text-sm font-semibold text-textPrimary">{label}</Text>
+      <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+        {label}
+      </Text>
       <View className="flex-row flex-wrap gap-2">
         {LANGUAGES.map((language) => (
           <SelectableChip

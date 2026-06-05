@@ -3,6 +3,7 @@ import { Image, Pressable, Text, View } from 'react-native';
 import { SelectField } from '@/components/forms/SelectField';
 import { LANGUAGES, toSpeechLanguage } from '@/constants/languages';
 import { MEDIA_TYPES } from '@/domain/entities/Media';
+import { useTheme } from '@/theme/useTheme';
 import { formatRecordingDuration } from '@/utils/format';
 
 import { getMediaLabel } from '../services/cardMedia';
@@ -58,6 +59,7 @@ export function MediaControls({
   onSpeakTts,
   onTtsLanguageChange,
 }: MediaControlsProps) {
+  const { colors } = useTheme();
   const imageMedia = media.find((item) => item.type === MEDIA_TYPES.IMAGE);
   const audioMedia = media.find((item) => item.type !== MEDIA_TYPES.IMAGE);
   const canShowAudioBlock = allowAudioFile || allowRecording || allowTts || audioMedia;
@@ -70,12 +72,15 @@ export function MediaControls({
     <View className="gap-4">
       {allowImage ? (
         <View className="gap-2">
-          <Text className="text-sm font-semibold text-textPrimary">Imagem</Text>
+          <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+            Imagem
+          </Text>
           {imageMedia?.type === MEDIA_TYPES.IMAGE ? (
             <View className="gap-2">
               <Image
                 source={{ uri: imageMedia.uri }}
-                className="h-36 w-full rounded-xl bg-surface"
+                style={{ backgroundColor: colors.surface }}
+                className="h-36 w-full rounded-xl"
                 resizeMode="cover"
               />
               <Pressable
@@ -83,9 +88,12 @@ export function MediaControls({
                 accessibilityLabel={`Remover imagem de ${label}`}
                 disabled={isSaving}
                 onPress={() => onRemoveMedia(MEDIA_TYPES.IMAGE)}
-                className="items-center rounded-xl border border-border bg-background px-4 py-3 active:bg-surface"
+                style={{ borderColor: colors.border, backgroundColor: colors.background }}
+                className="items-center rounded-xl border px-4 py-3 active:opacity-90"
               >
-                <Text className="text-sm font-semibold text-textPrimary">Remover imagem</Text>
+                <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+                  Remover imagem
+                </Text>
               </Pressable>
             </View>
           ) : (
@@ -95,18 +103,24 @@ export function MediaControls({
                 accessibilityLabel={`Escolher imagem de ${label}`}
                 disabled={isSaving}
                 onPress={onPickImage}
-                className="flex-1 items-center rounded-xl border border-border bg-background px-3 py-3 active:bg-surface"
+                style={{ borderColor: colors.border, backgroundColor: colors.background }}
+                className="flex-1 items-center rounded-xl border px-3 py-3 active:opacity-90"
               >
-                <Text className="text-sm font-semibold text-textPrimary">Galeria</Text>
+                <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+                  Galeria
+                </Text>
               </Pressable>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={`Tirar foto de ${label}`}
                 disabled={isSaving}
                 onPress={onTakePhoto}
-                className="flex-1 items-center rounded-xl border border-border bg-background px-3 py-3 active:bg-surface"
+                style={{ borderColor: colors.border, backgroundColor: colors.background }}
+                className="flex-1 items-center rounded-xl border px-3 py-3 active:opacity-90"
               >
-                <Text className="text-sm font-semibold text-textPrimary">Camera</Text>
+                <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+                  Camera
+                </Text>
               </Pressable>
             </View>
           )}
@@ -115,10 +129,15 @@ export function MediaControls({
 
       {canShowAudioBlock ? (
         <View className="gap-2">
-          <Text className="text-sm font-semibold text-textPrimary">Audio</Text>
+          <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+            Audio
+          </Text>
           {audioMedia ? (
-            <View className="gap-2 rounded-xl border border-border bg-surface p-3">
-              <Text className="text-sm text-textSecondary" numberOfLines={1}>
+            <View
+              style={{ borderColor: colors.border, backgroundColor: colors.surface }}
+              className="gap-2 rounded-xl border p-3"
+            >
+              <Text style={{ color: colors.textSecondary }} className="text-sm" numberOfLines={1}>
                 {getMediaLabel(audioMedia)}
               </Text>
               <View className="flex-row gap-2">
@@ -129,9 +148,12 @@ export function MediaControls({
                     accessibilityLabel={`Tocar audio de ${label}`}
                     disabled={isSaving}
                     onPress={() => onPlayAudio(audioMedia.uri)}
-                    className="flex-1 items-center rounded-xl border border-border bg-background px-3 py-3 active:bg-surface"
+                    style={{ borderColor: colors.border, backgroundColor: colors.background }}
+                    className="flex-1 items-center rounded-xl border px-3 py-3 active:opacity-90"
                   >
-                    <Text className="text-sm font-semibold text-textPrimary">Tocar</Text>
+                    <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+                      Tocar
+                    </Text>
                   </Pressable>
                 ) : (
                   <Pressable
@@ -139,9 +161,12 @@ export function MediaControls({
                     accessibilityLabel={`Ouvir TTS de ${label}`}
                     disabled={isSaving}
                     onPress={onSpeakTts}
-                    className="flex-1 items-center rounded-xl border border-border bg-background px-3 py-3 active:bg-surface"
+                    style={{ borderColor: colors.border, backgroundColor: colors.background }}
+                    className="flex-1 items-center rounded-xl border px-3 py-3 active:opacity-90"
                   >
-                    <Text className="text-sm font-semibold text-textPrimary">Ouvir</Text>
+                    <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+                      Ouvir
+                    </Text>
                   </Pressable>
                 )}
                 <Pressable
@@ -149,9 +174,12 @@ export function MediaControls({
                   accessibilityLabel={`Remover audio de ${label}`}
                   disabled={isSaving}
                   onPress={() => onRemoveMedia(audioMedia.type)}
-                  className="flex-1 items-center rounded-xl border border-border bg-background px-3 py-3 active:bg-surface"
+                  style={{ borderColor: colors.border, backgroundColor: colors.background }}
+                  className="flex-1 items-center rounded-xl border px-3 py-3 active:opacity-90"
                 >
-                  <Text className="text-sm font-semibold text-textPrimary">Remover</Text>
+                  <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+                    Remover
+                  </Text>
                 </Pressable>
               </View>
             </View>
@@ -164,9 +192,12 @@ export function MediaControls({
                     accessibilityLabel={`Anexar audio de ${label}`}
                     disabled={isSaving || isRecording}
                     onPress={onPickAudio}
-                    className="flex-1 items-center rounded-xl border border-border bg-background px-3 py-3 active:bg-surface"
+                    style={{ borderColor: colors.border, backgroundColor: colors.background }}
+                    className="flex-1 items-center rounded-xl border px-3 py-3 active:opacity-90"
                   >
-                    <Text className="text-sm font-semibold text-textPrimary">Arquivo</Text>
+                    <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+                      Arquivo
+                    </Text>
                   </Pressable>
                 ) : null}
                 {allowRecording ? (
@@ -177,9 +208,10 @@ export function MediaControls({
                     }
                     disabled={isSaving || (isRecording && !isRecordingThisSide)}
                     onPress={isRecordingThisSide ? onStopRecording : onStartRecording}
-                    className="flex-1 items-center rounded-xl border border-border bg-background px-3 py-3 active:bg-surface"
+                    style={{ borderColor: colors.border, backgroundColor: colors.background }}
+                    className="flex-1 items-center rounded-xl border px-3 py-3 active:opacity-90"
                   >
-                    <Text className="text-sm font-semibold text-textPrimary">
+                    <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
                       {isRecordingThisSide
                         ? `Parar ${formatRecordingDuration(recordingDurationMs)}`
                         : 'Gravar'}
@@ -206,11 +238,16 @@ export function MediaControls({
                     accessibilityLabel={`Usar TTS local em ${label}`}
                     disabled={isSaving || !textForTts.trim()}
                     onPress={onToggleTts}
-                    className={`items-center rounded-xl border border-border bg-background px-4 py-3 active:bg-surface ${
-                      !textForTts.trim() ? 'opacity-50' : ''
-                    }`}
+                    style={{
+                      borderColor: colors.border,
+                      backgroundColor: colors.background,
+                      opacity: !textForTts.trim() ? 0.5 : 1,
+                    }}
+                    className="items-center rounded-xl border px-4 py-3 active:opacity-90"
                   >
-                    <Text className="text-sm font-semibold text-textPrimary">Usar TTS local</Text>
+                    <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+                      Usar TTS local
+                    </Text>
                   </Pressable>
                 </View>
               ) : null}
