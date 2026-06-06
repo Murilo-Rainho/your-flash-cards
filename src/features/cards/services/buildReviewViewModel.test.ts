@@ -1,4 +1,5 @@
 import { CARD_TYPES } from '@/constants/cardTypes';
+import { enUS } from '@/strings/locales/en-US';
 
 import { buildReviewViewModel, type ReviewSource } from './buildReviewViewModel';
 import type { CreateCardMediaInput } from './createCard';
@@ -23,6 +24,7 @@ function createSource(
     cloze: emptyCloze,
     frontMedia: [],
     backMedia: [],
+    reviewStrings: enUS.review,
     onPlayAudio: (uri) => played.push(uri),
     onSpeakTts: (side) => spoken.push(side),
     ...overrides,

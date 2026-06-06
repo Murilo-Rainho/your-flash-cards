@@ -8,10 +8,15 @@ type FlashcardFaceProps = {
   face: CardFaceViewModel;
   /** Texto exibido quando o lado não tem nenhum conteúdo (preview best-effort). */
   emptyHint?: string;
+  imageAccessibilityLabel?: string;
 };
 
 /** Renderiza UM lado do card (texto, imagem e/ou áudio). Reutilizado por frente e verso. */
-export function FlashcardFace({ face, emptyHint = 'Sem conteúdo' }: FlashcardFaceProps) {
+export function FlashcardFace({
+  face,
+  emptyHint = 'No content',
+  imageAccessibilityLabel = 'Card image',
+}: FlashcardFaceProps) {
   const { colors } = useTheme();
   const isEmpty = !face.text && !face.imageUri && !face.audio;
 
@@ -21,7 +26,7 @@ export function FlashcardFace({ face, emptyHint = 'Sem conteúdo' }: FlashcardFa
         <Image
           source={{ uri: face.imageUri }}
           resizeMode="contain"
-          accessibilityLabel="Imagem do card"
+          accessibilityLabel={imageAccessibilityLabel}
           style={{ backgroundColor: colors.surface }}
           className="h-44 w-full rounded-xl"
         />

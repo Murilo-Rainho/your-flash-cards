@@ -3,12 +3,9 @@ import { View } from 'react-native';
 import { SelectField } from '@/components/forms/SelectField';
 import { TextAreaField } from '@/components/forms/TextAreaField';
 import { MEDIA_TYPES } from '@/domain/entities/Media';
+import { useStrings } from '@/features/settings/providers/PreferencesProvider';
 
-import {
-  VOCABULARY_FRONT_MODE_OPTIONS,
-  VOCABULARY_FRONT_MODES,
-  type VocabularyFrontMode,
-} from '../config/vocabularyFrontMode';
+import { VOCABULARY_FRONT_MODES, type VocabularyFrontMode } from '../config/vocabularyFrontMode';
 import type { ListeningInputMode } from '../config/listeningInputMode';
 import type { CreateCardMediaInput } from '../services/createCard';
 import { ListeningSideField } from './ListeningSideField';
@@ -62,23 +59,27 @@ export function VocabularyFrontField({
   onPlayAudio,
   onTestAudio,
 }: VocabularyFrontFieldProps) {
+  const strings = useStrings();
+  const modeOptions = [
+    { value: VOCABULARY_FRONT_MODES.TEXT, label: strings.cards.inputModes.vocabularyText },
+    { value: VOCABULARY_FRONT_MODES.IMAGE, label: strings.cards.inputModes.vocabularyImage },
+    { value: VOCABULARY_FRONT_MODES.AUDIO, label: strings.cards.inputModes.vocabularyAudio },
+  ];
+
   return (
     <View className="gap-3">
       <SelectField
-        label="Frente"
+        label={strings.common.front}
         value={mode}
-        placeholder="Escolha o tipo da frente"
+        placeholder={strings.cards.media.chooseFrontTypePlaceholder}
         disabled={isSaving}
-        options={VOCABULARY_FRONT_MODE_OPTIONS.map((option) => ({
-          value: option.value,
-          label: option.label,
-        }))}
+        options={modeOptions}
         onChange={(value) => onModeChange(value as VocabularyFrontMode)}
       />
 
       {mode === VOCABULARY_FRONT_MODES.TEXT ? (
         <TextAreaField
-          label="Texto"
+          label={strings.cards.media.textLabel}
           value={text}
           placeholder={textPlaceholder}
           error={textError}
@@ -89,7 +90,7 @@ export function VocabularyFrontField({
 
       {mode === VOCABULARY_FRONT_MODES.IMAGE ? (
         <MediaControls
-          label="Frente"
+          label={strings.common.front}
           media={media}
           textForTts=""
           ttsLanguage=""
@@ -113,7 +114,7 @@ export function VocabularyFrontField({
 
       {mode === VOCABULARY_FRONT_MODES.AUDIO ? (
         <ListeningSideField
-          label="Frente"
+          label={strings.common.front}
           mode={listeningMode}
           text={text}
           textPlaceholder={textPlaceholder}

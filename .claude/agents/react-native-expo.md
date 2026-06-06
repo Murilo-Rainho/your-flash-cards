@@ -25,8 +25,14 @@ NativeWind, tokens de tema) sem quebrar a compatibilidade com Expo Go. Base: con
 ## Responsabilidades
 
 - Telas "burras": consomem `features/`, sem regra de negócio.
-- Usar componentes compartilhados de `src/components/common`/`forms` (a criar) e o **tema**
-  (`@/theme`/classes), nunca cor crua. Ícones sempre via `@/theme` (`icons.ts`).
+- **Cores do tema selecionado:** NativeWind com tokens semânticos (`bg-primary`,
+  `text-textPrimary`, …) **ou** `const { colors } = useTheme()` para estilos inline/props de
+  cor — refletem a paleta escolhida pelo usuário. **Nunca** cor crua (`#fff`, `rgb(...)`,
+  `bg-blue-500`). Ícones sempre via `@/theme` (`icons.ts`).
+- **Textos de UI nos catálogos de idioma:** labels, placeholders, erros e microcopy em
+  `src/strings/locales/pt-BR/` **e** `en-US/` (módulo por feature), tipo atualizado em
+  `src/strings/types.ts`, consumo via `useStrings()`. **Nunca** string visível hardcoded no JSX.
+- Usar componentes compartilhados de `src/components/common`/`forms` (a criar).
 - Garantir performance (listas virtualizadas, memoization onde necessário, evitar re-render).
 - Respeitar a **regra de Expo Go**: não bumpar `react-native`/`reanimated`/`worklets`,
   manter `overrides` e `babel-preset-expo`.
@@ -44,7 +50,8 @@ NativeWind, tokens de tema) sem quebrar a compatibilidade com Expo Go. Base: con
 - ❌ Componentes gigantes/monolíticos; quebre em componentes pequenos + hooks.
 - ❌ Dependência excessiva de bibliotecas — prefira o que já existe / Expo nativo.
 - ❌ Regra de negócio ou acesso a SQLite na UI.
-- ❌ Cores cruas (`#fff`, `bg-blue-500`) — só tokens do tema.
+- ❌ Cores cruas (`#fff`, `rgb(...)`, `bg-blue-500`) — só tokens do tema / `useTheme().colors`.
+- ❌ Strings visíveis hardcoded no componente — use `useStrings()` + catálogos `pt-BR`/`en-US`.
 - ❌ Atualizar versões fixadas / remover overrides do Expo Go.
 
 ## Exemplos práticos
@@ -58,7 +65,8 @@ NativeWind, tokens de tema) sem quebrar a compatibilidade com Expo Go. Base: con
 ## Checklist de revisão
 
 - [ ] Tela sem regra de negócio nem SQL.
-- [ ] Só tokens do tema; nenhum literal de cor.
+- [ ] Cores via tokens NativeWind ou `useTheme().colors`; nenhum literal de cor.
+- [ ] Textos de UI em `src/strings/locales/` (pt-BR + en-US); nada hardcoded no JSX.
 - [ ] Componentes pequenos e composáveis.
 - [ ] Libs novas são compatíveis com o SDK e Expo Go; nenhum override removido.
 - [ ] Listas longas virtualizadas; sem re-renders óbvios.

@@ -1,9 +1,10 @@
 import { Pressable, Text, View } from 'react-native';
 
-import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+import type { StringCatalog } from '@/strings/types';
 import { useTheme } from '@/theme/useTheme';
 
 type AnswerFeedbackProps = {
+  strings: StringCatalog['review'];
   /** Resultado efetivo (já considerando override manual, quando houver). */
   correct: boolean;
   /** Resposta que o usuário digitou (pode ser vazia). */
@@ -16,13 +17,13 @@ type AnswerFeedbackProps = {
 
 /** Feedback de resposta digitada no estado ANSWER (cloze/typing). */
 export function AnswerFeedback({
+  strings,
   correct,
   typed,
   expected,
   onToggleOverride,
 }: AnswerFeedbackProps) {
   const { colors } = useTheme();
-  const strings = useStrings();
   const trimmedTyped = typed.trim();
 
   return (
@@ -34,12 +35,12 @@ export function AnswerFeedback({
         style={{ color: correct ? colors.success : colors.danger }}
         className="text-base font-bold"
       >
-        {correct ? strings.review.correct : strings.review.incorrect}
+        {correct ? strings.correct : strings.incorrect}
       </Text>
 
       {!correct && trimmedTyped ? (
         <Text style={{ color: colors.textSecondary }} className="text-sm">
-          Você escreveu:{' '}
+          {strings.answer.typedAnswer}{' '}
           <Text style={{ color: colors.textPrimary }} className="font-semibold">
             {trimmedTyped}
           </Text>
@@ -48,7 +49,7 @@ export function AnswerFeedback({
 
       {expected ? (
         <Text style={{ color: colors.textSecondary }} className="text-sm">
-          {strings.review.expectedAnswer}{' '}
+          {strings.expectedAnswer}{' '}
           <Text style={{ color: colors.textPrimary }} className="font-semibold">
             {expected}
           </Text>
@@ -58,12 +59,12 @@ export function AnswerFeedback({
       {onToggleOverride ? (
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={correct ? 'Marcar como errei' : 'Marcar como acertei'}
+          accessibilityLabel={correct ? strings.answer.markWrong : strings.answer.markCorrect}
           onPress={onToggleOverride}
           className="self-start active:opacity-70"
         >
           <Text style={{ color: colors.primary }} className="text-sm font-medium">
-            {strings.review.actuallyWrong}
+            {correct ? strings.actuallyWrong : strings.actuallyCorrect}
           </Text>
         </Pressable>
       ) : null}

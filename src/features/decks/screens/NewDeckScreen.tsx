@@ -3,12 +3,11 @@ import { Controller, useForm } from 'react-hook-form';
 import { Switch, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { FieldError } from '@/components/common/FieldError';
 import { PrimaryButton } from '@/components/common/PrimaryButton';
 import { ScreenHeader } from '@/components/common/ScreenHeader';
 import { StateCard } from '@/components/common/StateCard';
 import { FormScreen } from '@/components/forms/FormScreen';
-import { SelectableCard } from '@/components/forms/SelectableCard';
+import { SelectField, type SelectOption } from '@/components/forms/SelectField';
 import { TextAreaField } from '@/components/forms/TextAreaField';
 import { TextField } from '@/components/forms/TextField';
 import { ROUTES } from '@/constants/routes';
@@ -48,6 +47,11 @@ export function NewDeckScreen() {
   } = useForm<CreateDeckInput>({ defaultValues });
   const collections = activeCollectionsQuery.data ?? emptyCollections;
   const selectedCollectionId = watch('collectionId');
+  const collectionOptions = collections.map<SelectOption>((collection) => ({
+    value: collection.id,
+    label: collection.name,
+    description: `${collection.baseLanguage.toUpperCase()} -> ${collection.targetLanguage.toUpperCase()}`,
+  }));
   const isSaving = createDeckMutation.isPending;
   const isFormDisabled = isSaving || activeCollectionsQuery.isLoading || collections.length === 0;
 
@@ -116,30 +120,20 @@ export function NewDeckScreen() {
 
     return (
       <>
-        <View className="gap-3">
-          <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-            {strings.decks.collectionLabel}
-          </Text>
-          <View className="gap-2">
-            {collections.map((collection) => (
-              <SelectableCard
-                key={collection.id}
-                title={collection.name}
-                subtitle={`${collection.baseLanguage.toUpperCase()} → ${collection.targetLanguage.toUpperCase()}`}
-                selected={collection.id === selectedCollectionId}
-                disabled={isSaving}
-                accessibilityLabel={`${strings.decks.collectionA11yPrefix} ${collection.name}`}
-                onPress={() =>
-                  setValue('collectionId', collection.id, {
-                    shouldDirty: true,
-                    shouldValidate: false,
-                  })
-                }
-              />
-            ))}
-          </View>
-          <FieldError message={errors.collectionId?.message} />
-        </View>
+        <SelectField
+          label={strings.decks.collectionLabel}
+          value={selectedCollectionId}
+          placeholder={strings.decks.collectionPlaceholder}
+          disabled={isSaving}
+          options={collectionOptions}
+          error={errors.collectionId?.message}
+          onChange={(collectionId) =>
+            setValue('collectionId', collectionId, {
+              shouldDirty: true,
+              shouldValidate: false,
+            })
+          }
+        />
 
         <Controller
           control={control}

@@ -7,6 +7,7 @@ import { StateCard } from '@/components/common/StateCard';
 import { FormScreen } from '@/components/forms/FormScreen';
 import { SelectField } from '@/components/forms/SelectField';
 import { FlashcardReview } from '@/components/review';
+import { DeckSelectField } from '../components/DeckSelectField';
 import { useStrings } from '@/features/settings/providers/PreferencesProvider';
 import { useTheme } from '@/theme/useTheme';
 
@@ -78,28 +79,34 @@ export function NewCardScreen() {
             onChange={form.onCollectionChange}
           />
 
-          {form.decksEmpty ? (
-            <StateCard
-              title={strings.cards.noDecksInCollection}
-              action={{
-                label: strings.cards.createDeck,
-                accessibilityLabel: strings.cards.createDeckA11y,
-                onPress: form.goToCreateDeck,
-              }}
-            />
-          ) : (
-            <SelectField
-              label={strings.cards.deckLabel}
-              value={form.selectedDeckId}
-              placeholder={
-                form.decksLoading ? strings.cards.loadingDecks : strings.cards.deckPlaceholder
-              }
-              disabled={!form.selectedCollectionId || form.decksLoading}
-              options={form.deckOptions}
-              error={form.errors.deckId?.message}
-              onChange={form.onDeckChange}
-            />
-          )}
+          <DeckSelectField
+            label={strings.cards.deckLabel}
+            value={form.selectedDeckId}
+            placeholder={
+              form.decksLoading ? strings.cards.loadingDecks : strings.cards.deckPlaceholder
+            }
+            disabled={!form.selectedCollectionId || form.decksLoading || form.isSaving}
+            options={form.deckOptions}
+            collectionLabel={strings.decks.collectionLabel}
+            collectionName={form.selectedCollectionName ?? ''}
+            emptyHint={form.decksEmpty ? strings.cards.noDecksInCollection : undefined}
+            error={form.errors.deckId?.message}
+            onChange={form.onDeckChange}
+            createDeckLabel={strings.cards.createDeck}
+            createDeckA11y={strings.cards.createDeckA11y}
+            nameLabel={strings.decks.nameLabel}
+            namePlaceholder={strings.decks.namePlaceholder}
+            descriptionLabel={strings.decks.descriptionLabel}
+            descriptionPlaceholder={strings.decks.descriptionPlaceholder}
+            saveDeckLabel={strings.decks.saveLabel}
+            saveDeckA11y={strings.decks.saveA11y}
+            backLabel={strings.common.back}
+            backA11y={strings.common.back}
+            isCreatingDeck={form.isCreatingDeck}
+            createDeckErrors={form.deckCreateErrors}
+            onCreateDeck={form.onCreateDeck}
+            onCreateFormDismiss={form.onCreateDeckFormDismiss}
+          />
 
           <SelectField
             label={strings.cards.typeLabel}
@@ -221,6 +228,7 @@ export function NewCardScreen() {
           <FlashcardReview
             visible
             card={form.testReview.viewModel}
+            strings={strings.review}
             onRate={form.testReview.handleRate}
             onClose={form.testReview.close}
           />

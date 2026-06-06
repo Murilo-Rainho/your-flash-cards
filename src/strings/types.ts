@@ -39,12 +39,25 @@ export type StringCatalog = {
     loadErrorRetryA11y: string;
     noCollections: string;
     dueCardsToday: string;
+    dueCardsTodaySingular: string;
+    dueCardsTodayPlural: string;
     dueCardsTodayNone: string;
     stats: {
       reviewedToday: string;
       retention: string;
       streak: string;
       mastered: string;
+      streakDaySingular: string;
+      streakDayPlural: string;
+    };
+    collectionSummary: {
+      accessibilityPrefix: string;
+      cardSingular: string;
+      cardPlural: string;
+      dueSingular: string;
+      duePlural: string;
+      masteredSingular: string;
+      masteredPlural: string;
     };
     quickActions: {
       newCollection: string;
@@ -140,6 +153,83 @@ export type StringCatalog = {
     savingLabel: string;
     stopRecordingToSave: string;
     savedNextReady: string;
+    createError: string;
+    ttsTextRequired: string;
+    ttsUnavailable: string;
+    ttsPlaybackError: string;
+    audioRequiredToTest: string;
+    audioPlaybackError: string;
+    clozeFields: {
+      frontDescription: string;
+      frontBeforePlaceholder: string;
+      frontGapPlaceholder: string;
+      frontAfterPlaceholder: string;
+      backBeforePlaceholder: string;
+      backGapPlaceholder: string;
+      backAfterPlaceholder: string;
+    };
+    optionalFields: {
+      accessibilityLabel: string;
+      showLabel: string;
+      hideLabel: string;
+      notesLabel: string;
+      notesPlaceholder: string;
+    };
+    inputModes: {
+      audioFile: string;
+      recording: string;
+      tts: string;
+      imageCamera: string;
+      imageGallery: string;
+      vocabularyText: string;
+      vocabularyImage: string;
+      vocabularyAudio: string;
+    };
+    media: {
+      textLabel: string;
+      imageLabel: string;
+      audioLabel: string;
+      addAudioLabel: string;
+      chooseOptionPlaceholder: string;
+      chooseFrontContentPlaceholder: string;
+      chooseFrontTypePlaceholder: string;
+      ttsReadsFrontText: string;
+      typingTtsReuseHint: string;
+      uploadAudioFile: string;
+      removeFile: string;
+      removeAudioFileA11y: string;
+      uploadAudioFileA11y: string;
+      recordingReady: string;
+      removeRecording: string;
+      removeRecordingA11y: string;
+      recordAudio: string;
+      recordAudioA11y: string;
+      stopRecordingA11y: string;
+      stopRecordingPrefix: string;
+      testAudio: string;
+      testAudioA11y: string;
+      removeImage: string;
+      removeImageA11y: string;
+      chooseImageA11y: string;
+      takePhotoA11y: string;
+      gallery: string;
+      camera: string;
+      takePhoto: string;
+      chooseFromGallery: string;
+      playAudioA11y: string;
+      playTtsA11y: string;
+      play: string;
+      listen: string;
+      removeAudioA11y: string;
+      remove: string;
+      attachAudioA11y: string;
+      file: string;
+      record: string;
+      ttsLanguageLabel: string;
+      ttsLanguagePlaceholder: string;
+      useLocalTts: string;
+      useLocalTtsA11y: string;
+    };
     cardTypes: {
       cloze: { label: string; description: string; backPlaceholder: string };
       vocabulary: {
@@ -177,7 +267,53 @@ export type StringCatalog = {
     correct: string;
     incorrect: string;
     actuallyWrong: string;
+    actuallyCorrect: string;
     expectedAnswer: string;
+    closeKeyboardA11y: string;
+    closeA11y: string;
+    face: {
+      frontEmpty: string;
+      backEmpty: string;
+      empty: string;
+      imageA11y: string;
+      playAudio: string;
+      playTts: string;
+    };
+    answer: {
+      clozePrompt: string;
+      typingPrompt: string;
+      listeningPrompt: string;
+      placeholder: string;
+      orRecord: string;
+      stopRecording: string;
+      recordAnswer: string;
+      recordAgain: string;
+      recordVoice: string;
+      playRecording: string;
+      compareRecording: string;
+      playMyRecording: string;
+      typedAnswer: string;
+      markWrong: string;
+      markCorrect: string;
+    };
+    session: {
+      title: string;
+      loading: string;
+      emptyTitle: string;
+      emptySubtitle: string;
+      progressA11y: string;
+      closeA11y: string;
+    };
+    result: {
+      title: string;
+      subtitle: string;
+      reviewedLabel: string;
+      correctLabel: string;
+      wrongLabel: string;
+      backHome: string;
+      backHomeA11y: string;
+      emptyTitle: string;
+    };
   };
   tags: {
     title: string;

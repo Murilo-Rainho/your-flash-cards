@@ -1,6 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 
 import { TextAreaField } from '@/components/forms/TextAreaField';
+import { useStrings } from '@/features/settings/providers/PreferencesProvider';
 import { TagPicker } from '@/features/tags/components/TagPicker';
 import { useTheme } from '@/theme/useTheme';
 
@@ -29,12 +30,13 @@ export function OptionalCardFields({
   onChangeNotes,
 }: OptionalCardFieldsProps) {
   const { colors } = useTheme();
+  const strings = useStrings();
 
   return (
     <View className="gap-3">
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Campos opcionais"
+        accessibilityLabel={strings.cards.optionalFields.accessibilityLabel}
         accessibilityState={{ expanded }}
         disabled={disabled}
         onPress={onToggle}
@@ -42,7 +44,9 @@ export function OptionalCardFields({
         className="rounded-xl border px-4 py-3 active:opacity-90"
       >
         <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
-          {expanded ? 'Ocultar opcionais' : 'Tags e observacoes'}
+          {expanded
+            ? strings.cards.optionalFields.hideLabel
+            : strings.cards.optionalFields.showLabel}
         </Text>
       </Pressable>
 
@@ -51,9 +55,9 @@ export function OptionalCardFields({
           <TagPicker value={tags} error={tagsError} disabled={disabled} onChange={onChangeTags} />
 
           <TextAreaField
-            label="Observacoes"
+            label={strings.cards.optionalFields.notesLabel}
             value={notes}
-            placeholder="Opcional"
+            placeholder={strings.cards.optionalFields.notesPlaceholder}
             error={notesError}
             disabled={disabled}
             minHeight={96}

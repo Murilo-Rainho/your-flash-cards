@@ -13,6 +13,8 @@ import type { Deck } from '@/domain/entities/Deck';
 import { MEDIA_SIDES, MEDIA_TYPES, type MediaSide } from '@/domain/entities/Media';
 import { useActiveCollections } from '@/features/collections/hooks/useActiveCollections';
 import { useActiveDecks } from '@/features/decks/hooks/useActiveDecks';
+import { useCreateDeck } from '@/features/decks/hooks/useCreateDeck';
+import { isCreateDeckInputError } from '@/features/decks/services/createDeck';
 import { useGoBack } from '@/hooks/useGoBack';
 import { applyFieldErrors } from '@/utils/forms';
 
@@ -92,11 +94,17 @@ export function useNewCardForm() {
   const router = useRouter();
   const goBack = useGoBack();
   const createCardMutation = useCreateCard();
+  const createDeckMutation = useCreateDeck();
   const activeCollectionsQuery = useActiveCollections();
   const tts = useCardTts();
 
   const [step, setStep] = useState<CardFormStep>('setup');
   const [formError, setFormError] = useState<string | null>(null);
+  const [deckCreateErrors, setDeckCreateErrors] = useState<{
+    name?: string;
+    description?: string;
+    form?: string;
+  }>({});
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showOptionalFields, setShowOptionalFields] = useState(false);
   const [ttsLanguages, setTtsLanguages] = useState<Record<MediaSide, string>>({
@@ -165,6 +173,7 @@ export function useNewCardForm() {
   const cardTypeStrings = strings.cards.cardTypes;
   const selectedTypeConfig = getCardTypeFormConfig(selectedType, cardTypeStrings);
   const isSaving = createCardMutation.isPending;
+  const isCreatingDeck = createDeckMutation.isPending;
   const isRecording = recording.isRecording;
   const isSetupLoading = activeCollectionsQuery.isLoading || activeDecksQuery.isLoading;
   const canGoNext =
@@ -296,6 +305,44 @@ export function useNewCardForm() {
     },
     [clearCardContent, setValue],
   );
+
+  const handleCreateDeck = useCallback(
+    async ({ name, description }: { name: string; description: string }) => {
+      if (!selectedCollectionId) {
+        return false;
+      }
+
+      setDeckCreateErrors({});
+
+      try {
+        const deck = await createDeckMutation.mutateAsync({
+          collectionId: selectedCollectionId,
+          name,
+          description: description || undefined,
+          autoGenerateReverseCards: false,
+        });
+        setValue('deckId', deck.id, { shouldDirty: true, shouldValidate: true });
+        clearErrors('deckId');
+        setFormError(null);
+        return true;
+      } catch (error) {
+        if (isCreateDeckInputError(error)) {
+          setDeckCreateErrors({
+            name: error.fieldErrors.name,
+            description: error.fieldErrors.description,
+            form: error.fieldErrors.collectionId,
+          });
+          return false;
+        }
+
+        setDeckCreateErrors({ form: strings.decks.createError });
+        return false;
+      }
+    },
+    [clearErrors, createDeckMutation, selectedCollectionId, setValue, strings.decks.createError],
+  );
+
+  const clearDeckCreateErrors = useCallback(() => setDeckCreateErrors({}), []);
 
   const handleTypeChange = useCallback(
     (type: string) => {
@@ -444,19 +491,28 @@ export function useNewCardForm() {
 
       if (!currentText.trim()) {
         setError(side === MEDIA_SIDES.FRONT ? 'frontText' : 'backText', {
-          message: 'Informe texto para usar TTS local.',
+          message: strings.cards.ttsTextRequired,
         });
         return;
       }
 
       if (!(await tts.isAvailable(language))) {
-        setFormError('TTS local indisponivel para este idioma neste dispositivo.');
+        setFormError(strings.cards.ttsUnavailable);
         return;
       }
 
       media.setSideMedia({ side, type: MEDIA_TYPES.TTS, language });
     },
-    [backText, frontText, media, setError, tts, ttsLanguages],
+    [
+      backText,
+      frontText,
+      media,
+      setError,
+      strings.cards.ttsTextRequired,
+      strings.cards.ttsUnavailable,
+      tts,
+      ttsLanguages,
+    ],
   );
 
   const speakTts = useCallback(
@@ -467,10 +523,10 @@ export function useNewCardForm() {
       try {
         await tts.speak(text, ttsLanguages[side]);
       } catch {
-        setFormError('Nao foi possivel reproduzir TTS local para este idioma.');
+        setFormError(strings.cards.ttsPlaybackError);
       }
     },
-    [backText, frontText, tts, ttsLanguages],
+    [backText, frontText, strings.cards.ttsPlaybackError, tts, ttsLanguages],
   );
 
   const handleTtsLanguageChange = useCallback((side: MediaSide, language: string) => {
@@ -520,7 +576,7 @@ export function useNewCardForm() {
 
       if (!sideMedia) {
         setError(side === MEDIA_SIDES.FRONT ? 'frontMedia' : 'backMedia', {
-          message: 'Adicione audio antes de testar.',
+          message: strings.cards.audioRequiredToTest,
         });
         return;
       }
@@ -528,10 +584,18 @@ export function useNewCardForm() {
       try {
         await recording.playAudio(sideMedia.uri);
       } catch {
-        setFormError('Nao foi possivel reproduzir o audio.');
+        setFormError(strings.cards.audioPlaybackError);
       }
     },
-    [listeningModes, media.media, recording, setError, speakTts],
+    [
+      listeningModes,
+      media.media,
+      recording,
+      setError,
+      speakTts,
+      strings.cards.audioPlaybackError,
+      strings.cards.audioRequiredToTest,
+    ],
   );
 
   const buildMediaForSubmit = useCallback(
@@ -598,7 +662,7 @@ export function useNewCardForm() {
     try {
       submitMedia = await buildMediaForSubmit(values);
     } catch {
-      setFormError('TTS local indisponivel para este idioma neste dispositivo.');
+      setFormError(strings.cards.ttsUnavailable);
       return;
     }
 
@@ -642,7 +706,7 @@ export function useNewCardForm() {
         return;
       }
 
-      setFormError('Nao foi possivel criar o card local.');
+      setFormError(strings.cards.createError);
     }
   });
 
@@ -661,6 +725,7 @@ export function useNewCardForm() {
     },
     frontMedia,
     backMedia,
+    reviewStrings: strings.review,
     onPlayAudio: recording.playAudio,
     onSpeakTts: (side: MediaSide) => {
       void speakTts(side);
@@ -690,6 +755,8 @@ export function useNewCardForm() {
     formError,
     successMessage,
     isSaving,
+    isCreatingDeck,
+    deckCreateErrors,
     isRecording,
     canGoNext,
     isSaveDisabled,
@@ -714,6 +781,8 @@ export function useNewCardForm() {
     handleBack,
     onCollectionChange: handleCollectionChange,
     onDeckChange: handleDeckChange,
+    onCreateDeck: handleCreateDeck,
+    onCreateDeckFormDismiss: clearDeckCreateErrors,
     onTypeChange: handleTypeChange,
     onVocabularyFrontModeChange: handleVocabularyFrontModeChange,
     onTypingFrontModeChange: handleTypingFrontModeChange,

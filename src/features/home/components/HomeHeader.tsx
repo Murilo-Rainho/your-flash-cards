@@ -14,7 +14,11 @@ export function HomeHeader({ greeting, dueCards }: HomeHeaderProps) {
   const { colors } = useTheme();
 
   const subtitle =
-    dueCards > 0 ? `${dueCards} ${strings.home.dueCardsToday}` : strings.home.dueCardsTodayNone;
+    dueCards > 0
+      ? `${dueCards} ${
+          dueCards === 1 ? strings.home.dueCardsTodaySingular : strings.home.dueCardsTodayPlural
+        }`
+      : strings.home.dueCardsTodayNone;
 
   return (
     <View className="gap-1">

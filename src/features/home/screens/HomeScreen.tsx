@@ -39,10 +39,7 @@ export function HomeScreen() {
   const handleReviewPress = () => {
     if (reviewNowCardState.route) {
       router.push(reviewNowCardState.route as Href);
-      return;
     }
-
-    console.log('[Home] Revisar agora');
   };
 
   const handleCollectionPress = (item: CollectionSummary) => {

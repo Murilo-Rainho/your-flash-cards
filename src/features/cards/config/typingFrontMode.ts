@@ -17,29 +17,6 @@ export const TYPING_FRONT_MODES = {
 
 export type TypingFrontMode = (typeof TYPING_FRONT_MODES)[keyof typeof TYPING_FRONT_MODES];
 
-export const TYPING_FRONT_MODE_OPTIONS = [
-  {
-    value: TYPING_FRONT_MODES.AUDIO_FILE,
-    label: 'Enviar arquivo de audio',
-  },
-  {
-    value: TYPING_FRONT_MODES.RECORDING,
-    label: 'Gravar audio',
-  },
-  {
-    value: TYPING_FRONT_MODES.TTS,
-    label: 'Texto para TTS na revisao',
-  },
-  {
-    value: TYPING_FRONT_MODES.IMAGE_CAMERA,
-    label: 'Tirar foto com a camera',
-  },
-  {
-    value: TYPING_FRONT_MODES.IMAGE_GALLERY,
-    label: 'Escolher imagem da galeria',
-  },
-] as const;
-
 /** True quando o modo da frente é uma imagem (câmera ou galeria). */
 export function isTypingImageMode(mode: TypingFrontMode): boolean {
   return mode === TYPING_FRONT_MODES.IMAGE_CAMERA || mode === TYPING_FRONT_MODES.IMAGE_GALLERY;

@@ -1,5 +1,6 @@
 import type { CardType } from '@/constants/cardTypes';
 import type { ReviewRating } from '@/constants/reviewRatings';
+import type { StringCatalog } from '@/strings/types';
 
 /**
  * Contrato de view-model do componente de revisão (`FlashcardReview`).
@@ -87,6 +88,7 @@ export type FlashcardReviewProps = {
   /** Controla o Modal de overlay. */
   visible: boolean;
   card: FlashcardViewModel;
+  strings: StringCatalog['review'];
   /**
    * Disparado ao escolher uma das 4 avaliações. O componente é agnóstico:
    * em "Testar" (criação) apenas fecha; na revisão real agenda + grava estatística.

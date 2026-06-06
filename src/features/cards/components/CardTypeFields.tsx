@@ -160,6 +160,13 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
     return (
       <>
         <ClozeFrontField
+          label={strings.common.front}
+          description={strings.cards.clozeFields.frontDescription}
+          placeholders={{
+            before: strings.cards.clozeFields.frontBeforePlaceholder,
+            gap: strings.cards.clozeFields.frontGapPlaceholder,
+            after: strings.cards.clozeFields.frontAfterPlaceholder,
+          }}
           before={cloze.front.before}
           gap={cloze.front.gap}
           after={cloze.front.after}
@@ -170,6 +177,12 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
           onChangeAfter={(value) => onChangeCloze('front', 'after', value)}
         />
         <ClozeBackField
+          label={strings.common.backSide}
+          placeholders={{
+            before: strings.cards.clozeFields.backBeforePlaceholder,
+            gap: strings.cards.clozeFields.backGapPlaceholder,
+            after: strings.cards.clozeFields.backAfterPlaceholder,
+          }}
           before={cloze.back.before}
           gap={cloze.back.gap}
           after={cloze.back.after}

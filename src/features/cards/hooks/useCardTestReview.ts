@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 import type { FlashcardViewModel } from '@/components/review';
 import type { CardType } from '@/constants/cardTypes';
 import { MEDIA_SIDES, type MediaSide } from '@/domain/entities/Media';
+import type { StringCatalog } from '@/strings/types';
 
 import { buildReviewViewModel } from '../services/buildReviewViewModel';
 import type { CreateCardMediaInput } from '../services/createCard';
@@ -19,6 +20,7 @@ type UseCardTestReviewParams = {
   cloze: { front: ClozeParts; back: ClozeParts };
   frontMedia: CreateCardMediaInput[];
   backMedia: CreateCardMediaInput[];
+  reviewStrings: StringCatalog['review'];
   onPlayAudio: (uri: string) => void;
   onSpeakTts: (side: MediaSide) => void;
 };
@@ -40,8 +42,17 @@ export type CardTestReview = {
  * `handleRate` apenas fecha: nada é agendado/persistido (§ não interfere nos acertos reais).
  */
 export function useCardTestReview(params: UseCardTestReviewParams): CardTestReview {
-  const { type, frontText, backText, cloze, frontMedia, backMedia, onPlayAudio, onSpeakTts } =
-    params;
+  const {
+    type,
+    frontText,
+    backText,
+    cloze,
+    frontMedia,
+    backMedia,
+    reviewStrings,
+    onPlayAudio,
+    onSpeakTts,
+  } = params;
 
   const [isOpen, setIsOpen] = useState(false);
   const [recordedUri, setRecordedUri] = useState<string | null>(null);
@@ -75,6 +86,7 @@ export function useCardTestReview(params: UseCardTestReviewParams): CardTestRevi
       cloze,
       frontMedia,
       backMedia,
+      reviewStrings,
       onPlayAudio,
       onSpeakTts,
       recording: {
@@ -97,6 +109,7 @@ export function useCardTestReview(params: UseCardTestReviewParams): CardTestRevi
     cloze,
     frontMedia,
     backMedia,
+    reviewStrings,
     onPlayAudio,
     onSpeakTts,
     isRecording,

@@ -3,6 +3,7 @@ import type { CardRepository } from '@/domain/repositories/CardRepository';
 import type { CollectionRepository } from '@/domain/repositories/CollectionRepository';
 import type { DeckRepository } from '@/domain/repositories/DeckRepository';
 import type { HomeReadRepository } from '@/domain/repositories/HomeReadRepository';
+import type { ReviewRepository } from '@/domain/repositories/ReviewRepository';
 import type { TagRepository } from '@/domain/repositories/TagRepository';
 import { getAppDatabase } from '@/infrastructure/database/sqlite/database';
 
@@ -11,6 +12,7 @@ import { SQLiteCardRepository } from './SQLiteCardRepository';
 import { SQLiteCollectionRepository } from './SQLiteCollectionRepository';
 import { SQLiteDeckRepository } from './SQLiteDeckRepository';
 import { SQLiteHomeReadRepository } from './SQLiteHomeReadRepository';
+import { SQLiteReviewRepository } from './SQLiteReviewRepository';
 import { SQLiteTagRepository } from './SQLiteTagRepository';
 
 let homeReadRepository: HomeReadRepository | null = null;
@@ -19,6 +21,7 @@ let deckRepository: DeckRepository | null = null;
 let cardRepository: CardRepository | null = null;
 let tagRepository: TagRepository | null = null;
 let appSettingsRepository: AppSettingsRepository | null = null;
+let reviewRepository: ReviewRepository | null = null;
 
 export function getSQLiteHomeReadRepository(): HomeReadRepository {
   if (!homeReadRepository) {
@@ -66,4 +69,12 @@ export function getSQLiteAppSettingsRepository(): AppSettingsRepository {
   }
 
   return appSettingsRepository;
+}
+
+export function getSQLiteReviewRepository(): ReviewRepository {
+  if (!reviewRepository) {
+    reviewRepository = new SQLiteReviewRepository(getAppDatabase);
+  }
+
+  return reviewRepository;
 }

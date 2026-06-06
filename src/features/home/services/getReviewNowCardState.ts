@@ -72,6 +72,7 @@ export function getReviewNowCardState({
       title: strings.reviewTitle,
       subtitle: dueCardsLabel,
       accessibilityLabel: `${strings.reviewA11yPrefix} ${dueCardsLabel}`,
+      route: ROUTES.REVIEW,
     };
   }
 

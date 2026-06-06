@@ -1,18 +1,17 @@
 import { Pressable, Text, View } from 'react-native';
 
-import { useStrings } from '@/features/settings/providers/PreferencesProvider';
 import { REVIEW_RATING_ORDER, type ReviewRating } from '@/constants/reviewRatings';
 import { useTheme } from '@/theme/useTheme';
 
 type RatingButtonsProps = {
+  labels: Record<ReviewRating, string>;
   onRate: (rating: ReviewRating) => void;
   disabled?: boolean;
 };
 
 /** Linha das 4 avaliações (§19). Aparece apenas no estado ANSWER (verso revelado). */
-export function RatingButtons({ onRate, disabled = false }: RatingButtonsProps) {
+export function RatingButtons({ labels, onRate, disabled = false }: RatingButtonsProps) {
   const { colors } = useTheme();
-  const strings = useStrings();
 
   const ratingColors: Record<ReviewRating, { background: string; text: string }> = {
     again: { background: colors.danger, text: colors.background },
@@ -25,7 +24,7 @@ export function RatingButtons({ onRate, disabled = false }: RatingButtonsProps) 
     <View className="flex-row gap-2">
       {REVIEW_RATING_ORDER.map((rating) => {
         const palette = ratingColors[rating];
-        const label = strings.review.ratings[rating];
+        const label = labels[rating];
 
         return (
           <Pressable

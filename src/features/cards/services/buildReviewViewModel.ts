@@ -13,6 +13,7 @@ import {
   toClozeDisplayFront,
 } from '@/domain/cloze/cloze';
 import { MEDIA_SIDES, MEDIA_TYPES, type MediaSide } from '@/domain/entities/Media';
+import type { StringCatalog } from '@/strings/types';
 
 import type { CreateCardMediaInput } from './createCard';
 
@@ -35,6 +36,7 @@ export type ReviewSource = {
   cloze: { front: ClozeParts; back: ClozeParts };
   frontMedia: readonly CreateCardMediaInput[];
   backMedia: readonly CreateCardMediaInput[];
+  reviewStrings: StringCatalog['review'];
   onPlayAudio: (uri: string) => void;
   onSpeakTts: (side: MediaSide) => void;
   recording: ReviewRecordingControls;
@@ -65,13 +67,13 @@ function buildAudioFace(
 
   if (file && file.type !== MEDIA_TYPES.TTS) {
     const uri = file.uri;
-    return { label: 'Ouvir áudio', onPlay: () => source.onPlayAudio(uri) };
+    return { label: source.reviewStrings.face.playAudio, onPlay: () => source.onPlayAudio(uri) };
   }
 
   const hasTtsMedia = media.some((item) => item.side === side && item.type === MEDIA_TYPES.TTS);
 
   if (hasTtsMedia || ttsFallbackText?.trim()) {
-    return { label: 'Ouvir (TTS)', onPlay: () => source.onSpeakTts(side) };
+    return { label: source.reviewStrings.face.playTts, onPlay: () => source.onSpeakTts(side) };
   }
 
   return undefined;
@@ -104,7 +106,7 @@ export function buildReviewViewModel(source: ReviewSource): FlashcardViewModel {
 
     const answer: ReviewAnswerBehavior = {
       kind: 'cloze',
-      promptLabel: 'Preencha a lacuna (opcional)',
+      promptLabel: source.reviewStrings.answer.clozePrompt,
       checkAnswer: (typed: string) => {
         if (!composedFront || !composedBack) {
           return { correct: false, expected: '' };
@@ -130,7 +132,7 @@ export function buildReviewViewModel(source: ReviewSource): FlashcardViewModel {
     // comparada localmente (normalizada) com o verso, com override manual no feedback.
     const answer: ReviewAnswerBehavior = {
       kind: 'typing',
-      promptLabel: 'Digite sua resposta',
+      promptLabel: source.reviewStrings.answer.typingPrompt,
       checkAnswer: (typed: string) => ({
         correct: normalizeStudyAnswer(typed) === normalizeStudyAnswer(backText),
         expected: backText,
@@ -179,7 +181,7 @@ export function buildReviewViewModel(source: ReviewSource): FlashcardViewModel {
       back: { text: toUndefined(backText), audio: promptAudio },
       answer: {
         kind: 'listening',
-        promptLabel: 'Escreva o que você ouviu',
+        promptLabel: source.reviewStrings.answer.listeningPrompt,
         checkAnswer: (typed: string) => ({
           correct: normalizeStudyAnswer(typed) === normalizeStudyAnswer(backText),
           expected: backText,

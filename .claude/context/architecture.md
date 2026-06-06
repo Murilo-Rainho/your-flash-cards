@@ -23,7 +23,7 @@ features/        ← Casos de uso + hooks; orquestra domain + infrastructure.
 app/ + components/ ← UI. Só conhece features. Nunca toca em SQLite/infra direto.
 ```
 
-Pastas de apoio sem regra de negócio: `theme/`, `constants/`, `utils/`, `config/`,
+Pastas de apoio sem regra de negócio: `theme/`, `strings/`, `constants/`, `utils/`, `config/`,
 `state/` (estado global de UI/sessão).
 
 ### O que cada camada PODE e NÃO PODE importar
@@ -66,6 +66,7 @@ src/
   state/                   # estado global de UI/sessão (Zustand)
     stores/
   theme/                   # colors.ts spacing.ts typography.ts radius.ts shadows.ts icons.ts index.ts
+  strings/                 # locales/pt-BR/ locales/en-US/ types.ts — catálogos i18n da UI
   constants/               # cardTypes featureFlags limits routes languages
   utils/                   # date ids file normalizeText validation
   config/                  # env app
@@ -81,7 +82,11 @@ Notas:
 - **Não há `providers/` nem `lib/`**: a composição/injeção de dependências acontece na
   **borda** (`src/app/_layout.tsx` ou uma factory dedicada). Estado global mora em `state/`.
 - **Tema**: `src/theme/` é só TypeScript. `colors.ts` é a fonte única de cores e também
-  alimenta o NativeWind via `tailwind.config.ts` (sem duplicação). Tema claro único na V1.
+  alimenta o NativeWind via `tailwind.config.ts` (sem duplicação). A paleta ativa vem do
+  `ThemeProvider` (`useTheme().colors`) e reflete a escolha do usuário. **Nunca** cor crua na UI.
+- **Strings (i18n)**: textos visíveis da UI ficam em `src/strings/locales/{pt-BR,en-US}/`
+  (módulo por feature), tipados em `src/strings/types.ts` e consumidos via `useStrings()`.
+  **Nunca** hardcode labels/placeholders/erros/microcopy no JSX.
 - **Ícones**: passe sempre por `src/theme/icons.ts` (inversão de dependência) para permitir
   troca futura de biblioteca de ícones.
 

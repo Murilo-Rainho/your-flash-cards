@@ -76,6 +76,7 @@ describe('getReviewNowCardState', () => {
       action: 'review',
       title: 'Revisar agora',
       subtitle: '1 card vencido',
+      route: ROUTES.REVIEW,
     });
   });
 

@@ -34,6 +34,7 @@ src/
   infrastructure/    # database/(sqlite/{migrations,repositories}, remote/repositories) filesystem/ tts/ importers/ exporters/ premium/
   state/             # stores/ (Zustand)
   theme/             # colors.ts spacing.ts typography.ts radius.ts shadows.ts icons.ts index.ts
+  strings/           # locales/pt-BR/ locales/en-US/ types.ts — catálogos i18n da UI
   constants/         # cardTypes featureFlags limits routes languages
   utils/             # date ids file normalizeText validation
   config/            # env app
@@ -42,7 +43,10 @@ src/
 
 - Sem `shared/`: tipos/enums puros em `domain/entities` ou `constants/`; utils puros em `utils/`.
 - Sem `providers/`/`lib/`: composição/injeção na borda (`src/app/_layout.tsx`). Estado em `state/`.
-- Tema só TS; `colors.ts` é fonte única e alimenta o NativeWind via `tailwind.config.ts`. Tema claro único.
+- Tema só TS; `colors.ts` é fonte única e alimenta o NativeWind via `tailwind.config.ts`.
+  Paleta ativa via `ThemeProvider`/`useTheme().colors` (escolha do usuário). Nunca cor crua.
+- Strings (i18n): textos da UI em `src/strings/locales/{pt-BR,en-US}/`, tipo em `types.ts`,
+  consumo via `useStrings()`. Nunca hardcode no JSX.
 - Ícones sempre via `theme/icons.ts` (inversão de dependência).
 
 ## Pontos de extensão exigidos

@@ -4,14 +4,11 @@ import { FieldError } from '@/components/common/FieldError';
 import { SelectField } from '@/components/forms/SelectField';
 import { TextAreaField } from '@/components/forms/TextAreaField';
 import { MEDIA_TYPES } from '@/domain/entities/Media';
+import { useStrings } from '@/features/settings/providers/PreferencesProvider';
 import { useTheme } from '@/theme/useTheme';
 import { formatRecordingDuration } from '@/utils/format';
 
-import {
-  TYPING_FRONT_MODE_OPTIONS,
-  TYPING_FRONT_MODES,
-  type TypingFrontMode,
-} from '../config/typingFrontMode';
+import { TYPING_FRONT_MODES, type TypingFrontMode } from '../config/typingFrontMode';
 import { getMediaLabel } from '../services/cardMedia';
 import type { CreateCardMediaInput } from '../services/createCard';
 
@@ -63,9 +60,18 @@ export function TypingFrontField({
   onTestAudio,
 }: TypingFrontFieldProps) {
   const { colors } = useTheme();
+  const strings = useStrings();
+  const mediaStrings = strings.cards.media;
   const audioMedia = media.find((item) => item.type !== MEDIA_TYPES.IMAGE);
   const imageMedia = media.find((item) => item.type === MEDIA_TYPES.IMAGE);
   const sideError = mediaError ?? textError;
+  const modeOptions = [
+    { value: TYPING_FRONT_MODES.AUDIO_FILE, label: strings.cards.inputModes.audioFile },
+    { value: TYPING_FRONT_MODES.RECORDING, label: strings.cards.inputModes.recording },
+    { value: TYPING_FRONT_MODES.TTS, label: strings.cards.inputModes.tts },
+    { value: TYPING_FRONT_MODES.IMAGE_CAMERA, label: strings.cards.inputModes.imageCamera },
+    { value: TYPING_FRONT_MODES.IMAGE_GALLERY, label: strings.cards.inputModes.imageGallery },
+  ];
 
   const canTestAudio = (() => {
     if (mode === TYPING_FRONT_MODES.TTS) {
@@ -83,21 +89,18 @@ export function TypingFrontField({
   return (
     <View className="gap-3">
       <SelectField
-        label="Frente"
+        label={strings.common.front}
         value={mode}
-        placeholder="Escolha o conteudo da frente"
+        placeholder={mediaStrings.chooseFrontContentPlaceholder}
         disabled={isSaving}
-        options={TYPING_FRONT_MODE_OPTIONS.map((option) => ({
-          value: option.value,
-          label: option.label,
-        }))}
+        options={modeOptions}
         onChange={(value) => onModeChange(value as TypingFrontMode)}
       />
 
       {mode === TYPING_FRONT_MODES.TTS ? (
         <View className="gap-1">
           <TextAreaField
-            label="Texto que sera falado"
+            label={mediaStrings.textLabel}
             value={text}
             placeholder={textPlaceholder}
             error={textError}
@@ -105,7 +108,7 @@ export function TypingFrontField({
             onChangeText={onChangeText}
           />
           <Text style={{ color: colors.textSecondary }} className="text-xs">
-            A resposta esperada sera este mesmo texto (o verso reutiliza o que voce escrever aqui).
+            {mediaStrings.typingTtsReuseHint}
           </Text>
         </View>
       ) : null}
@@ -122,28 +125,28 @@ export function TypingFrontField({
               </Text>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Remover arquivo de audio da frente"
+                accessibilityLabel={`${mediaStrings.removeAudioFileA11y} ${strings.common.front}`}
                 disabled={isSaving}
                 onPress={() => onRemoveMedia(MEDIA_TYPES.AUDIO)}
                 style={{ borderColor: colors.border, backgroundColor: colors.background }}
                 className="items-center rounded-xl border px-4 py-3 active:opacity-90"
               >
                 <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                  Remover arquivo
+                  {mediaStrings.removeFile}
                 </Text>
               </Pressable>
             </View>
           ) : (
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Enviar arquivo de audio da frente"
+              accessibilityLabel={`${mediaStrings.uploadAudioFileA11y} ${strings.common.front}`}
               disabled={isSaving || isRecording}
               onPress={onPickAudio}
               style={{ borderColor: colors.border, backgroundColor: colors.background }}
               className="items-center rounded-xl border px-4 py-3 active:opacity-90"
             >
               <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                Enviar arquivo de audio
+                {mediaStrings.uploadAudioFile}
               </Text>
             </Pressable>
           )}
@@ -158,18 +161,18 @@ export function TypingFrontField({
               className="gap-2 rounded-xl border p-3"
             >
               <Text style={{ color: colors.textSecondary }} className="text-sm">
-                Gravacao pronta
+                {mediaStrings.recordingReady}
               </Text>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Remover gravacao da frente"
+                accessibilityLabel={`${mediaStrings.removeRecordingA11y} ${strings.common.front}`}
                 disabled={isSaving}
                 onPress={() => onRemoveMedia(MEDIA_TYPES.RECORDING)}
                 style={{ borderColor: colors.border, backgroundColor: colors.background }}
                 className="items-center rounded-xl border px-4 py-3 active:opacity-90"
               >
                 <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                  Remover gravacao
+                  {mediaStrings.removeRecording}
                 </Text>
               </Pressable>
             </View>
@@ -177,7 +180,9 @@ export function TypingFrontField({
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={
-                isRecordingThisSide ? 'Parar gravacao da frente' : 'Gravar audio da frente'
+                isRecordingThisSide
+                  ? `${mediaStrings.stopRecordingA11y} ${strings.common.front}`
+                  : `${mediaStrings.recordAudioA11y} ${strings.common.front}`
               }
               disabled={isSaving || (isRecording && !isRecordingThisSide)}
               onPress={isRecordingThisSide ? onStopRecording : onStartRecording}
@@ -186,8 +191,8 @@ export function TypingFrontField({
             >
               <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
                 {isRecordingThisSide
-                  ? `Parar ${formatRecordingDuration(recordingDurationMs)}`
-                  : 'Gravar audio'}
+                  ? `${mediaStrings.stopRecordingPrefix} ${formatRecordingDuration(recordingDurationMs)}`
+                  : mediaStrings.recordAudio}
               </Text>
             </Pressable>
           )}
@@ -206,14 +211,14 @@ export function TypingFrontField({
               />
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Remover imagem da frente"
+                accessibilityLabel={`${mediaStrings.removeImageA11y} ${strings.common.front}`}
                 disabled={isSaving}
                 onPress={() => onRemoveMedia(MEDIA_TYPES.IMAGE)}
                 style={{ borderColor: colors.border, backgroundColor: colors.background }}
                 className="items-center rounded-xl border px-4 py-3 active:opacity-90"
               >
                 <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                  Remover imagem
+                  {mediaStrings.removeImage}
                 </Text>
               </Pressable>
             </View>
@@ -222,8 +227,8 @@ export function TypingFrontField({
               accessibilityRole="button"
               accessibilityLabel={
                 mode === TYPING_FRONT_MODES.IMAGE_CAMERA
-                  ? 'Tirar foto para a frente'
-                  : 'Escolher imagem da galeria para a frente'
+                  ? `${mediaStrings.takePhotoA11y} ${strings.common.front}`
+                  : `${mediaStrings.chooseImageA11y} ${strings.common.front}`
               }
               disabled={isSaving}
               onPress={() =>
@@ -233,7 +238,9 @@ export function TypingFrontField({
               className="items-center rounded-xl border px-4 py-3 active:opacity-90"
             >
               <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                {mode === TYPING_FRONT_MODES.IMAGE_CAMERA ? 'Tirar foto' : 'Escolher da galeria'}
+                {mode === TYPING_FRONT_MODES.IMAGE_CAMERA
+                  ? mediaStrings.takePhoto
+                  : mediaStrings.chooseFromGallery}
               </Text>
             </Pressable>
           )}
@@ -243,7 +250,7 @@ export function TypingFrontField({
       {showAudioTest ? (
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Testar audio da frente"
+          accessibilityLabel={`${mediaStrings.testAudioA11y} ${strings.common.front}`}
           disabled={isSaving || !canTestAudio}
           onPress={onTestAudio}
           style={{
@@ -254,7 +261,7 @@ export function TypingFrontField({
           className="items-center rounded-xl border px-4 py-3 active:opacity-90"
         >
           <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
-            Testar audio
+            {mediaStrings.testAudio}
           </Text>
         </Pressable>
       ) : null}

@@ -1,11 +1,13 @@
 import { Pressable, Text, TextInput, View } from 'react-native';
 
+import type { StringCatalog } from '@/strings/types';
 import { useTheme } from '@/theme/useTheme';
 
 import type { ReviewAnswerBehavior } from './types';
 
 type AnswerInputProps = {
   answer: ReviewAnswerBehavior;
+  strings: StringCatalog['review']['answer'];
   /** Valor digitado (controlado pelo FlashcardReview) — usado em cloze/typing. */
   typed: string;
   onChangeTyped: (value: string) => void;
@@ -13,7 +15,13 @@ type AnswerInputProps = {
 };
 
 /** Afordância de resposta no estado QUESTION, conforme o tipo de card. */
-export function AnswerInput({ answer, typed, onChangeTyped, disabled = false }: AnswerInputProps) {
+export function AnswerInput({
+  answer,
+  strings,
+  typed,
+  onChangeTyped,
+  disabled = false,
+}: AnswerInputProps) {
   const { colors } = useTheme();
 
   if (answer.kind === 'reveal') {
@@ -21,8 +29,7 @@ export function AnswerInput({ answer, typed, onChangeTyped, disabled = false }: 
   }
 
   if (answer.kind === 'cloze' || answer.kind === 'typing') {
-    const defaultLabel =
-      answer.kind === 'cloze' ? 'Preencha a lacuna (opcional)' : 'Digite sua resposta';
+    const defaultLabel = answer.kind === 'cloze' ? strings.clozePrompt : strings.typingPrompt;
 
     return (
       <View className="gap-2">
@@ -33,7 +40,7 @@ export function AnswerInput({ answer, typed, onChangeTyped, disabled = false }: 
           value={typed}
           onChangeText={onChangeTyped}
           editable={!disabled}
-          placeholder="Sua resposta"
+          placeholder={strings.placeholder}
           placeholderTextColor={colors.textSecondary}
           autoCapitalize="none"
           autoCorrect={false}
@@ -53,13 +60,13 @@ export function AnswerInput({ answer, typed, onChangeTyped, disabled = false }: 
       <View className="gap-3">
         <View className="gap-2">
           <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-            {answer.promptLabel ?? 'Escreva o que você ouviu'}
+            {answer.promptLabel ?? strings.listeningPrompt}
           </Text>
           <TextInput
             value={typed}
             onChangeText={onChangeTyped}
             editable={!disabled}
-            placeholder="Sua resposta"
+            placeholder={strings.placeholder}
             placeholderTextColor={colors.textSecondary}
             autoCapitalize="none"
             autoCorrect={false}
@@ -72,19 +79,19 @@ export function AnswerInput({ answer, typed, onChangeTyped, disabled = false }: 
           />
         </View>
         <Text style={{ color: colors.textSecondary }} className="text-center text-xs">
-          ou grave sua resposta
+          {strings.orRecord}
         </Text>
         <RecordingButton
-          accessibilityLabel={answer.isRecording ? 'Parar gravação' : 'Gravar resposta'}
-          label={answer.isRecording ? 'Parar gravação' : 'Gravar resposta'}
+          accessibilityLabel={answer.isRecording ? strings.stopRecording : strings.recordAnswer}
+          label={answer.isRecording ? strings.stopRecording : strings.recordAnswer}
           onPress={answer.isRecording ? answer.onStopRecording : answer.onStartRecording}
           busy={answer.isRecording}
           disabled={disabled}
         />
         {answer.recordedUri ? (
           <RecordingButton
-            accessibilityLabel="Ouvir minha gravação"
-            label="Ouvir minha gravação"
+            accessibilityLabel={strings.playRecording}
+            label={strings.playRecording}
             onPress={answer.onPlayRecording}
             disabled={disabled}
           />
@@ -100,17 +107,17 @@ export function AnswerInput({ answer, typed, onChangeTyped, disabled = false }: 
       <RecordingButton
         accessibilityLabel={
           answer.isRecording
-            ? 'Parar gravação'
+            ? strings.stopRecording
             : answer.recordedUri
-              ? 'Gravar novamente'
-              : 'Gravar minha voz'
+              ? strings.recordAgain
+              : strings.recordVoice
         }
         label={
           answer.isRecording
-            ? 'Parar gravação'
+            ? strings.stopRecording
             : answer.recordedUri
-              ? 'Gravar novamente'
-              : 'Gravar minha voz'
+              ? strings.recordAgain
+              : strings.recordVoice
         }
         onPress={answer.isRecording ? answer.onStopRecording : answer.onStartRecording}
         busy={answer.isRecording}
@@ -118,8 +125,8 @@ export function AnswerInput({ answer, typed, onChangeTyped, disabled = false }: 
       />
       {answer.recordedUri && !answer.isRecording ? (
         <RecordingButton
-          accessibilityLabel="Ouvir minha gravação"
-          label="Ouvir minha gravação"
+          accessibilityLabel={strings.playRecording}
+          label={strings.playRecording}
           onPress={answer.onPlayRecording}
           disabled={disabled}
         />

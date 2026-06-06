@@ -13,7 +13,6 @@ import {
 import Animated from 'react-native-reanimated';
 
 import { PrimaryButton } from '@/components/common/PrimaryButton';
-import { useStrings } from '@/features/settings/providers/PreferencesProvider';
 import { useTheme } from '@/theme/useTheme';
 import { withAlpha } from '@/theme/createShadows';
 
@@ -36,13 +35,13 @@ const FLIP_HEIGHT = 360;
 export function FlashcardReview({
   visible,
   card,
+  strings,
   onRate,
   onClose,
   onFlip,
   reduceMotion,
 }: FlashcardReviewProps) {
   const { colors, shadows } = useTheme();
-  const strings = useStrings();
   const [typed, setTyped] = useState('');
   const [checked, setChecked] = useState<CheckedAnswer | null>(null);
   const [override, setOverride] = useState<boolean | null>(null);
@@ -79,8 +78,8 @@ export function FlashcardReview({
   // Escuta digitada e Escrita verificam; nos demais casos é só virar.
   const flipLabel =
     answer.kind === 'typing' || (answer.kind === 'listening' && hasTyped)
-      ? strings.review.flipVerify
-      : strings.review.flipCard;
+      ? strings.flipVerify
+      : strings.flipCard;
   const allowOverride = answer.kind === 'typing' || answer.kind === 'listening';
   // Escuta e Pronúncia: ao virar, o verso reouve a própria gravação para comparar com o card.
   const showRecordedOnBack =
@@ -92,7 +91,7 @@ export function FlashcardReview({
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable
-        accessibilityLabel="Fechar teclado"
+        accessibilityLabel={strings.closeKeyboardA11y}
         onPress={Keyboard.dismiss}
         style={[styles.backdrop, { backgroundColor: withAlpha(colors.textPrimary, 0.6) }]}
       >
@@ -108,12 +107,12 @@ export function FlashcardReview({
             >
               <View className="flex-row items-center justify-between">
                 <Text style={{ color: colors.textSecondary }} className="text-sm font-semibold">
-                  {isFlipped ? strings.review.howDidYouDo : strings.review.reviewCardTitle}
+                  {isFlipped ? strings.howDidYouDo : strings.reviewCardTitle}
                 </Text>
                 {onClose ? (
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel="Fechar"
+                    accessibilityLabel={strings.closeA11y}
                     onPress={onClose}
                     className="h-8 w-8 items-center justify-center rounded-full active:opacity-90"
                   >
@@ -138,16 +137,25 @@ export function FlashcardReview({
                     {answer.kind === 'reveal' ? (
                       <Pressable
                         accessibilityRole="button"
-                        accessibilityLabel="Virar card"
+                        accessibilityLabel={strings.flipCard}
                         onPress={handleFlip}
                       >
-                        <FlashcardFace face={card.front} emptyHint="Frente sem conteúdo" />
+                        <FlashcardFace
+                          face={card.front}
+                          emptyHint={strings.face.frontEmpty}
+                          imageAccessibilityLabel={strings.face.imageA11y}
+                        />
                       </Pressable>
                     ) : (
                       <View className="gap-4">
-                        <FlashcardFace face={card.front} emptyHint="Frente sem conteúdo" />
+                        <FlashcardFace
+                          face={card.front}
+                          emptyHint={strings.face.frontEmpty}
+                          imageAccessibilityLabel={strings.face.imageA11y}
+                        />
                         <AnswerInput
                           answer={answer}
+                          strings={strings.answer}
                           typed={typed}
                           onChangeTyped={setTyped}
                           disabled={isFlipped}
@@ -171,9 +179,14 @@ export function FlashcardReview({
                 >
                   <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
                     <View className="gap-4">
-                      <FlashcardFace face={card.back} emptyHint="Sem verso" />
+                      <FlashcardFace
+                        face={card.back}
+                        emptyHint={strings.face.backEmpty}
+                        imageAccessibilityLabel={strings.face.imageA11y}
+                      />
                       {checked ? (
                         <AnswerFeedback
+                          strings={strings}
                           correct={effectiveCorrect}
                           typed={typed}
                           expected={checked.expected}
@@ -189,11 +202,11 @@ export function FlashcardReview({
                           className="gap-2 rounded-xl border p-4"
                         >
                           <Text style={{ color: colors.textSecondary }} className="text-sm">
-                            Ouça sua resposta e compare com o card.
+                            {strings.answer.compareRecording}
                           </Text>
                           <Pressable
                             accessibilityRole="button"
-                            accessibilityLabel="Ouvir minha gravação"
+                            accessibilityLabel={strings.answer.playMyRecording}
                             onPress={answer.onPlayRecording}
                             style={{
                               borderColor: colors.border,
@@ -206,7 +219,7 @@ export function FlashcardReview({
                               style={{ color: colors.textPrimary }}
                               className="text-base font-medium"
                             >
-                              Ouvir minha gravação
+                              {strings.answer.playMyRecording}
                             </Text>
                           </Pressable>
                         </View>
@@ -214,7 +227,7 @@ export function FlashcardReview({
                     </View>
                   </ScrollView>
                   <View className="pt-3">
-                    <RatingButtons onRate={onRate} disabled={!isFlipped} />
+                    <RatingButtons labels={strings.ratings} onRate={onRate} disabled={!isFlipped} />
                   </View>
                 </Animated.View>
               </View>

@@ -107,6 +107,9 @@ function ClozeSideField({
 }
 
 type ClozeFrontFieldProps = {
+  label: string;
+  description: string;
+  placeholders: ClozePartPlaceholders;
   before: string;
   gap: string;
   after: string;
@@ -118,17 +121,12 @@ type ClozeFrontFieldProps = {
 };
 
 export function ClozeFrontField(props: ClozeFrontFieldProps) {
-  return (
-    <ClozeSideField
-      label="Frente"
-      description="Monte a frase com uma lacuna. No verso, informe a frase completa com a resposta correta."
-      placeholders={{ before: "I'm ", gap: 'cansado', after: ' now' }}
-      {...props}
-    />
-  );
+  return <ClozeSideField {...props} />;
 }
 
 type ClozeBackFieldProps = {
+  label: string;
+  placeholders: ClozePartPlaceholders;
   before: string;
   gap: string;
   after: string;
@@ -140,11 +138,5 @@ type ClozeBackFieldProps = {
 };
 
 export function ClozeBackField(props: ClozeBackFieldProps) {
-  return (
-    <ClozeSideField
-      label="Verso"
-      placeholders={{ before: "I'm ", gap: 'tired', after: ' now' }}
-      {...props}
-    />
-  );
+  return <ClozeSideField {...props} />;
 }

@@ -3,6 +3,7 @@ import { Image, Pressable, Text, View } from 'react-native';
 import { SelectField } from '@/components/forms/SelectField';
 import { LANGUAGES, toSpeechLanguage } from '@/constants/languages';
 import { MEDIA_TYPES } from '@/domain/entities/Media';
+import { useStrings } from '@/features/settings/providers/PreferencesProvider';
 import { useTheme } from '@/theme/useTheme';
 import { formatRecordingDuration } from '@/utils/format';
 
@@ -60,6 +61,8 @@ export function MediaControls({
   onTtsLanguageChange,
 }: MediaControlsProps) {
   const { colors } = useTheme();
+  const strings = useStrings();
+  const mediaStrings = strings.cards.media;
   const imageMedia = media.find((item) => item.type === MEDIA_TYPES.IMAGE);
   const audioMedia = media.find((item) => item.type !== MEDIA_TYPES.IMAGE);
   const canShowAudioBlock = allowAudioFile || allowRecording || allowTts || audioMedia;
@@ -73,7 +76,7 @@ export function MediaControls({
       {allowImage ? (
         <View className="gap-2">
           <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-            Imagem
+            {mediaStrings.imageLabel}
           </Text>
           {imageMedia?.type === MEDIA_TYPES.IMAGE ? (
             <View className="gap-2">
@@ -85,14 +88,14 @@ export function MediaControls({
               />
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={`Remover imagem de ${label}`}
+                accessibilityLabel={`${mediaStrings.removeImageA11y} ${label}`}
                 disabled={isSaving}
                 onPress={() => onRemoveMedia(MEDIA_TYPES.IMAGE)}
                 style={{ borderColor: colors.border, backgroundColor: colors.background }}
                 className="items-center rounded-xl border px-4 py-3 active:opacity-90"
               >
                 <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                  Remover imagem
+                  {mediaStrings.removeImage}
                 </Text>
               </Pressable>
             </View>
@@ -100,26 +103,26 @@ export function MediaControls({
             <View className="flex-row gap-2">
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={`Escolher imagem de ${label}`}
+                accessibilityLabel={`${mediaStrings.chooseImageA11y} ${label}`}
                 disabled={isSaving}
                 onPress={onPickImage}
                 style={{ borderColor: colors.border, backgroundColor: colors.background }}
                 className="flex-1 items-center rounded-xl border px-3 py-3 active:opacity-90"
               >
                 <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                  Galeria
+                  {mediaStrings.gallery}
                 </Text>
               </Pressable>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={`Tirar foto de ${label}`}
+                accessibilityLabel={`${mediaStrings.takePhotoA11y} ${label}`}
                 disabled={isSaving}
                 onPress={onTakePhoto}
                 style={{ borderColor: colors.border, backgroundColor: colors.background }}
                 className="flex-1 items-center rounded-xl border px-3 py-3 active:opacity-90"
               >
                 <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                  Camera
+                  {mediaStrings.camera}
                 </Text>
               </Pressable>
             </View>
@@ -130,7 +133,7 @@ export function MediaControls({
       {canShowAudioBlock ? (
         <View className="gap-2">
           <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-            Audio
+            {mediaStrings.audioLabel}
           </Text>
           {audioMedia ? (
             <View
@@ -145,40 +148,40 @@ export function MediaControls({
                 audioMedia.type === MEDIA_TYPES.RECORDING ? (
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel={`Tocar audio de ${label}`}
+                    accessibilityLabel={`${mediaStrings.playAudioA11y} ${label}`}
                     disabled={isSaving}
                     onPress={() => onPlayAudio(audioMedia.uri)}
                     style={{ borderColor: colors.border, backgroundColor: colors.background }}
                     className="flex-1 items-center rounded-xl border px-3 py-3 active:opacity-90"
                   >
                     <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                      Tocar
+                      {mediaStrings.play}
                     </Text>
                   </Pressable>
                 ) : (
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel={`Ouvir TTS de ${label}`}
+                    accessibilityLabel={`${mediaStrings.playTtsA11y} ${label}`}
                     disabled={isSaving}
                     onPress={onSpeakTts}
                     style={{ borderColor: colors.border, backgroundColor: colors.background }}
                     className="flex-1 items-center rounded-xl border px-3 py-3 active:opacity-90"
                   >
                     <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                      Ouvir
+                      {mediaStrings.listen}
                     </Text>
                   </Pressable>
                 )}
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel={`Remover audio de ${label}`}
+                  accessibilityLabel={`${mediaStrings.removeAudioA11y} ${label}`}
                   disabled={isSaving}
                   onPress={() => onRemoveMedia(audioMedia.type)}
                   style={{ borderColor: colors.border, backgroundColor: colors.background }}
                   className="flex-1 items-center rounded-xl border px-3 py-3 active:opacity-90"
                 >
                   <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                    Remover
+                    {mediaStrings.remove}
                   </Text>
                 </Pressable>
               </View>
@@ -189,14 +192,14 @@ export function MediaControls({
                 {allowAudioFile ? (
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel={`Anexar audio de ${label}`}
+                    accessibilityLabel={`${mediaStrings.attachAudioA11y} ${label}`}
                     disabled={isSaving || isRecording}
                     onPress={onPickAudio}
                     style={{ borderColor: colors.border, backgroundColor: colors.background }}
                     className="flex-1 items-center rounded-xl border px-3 py-3 active:opacity-90"
                   >
                     <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                      Arquivo
+                      {mediaStrings.file}
                     </Text>
                   </Pressable>
                 ) : null}
@@ -204,7 +207,9 @@ export function MediaControls({
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel={
-                      isRecordingThisSide ? `Parar gravacao de ${label}` : `Gravar ${label}`
+                      isRecordingThisSide
+                        ? `${mediaStrings.stopRecordingA11y} ${label}`
+                        : `${mediaStrings.recordAudioA11y} ${label}`
                     }
                     disabled={isSaving || (isRecording && !isRecordingThisSide)}
                     onPress={isRecordingThisSide ? onStopRecording : onStartRecording}
@@ -213,8 +218,8 @@ export function MediaControls({
                   >
                     <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
                       {isRecordingThisSide
-                        ? `Parar ${formatRecordingDuration(recordingDurationMs)}`
-                        : 'Gravar'}
+                        ? `${mediaStrings.stopRecordingPrefix} ${formatRecordingDuration(recordingDurationMs)}`
+                        : mediaStrings.record}
                     </Text>
                   </Pressable>
                 ) : null}
@@ -223,9 +228,9 @@ export function MediaControls({
               {allowTts ? (
                 <View className="gap-2">
                   <SelectField
-                    label="Idioma TTS"
+                    label={mediaStrings.ttsLanguageLabel}
                     value={ttsLanguage}
-                    placeholder="Escolha o idioma"
+                    placeholder={mediaStrings.ttsLanguagePlaceholder}
                     disabled={isSaving}
                     options={LANGUAGES.map((language) => ({
                       value: toSpeechLanguage(language.code),
@@ -235,7 +240,7 @@ export function MediaControls({
                   />
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel={`Usar TTS local em ${label}`}
+                    accessibilityLabel={`${mediaStrings.useLocalTtsA11y} ${label}`}
                     disabled={isSaving || !textForTts.trim()}
                     onPress={onToggleTts}
                     style={{
@@ -246,7 +251,7 @@ export function MediaControls({
                     className="items-center rounded-xl border px-4 py-3 active:opacity-90"
                   >
                     <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                      Usar TTS local
+                      {mediaStrings.useLocalTts}
                     </Text>
                   </Pressable>
                 </View>

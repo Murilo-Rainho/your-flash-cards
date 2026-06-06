@@ -26,10 +26,10 @@ export type HomeDataState = HomeData & {
 };
 
 export function useHomeData(): HomeDataState {
-  const { strings } = usePreferences();
+  const { locale, strings } = usePreferences();
 
   const query = useQuery<HomeData, Error>({
-    queryKey: HOME_DATA_QUERY_KEY,
+    queryKey: [...HOME_DATA_QUERY_KEY, locale],
     queryFn: () =>
       getHomeData({
         repository: getSQLiteHomeReadRepository(),

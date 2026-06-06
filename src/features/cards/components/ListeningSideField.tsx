@@ -4,14 +4,11 @@ import { FieldError } from '@/components/common/FieldError';
 import { SelectField } from '@/components/forms/SelectField';
 import { TextAreaField } from '@/components/forms/TextAreaField';
 import { MEDIA_TYPES } from '@/domain/entities/Media';
+import { useStrings } from '@/features/settings/providers/PreferencesProvider';
 import { useTheme } from '@/theme/useTheme';
 import { formatRecordingDuration } from '@/utils/format';
 
-import {
-  LISTENING_INPUT_MODE_OPTIONS,
-  LISTENING_INPUT_MODES,
-  type ListeningInputMode,
-} from '../config/listeningInputMode';
+import { LISTENING_INPUT_MODES, type ListeningInputMode } from '../config/listeningInputMode';
 import { getMediaLabel } from '../services/cardMedia';
 import type { CreateCardMediaInput } from '../services/createCard';
 
@@ -64,8 +61,15 @@ export function ListeningSideField({
   onTestAudio,
 }: ListeningSideFieldProps) {
   const { colors } = useTheme();
+  const strings = useStrings();
+  const mediaStrings = strings.cards.media;
   const audioMedia = media.find((item) => item.type !== MEDIA_TYPES.IMAGE);
   const sideError = textError ?? mediaError;
+  const modeOptions = [
+    { value: LISTENING_INPUT_MODES.AUDIO_FILE, label: strings.cards.inputModes.audioFile },
+    { value: LISTENING_INPUT_MODES.RECORDING, label: strings.cards.inputModes.recording },
+    { value: LISTENING_INPUT_MODES.TTS, label: strings.cards.inputModes.tts },
+  ];
 
   const canTestAudio = (() => {
     if (mode === LISTENING_INPUT_MODES.TTS) {
@@ -82,20 +86,17 @@ export function ListeningSideField({
       </Text>
 
       <SelectField
-        label="Como adicionar o audio"
+        label={mediaStrings.addAudioLabel}
         value={mode}
-        placeholder="Escolha uma opcao"
+        placeholder={mediaStrings.chooseOptionPlaceholder}
         disabled={isSaving}
-        options={LISTENING_INPUT_MODE_OPTIONS.map((option) => ({
-          value: option.value,
-          label: option.label,
-        }))}
+        options={modeOptions}
         onChange={(value) => onModeChange(value as ListeningInputMode)}
       />
 
       {mode === LISTENING_INPUT_MODES.TTS && !reuseTextForTts ? (
         <TextAreaField
-          label="Texto"
+          label={mediaStrings.textLabel}
           value={text}
           placeholder={textPlaceholder}
           error={textError}
@@ -106,7 +107,7 @@ export function ListeningSideField({
 
       {mode === LISTENING_INPUT_MODES.TTS && reuseTextForTts ? (
         <Text style={{ color: colors.textSecondary }} className="text-xs">
-          O TTS le o texto da frente.
+          {mediaStrings.ttsReadsFrontText}
         </Text>
       ) : null}
 
@@ -122,28 +123,28 @@ export function ListeningSideField({
               </Text>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={`Remover arquivo de audio de ${label}`}
+                accessibilityLabel={`${mediaStrings.removeAudioFileA11y} ${label}`}
                 disabled={isSaving}
                 onPress={onRemoveMedia}
                 style={{ borderColor: colors.border, backgroundColor: colors.background }}
                 className="items-center rounded-xl border px-4 py-3 active:opacity-90"
               >
                 <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                  Remover arquivo
+                  {mediaStrings.removeFile}
                 </Text>
               </Pressable>
             </View>
           ) : (
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={`Enviar arquivo de audio de ${label}`}
+              accessibilityLabel={`${mediaStrings.uploadAudioFileA11y} ${label}`}
               disabled={isSaving || isRecording}
               onPress={onPickAudio}
               style={{ borderColor: colors.border, backgroundColor: colors.background }}
               className="items-center rounded-xl border px-4 py-3 active:opacity-90"
             >
               <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                Enviar arquivo de audio
+                {mediaStrings.uploadAudioFile}
               </Text>
             </Pressable>
           )}
@@ -158,18 +159,18 @@ export function ListeningSideField({
               className="gap-2 rounded-xl border p-3"
             >
               <Text style={{ color: colors.textSecondary }} className="text-sm">
-                Gravacao pronta
+                {mediaStrings.recordingReady}
               </Text>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={`Remover gravacao de ${label}`}
+                accessibilityLabel={`${mediaStrings.removeRecordingA11y} ${label}`}
                 disabled={isSaving}
                 onPress={onRemoveMedia}
                 style={{ borderColor: colors.border, backgroundColor: colors.background }}
                 className="items-center rounded-xl border px-4 py-3 active:opacity-90"
               >
                 <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                  Remover gravacao
+                  {mediaStrings.removeRecording}
                 </Text>
               </Pressable>
             </View>
@@ -177,7 +178,9 @@ export function ListeningSideField({
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={
-                isRecordingThisSide ? `Parar gravacao de ${label}` : `Gravar audio de ${label}`
+                isRecordingThisSide
+                  ? `${mediaStrings.stopRecordingA11y} ${label}`
+                  : `${mediaStrings.recordAudioA11y} ${label}`
               }
               disabled={isSaving || (isRecording && !isRecordingThisSide)}
               onPress={isRecordingThisSide ? onStopRecording : onStartRecording}
@@ -186,8 +189,8 @@ export function ListeningSideField({
             >
               <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
                 {isRecordingThisSide
-                  ? `Parar ${formatRecordingDuration(recordingDurationMs)}`
-                  : 'Gravar audio'}
+                  ? `${mediaStrings.stopRecordingPrefix} ${formatRecordingDuration(recordingDurationMs)}`
+                  : mediaStrings.recordAudio}
               </Text>
             </Pressable>
           )}
@@ -196,7 +199,7 @@ export function ListeningSideField({
 
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`Testar audio de ${label}`}
+        accessibilityLabel={`${mediaStrings.testAudioA11y} ${label}`}
         disabled={isSaving || !canTestAudio}
         onPress={onTestAudio}
         style={{
@@ -207,7 +210,7 @@ export function ListeningSideField({
         className="items-center rounded-xl border px-4 py-3 active:opacity-90"
       >
         <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
-          Testar audio
+          {mediaStrings.testAudio}
         </Text>
       </Pressable>
 

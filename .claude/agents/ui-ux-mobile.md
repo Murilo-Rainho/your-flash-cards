@@ -29,7 +29,10 @@ acessibilidade e a linguagem amigável definida no contrato. Base: §7, §15, §
 - Fluxos do §34 (criação de card) e §35 (revisão) claros e curtos.
 - Recomendar criação manual como melhor método de aprendizado; posicionar import em lote
   como conveniência (§15.1).
-- Acessibilidade: `accessibilityRole`/labels, alvos de toque adequados, contraste via tema.
+- Acessibilidade: `accessibilityRole`/labels, alvos de toque adequados, contraste via tema
+  (`useTheme().colors` ou tokens NativeWind — respeitam a paleta selecionada).
+- Microcopy e rótulos nos catálogos de idioma (`src/strings/locales/pt-BR/` e `en-US/`),
+  consumidos via `useStrings()` — nunca hardcoded no JSX.
 - Mensagens de bloqueio Premium que **não** impedem o uso local (§28).
 
 ## O que PODE fazer
@@ -40,7 +43,8 @@ acessibilidade e a linguagem amigável definida no contrato. Base: §7, §15, §
 ## O que NÃO PODE fazer
 
 - ❌ Introduzir regra de negócio na UI.
-- ❌ Usar cor crua; só tokens do tema.
+- ❌ Usar cor crua; só tokens do tema / `useTheme().colors`.
+- ❌ Escrever microcopy/labels direto no componente; use os catálogos `pt-BR`/`en-US`.
 - ❌ Jargão técnico excessivo nos rótulos de card (§7).
 - ❌ Bloquear o uso Free local ao apresentar Premium.
 
@@ -58,6 +62,7 @@ acessibilidade e a linguagem amigável definida no contrato. Base: §7, §15, §
 - [ ] Fluxos de criação e revisão seguem §34/§35.
 - [ ] Acessibilidade (roles, labels, contraste, toque).
 - [ ] Microcopy de Premium explica motivo+benefício+alternativa e não bloqueia Free.
-- [ ] Estados vazio/loading/erro cobertos; só tokens do tema.
+- [ ] Estados vazio/loading/erro cobertos; cores via tema selecionado (`useTheme`/tokens).
+- [ ] Microcopy e rótulos em `src/strings/locales/` (pt-BR + en-US); nada hardcoded.
 
 > Ver também: [react-native-expo](./react-native-expo.md), [premium-gate-billing](./premium-gate-billing.md).

@@ -22,7 +22,10 @@ e mídia, sem quebrar a compatibilidade com Expo Go. Base: contrato §2, §33; s
 ## Restrições
 
 - Telas não contêm regra de negócio nem acesso a SQLite.
-- Só tokens de tema; nada de cor crua (`#fff`, `bg-blue-500`).
+- **Cores do tema selecionado:** tokens NativeWind (`bg-primary`, `text-textPrimary`, …) ou
+  `useTheme().colors` para inline/props — refletem a paleta do usuário. Nada de cor crua.
+- **Textos de UI nos catálogos de idioma:** `src/strings/locales/pt-BR/` e `en-US/` (módulo por
+  feature), tipo em `src/strings/types.ts`, consumo via `useStrings()`. Nada hardcoded no JSX.
 - Não atualizar `react-native`/`reanimated`/`worklets` nem remover overrides/preset (Expo Go).
 - Arquitetura não pode impedir iOS futuro.
 
@@ -30,6 +33,8 @@ e mídia, sem quebrar a compatibilidade com Expo Go. Base: contrato §2, §33; s
 
 - Componentes pequenos e composáveis; variantes via objeto `as const` + classes do tema
   (padrão do `Button` existente).
+- Inputs/campos de formulário: `useTheme()` para cores dinâmicas; `useStrings()` para labels,
+  placeholders, erros e a11y.
 - Listas longas virtualizadas; evitar re-renders.
 - Mídia/áudio/TTS atrás de infra/interfaces (`TtsProvider`), não chamados crus na tela.
 - Alias `@/*` para imports de `src`.
@@ -40,3 +45,4 @@ e mídia, sem quebrar a compatibilidade com Expo Go. Base: contrato §2, §33; s
 - ❌ Adicionar libs redundantes (preferir Expo nativo / o que já existe).
 - ❌ `fetch` para backend em fluxo Free.
 - ❌ Lógica de domínio dentro de `onPress`/render.
+- ❌ Strings visíveis hardcoded no componente (use catálogos `pt-BR`/`en-US`).
