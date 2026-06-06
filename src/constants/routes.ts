@@ -19,8 +19,11 @@ export const ROUTES = {
   EXPORT: '/export',
   REVIEW: '/review',
   REVIEW_RESULT: '/review/result',
+  REVIEW_TODAY: '/review/today',
   STATS: '/stats',
   SETTINGS: '/settings',
+  DEV_TOOLS: '/dev-tools',
+  DEV_TOOLS_TABLE: '/dev-tools/tables/[name]',
   PREMIUM: '/premium',
 } as const;
 
@@ -31,4 +34,5 @@ export const routeHrefs = {
   collectionDetail: (id: string) => ({ pathname: ROUTES.COLLECTION_DETAIL, params: { id } }),
   deckDetail: (id: string) => ({ pathname: ROUTES.DECK_DETAIL, params: { id } }),
   cardDetail: (id: string) => ({ pathname: ROUTES.CARD_DETAIL, params: { id } }),
+  devToolsTable: (name: string) => ({ pathname: ROUTES.DEV_TOOLS_TABLE, params: { name } }),
 } as const;

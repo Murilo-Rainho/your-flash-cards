@@ -368,6 +368,19 @@ export type StringCatalog = {
       backHomeA11y: string;
       emptyTitle: string;
     };
+    today: {
+      title: string;
+      subtitle: string;
+      loading: string;
+      loadError: string;
+      loadRetryA11y: string;
+      emptyTitle: string;
+      emptySubtitle: string;
+      gotItA11y: string;
+      missedA11y: string;
+      attemptSingular: string;
+      attemptPlural: string;
+    };
   };
   tags: {
     title: string;
@@ -404,5 +417,8 @@ export type StringCatalog = {
     paletteMidnight: string;
     paletteCarbon: string;
     saved: string;
+    devToolsSection: string;
+    devToolsDescription: string;
+    devToolsButton: string;
   };
 };

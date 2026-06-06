@@ -81,5 +81,6 @@ export function getReviewNowCardState({
     title: strings.doneTitle,
     subtitle: strings.doneSubtitle,
     accessibilityLabel: strings.doneA11y,
+    route: ROUTES.REVIEW_TODAY,
   };
 }

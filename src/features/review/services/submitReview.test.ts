@@ -27,6 +27,7 @@ function createFakeRepository() {
   const calls: ApplyReviewInput[] = [];
   const repository: ReviewRepository = {
     listDueReviewCards: async () => [],
+    listReviewsForDay: async () => [],
     applyReview: async (input) => {
       calls.push(input);
       return {

@@ -22,6 +22,8 @@ const MAX_REVIEW_RECORDING_MS = 30_000;
 
 export type ReviewSession = {
   viewModel: FlashcardViewModel | null;
+  /** Identidade do card exibido; muda a cada avanço (inclui repetição de "Errei"). */
+  cardKey: number;
   isLoading: boolean;
   /** Carregou e não havia cards vencidos. */
   isEmpty: boolean;
@@ -115,6 +117,7 @@ export function useReviewSession(): ReviewSession {
 
   return {
     viewModel,
+    cardKey: state.stats.reviewedCount,
     isLoading: due.isLoading || !state.initialized,
     isEmpty: state.initialized && state.total === 0,
     isFinished: state.initialized && state.total > 0 && state.finished,

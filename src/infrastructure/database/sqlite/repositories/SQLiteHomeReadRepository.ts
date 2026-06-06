@@ -197,7 +197,7 @@ WHERE rl.rating IN ('again', 'hard')
     const row = await db.getFirstAsync<TodayStatsRow>(
       `
 SELECT
-  COUNT(rl.id) AS reviewedToday,
+  COUNT(DISTINCT rl.review_item_id) AS reviewedToday,
   CASE
     WHEN COUNT(rl.id) = 0 THEN 0
     ELSE ROUND(100.0 * SUM(CASE WHEN rl.rating != 'again' THEN 1 ELSE 0 END) / COUNT(rl.id))

@@ -7,6 +7,7 @@ import { ACTIVE_DECKS_QUERY_KEY } from '@/features/decks/hooks/useActiveDecks';
 import { HOME_DATA_QUERY_KEY } from '@/features/home/hooks/useHomeData';
 
 import { submitReview, type SubmitReviewInput } from '../services/submitReview';
+import { REVIEW_TODAY_QUERY_KEY } from './useTodayReviews';
 
 /**
  * Persiste uma avaliação (SM-2 + `ReviewLog`). Não invalida a fila de vencidos durante a
@@ -25,6 +26,7 @@ export function useSubmitReview() {
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: HOME_DATA_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: REVIEW_TODAY_QUERY_KEY }),
         queryClient.invalidateQueries({ queryKey: ACTIVE_COLLECTIONS_QUERY_KEY }),
         queryClient.invalidateQueries({ queryKey: ACTIVE_DECKS_QUERY_KEY }),
       ]);

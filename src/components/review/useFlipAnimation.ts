@@ -75,10 +75,12 @@ export function useFlipAnimation({ reduceMotion, onFlipped }: UseFlipAnimationPa
     );
   }, [handleArrived, prefersReducedMotion, progress]);
 
+  // Reset instantâneo (sem flip-back animado): ao trocar de card, o próximo já deve
+  // aparecer na frente — a transição visual entre cards fica por conta de outra animação.
   const reset = useCallback(() => {
-    progress.value = prefersReducedMotion ? 0 : withTiming(0, { duration: FLIP_DURATION_MS });
+    progress.value = 0;
     setIsFlipped(false);
-  }, [prefersReducedMotion, progress]);
+  }, [progress]);
 
   return { isFlipped, frontAnimatedStyle, backAnimatedStyle, flip, reset };
 }

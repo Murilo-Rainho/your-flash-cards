@@ -23,6 +23,22 @@ export type DueReviewCard = {
   media: Media[];
 };
 
+/**
+ * Resumo de um card revisado em um determinado dia (§33 #12, histórico do dia).
+ *
+ * `finalRating` é a nota do log mais recente do dia para o card (a "nota final"); `attempts`
+ * é quantas avaliações o card recebeu no dia (inclui repetições de "Errei").
+ */
+export type DailyReviewedCard = {
+  cardId: string;
+  cardType: CardType;
+  front: string;
+  back: string;
+  finalRating: ReviewRating;
+  attempts: number;
+  reviewedAt: string;
+};
+
 export type ListDueReviewCardsParams = {
   now: Date;
   /** Teto de cards da sessão (§20: `... ORDER BY next_review_at ASC LIMIT :sessionLimit`). */
@@ -60,4 +76,6 @@ export type ApplyReviewInput = {
 export type ReviewRepository = {
   listDueReviewCards(params: ListDueReviewCardsParams): Promise<DueReviewCard[]>;
   applyReview(input: ApplyReviewInput): Promise<ReviewLog>;
+  /** Cards revisados no dia de `now` (start-of-day local → now), com a nota final por card. */
+  listReviewsForDay(now: Date): Promise<DailyReviewedCard[]>;
 };

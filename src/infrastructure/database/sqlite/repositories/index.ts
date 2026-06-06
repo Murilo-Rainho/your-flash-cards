@@ -12,6 +12,7 @@ import { SQLiteCardRepository } from './SQLiteCardRepository';
 import { SQLiteCollectionRepository } from './SQLiteCollectionRepository';
 import { SQLiteDeckRepository } from './SQLiteDeckRepository';
 import { SQLiteHomeReadRepository } from './SQLiteHomeReadRepository';
+import { SQLiteDevToolsRepository } from './SQLiteDevToolsRepository';
 import { SQLiteReviewRepository } from './SQLiteReviewRepository';
 import { SQLiteTagRepository } from './SQLiteTagRepository';
 
@@ -22,6 +23,7 @@ let cardRepository: CardRepository | null = null;
 let tagRepository: TagRepository | null = null;
 let appSettingsRepository: AppSettingsRepository | null = null;
 let reviewRepository: ReviewRepository | null = null;
+let devToolsRepository: SQLiteDevToolsRepository | null = null;
 
 export function getSQLiteHomeReadRepository(): HomeReadRepository {
   if (!homeReadRepository) {
@@ -77,4 +79,12 @@ export function getSQLiteReviewRepository(): ReviewRepository {
   }
 
   return reviewRepository;
+}
+
+export function getSQLiteDevToolsRepository(): SQLiteDevToolsRepository {
+  if (!devToolsRepository) {
+    devToolsRepository = new SQLiteDevToolsRepository(getAppDatabase);
+  }
+
+  return devToolsRepository;
 }

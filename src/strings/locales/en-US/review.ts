@@ -59,4 +59,17 @@ export const review = {
     backHomeA11y: 'Go back to the home screen',
     emptyTitle: 'No reviews recorded',
   },
+  today: {
+    title: 'Reviewed today',
+    subtitle: 'Cards you studied today and the grade you gave each one.',
+    loading: 'Loading your reviews...',
+    loadError: 'Could not load your reviews.',
+    loadRetryA11y: 'Try loading your reviews again',
+    emptyTitle: 'No reviews yet today',
+    emptySubtitle: 'Once you review some cards, they will show up here.',
+    gotItA11y: 'Got it',
+    missedA11y: 'Missed',
+    attemptSingular: 'attempt',
+    attemptPlural: 'attempts',
+  },
 } as const;

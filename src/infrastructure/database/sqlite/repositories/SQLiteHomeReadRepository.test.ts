@@ -33,7 +33,7 @@ class FakeHomeDatabase {
       return { value: 2 } as T;
     }
 
-    if (source.includes('COUNT(rl.id) AS reviewedToday')) {
+    if (source.includes('COUNT(DISTINCT rl.review_item_id) AS reviewedToday')) {
       return { reviewedToday: 4, retentionPercentage: 75 } as T;
     }
 

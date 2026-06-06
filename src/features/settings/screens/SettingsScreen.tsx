@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import { type Href, useRouter } from 'expo-router';
 
+import { SecondaryButton } from '@/components/common/SecondaryButton';
 import { ScreenHeader } from '@/components/common/ScreenHeader';
+import { ROUTES } from '@/constants/routes';
 import { FormScreen } from '@/components/forms/FormScreen';
 import { SelectableCard } from '@/components/forms/SelectableCard';
 import { usePreferences, useStrings } from '@/features/settings/providers/PreferencesProvider';
@@ -27,6 +30,7 @@ const paletteOptions: Array<{
 ];
 
 export function SettingsScreen() {
+  const router = useRouter();
   const goBack = useGoBack();
   const strings = useStrings();
   const { colors } = useTheme();
@@ -113,6 +117,21 @@ export function SettingsScreen() {
           })}
         </View>
       </View>
+
+      {__DEV__ ? (
+        <View className="gap-3">
+          <Text style={{ color: colors.textPrimary }} className="text-lg font-semibold">
+            {strings.settings.devToolsSection}
+          </Text>
+          <Text style={{ color: colors.textSecondary }} className="text-sm">
+            {strings.settings.devToolsDescription}
+          </Text>
+          <SecondaryButton
+            label={strings.settings.devToolsButton}
+            onPress={() => router.push(ROUTES.DEV_TOOLS as Href)}
+          />
+        </View>
+      ) : null}
 
       {savedMessage ? (
         <Text style={{ color: colors.success }} className="text-sm font-medium">

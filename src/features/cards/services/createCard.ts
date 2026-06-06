@@ -7,6 +7,7 @@ import { MEDIA_TYPES } from '@/domain/entities/Media';
 import type { Media } from '@/domain/entities/Media';
 import { VARIANT_TYPES } from '@/domain/entities/CardVariant';
 import type { CardVariant } from '@/domain/entities/CardVariant';
+import { INITIAL_REVIEW_ITEM_STATE } from '@/domain/constants/initialReviewItemState';
 import { createLocalId } from '@/utils/ids';
 import type { FieldErrors } from '@/utils/validation';
 
@@ -65,14 +66,9 @@ function createReviewItem(
   return {
     id: idFactory('review-item'),
     cardVariantId,
-    schedulerType: 'sm2',
-    schedulerVersion: 'v1',
-    repetitions: 0,
-    intervalDays: 0,
-    easeFactor: 2.5,
+    ...INITIAL_REVIEW_ITEM_STATE,
     nextReviewAt: timestamp,
     lastReviewedAt: undefined,
-    lapses: 0,
     createdAt: timestamp,
     updatedAt: timestamp,
   };

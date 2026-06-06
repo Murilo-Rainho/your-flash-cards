@@ -59,4 +59,17 @@ export const review = {
     backHomeA11y: 'Voltar para a tela inicial',
     emptyTitle: 'Nenhuma revisão registrada',
   },
+  today: {
+    title: 'Revisados hoje',
+    subtitle: 'Os cards que você estudou hoje e a nota que deu a cada um.',
+    loading: 'Carregando suas revisões...',
+    loadError: 'Não foi possível carregar suas revisões.',
+    loadRetryA11y: 'Tentar carregar suas revisões novamente',
+    emptyTitle: 'Nenhuma revisão hoje ainda',
+    emptySubtitle: 'Assim que você revisar alguns cards, eles aparecerão aqui.',
+    gotItA11y: 'Acertou',
+    missedA11y: 'Errou',
+    attemptSingular: 'tentativa',
+    attemptPlural: 'tentativas',
+  },
 } as const;

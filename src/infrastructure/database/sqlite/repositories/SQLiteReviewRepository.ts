@@ -1,14 +1,17 @@
 import type { CardType } from '@/constants/cardTypes';
+import type { ReviewRating } from '@/constants/reviewRatings';
 import type { VariantType } from '@/domain/entities/CardVariant';
 import type { Media, MediaSide, MediaType } from '@/domain/entities/Media';
 import type { ReviewItem } from '@/domain/entities/ReviewItem';
 import type { ReviewLog } from '@/domain/entities/ReviewLog';
 import type {
   ApplyReviewInput,
+  DailyReviewedCard,
   DueReviewCard,
   ListDueReviewCardsParams,
   ReviewRepository,
 } from '@/domain/repositories/ReviewRepository';
+import { startOfLocalDay } from '@/utils/date';
 import { createLocalId } from '@/utils/ids';
 
 import type { SqliteDatabaseConnection } from '../types';
@@ -34,6 +37,16 @@ type DueReviewRow = {
   front: string;
   back: string;
   notes: string | null;
+};
+
+type DailyReviewedRow = {
+  cardId: string;
+  cardType: CardType;
+  front: string;
+  back: string;
+  finalRating: ReviewRating;
+  attempts: number;
+  reviewedAt: string;
 };
 
 type MediaRow = {
@@ -153,6 +166,55 @@ LIMIT $limit
       notes: row.notes ?? undefined,
       variantType: row.variantType,
       media: mediaByCard.get(row.cardId) ?? [],
+    }));
+  }
+
+  async listReviewsForDay(now: Date): Promise<DailyReviewedCard[]> {
+    const db = await this.getDatabase();
+    const startOfDay = startOfLocalDay(now).toISOString();
+
+    const rows = await db.getAllAsync<DailyReviewedRow>(
+      `
+SELECT
+  card.id AS cardId,
+  card.type AS cardType,
+  card.front AS front,
+  card.back AS back,
+  COUNT(rl.id) AS attempts,
+  MAX(rl.reviewed_at) AS reviewedAt,
+  (
+    SELECT latest.rating
+    FROM review_logs latest
+    INNER JOIN review_items latest_ri ON latest_ri.id = latest.review_item_id
+    INNER JOIN card_variants latest_cv ON latest_cv.id = latest_ri.card_variant_id
+    WHERE latest_cv.card_id = card.id
+      AND latest.reviewed_at >= $startOfDay
+      AND latest.reviewed_at <= $now
+    ORDER BY latest.reviewed_at DESC
+    LIMIT 1
+  ) AS finalRating
+FROM review_logs rl
+INNER JOIN review_items ri ON ri.id = rl.review_item_id
+INNER JOIN card_variants cv ON cv.id = ri.card_variant_id
+INNER JOIN cards card ON card.id = cv.card_id AND card.archived_at IS NULL
+INNER JOIN decks deck ON deck.id = card.deck_id AND deck.archived_at IS NULL
+INNER JOIN collections collection ON collection.id = deck.collection_id AND collection.archived_at IS NULL
+WHERE rl.reviewed_at >= $startOfDay
+  AND rl.reviewed_at <= $now
+GROUP BY card.id, card.type, card.front, card.back
+ORDER BY reviewedAt DESC
+`,
+      { $startOfDay: startOfDay, $now: now.toISOString() },
+    );
+
+    return rows.map((row) => ({
+      cardId: row.cardId,
+      cardType: row.cardType,
+      front: row.front,
+      back: row.back,
+      finalRating: row.finalRating,
+      attempts: row.attempts,
+      reviewedAt: row.reviewedAt,
     }));
   }
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -10,7 +10,14 @@ import {
   Text,
   View,
 } from 'react-native';
-import Animated from 'react-native-reanimated';
+import Animated, {
+  Easing,
+  interpolate,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { PrimaryButton } from '@/components/common/PrimaryButton';
 import { useTheme } from '@/theme/useTheme';
@@ -24,6 +31,8 @@ import type { CheckedAnswer, FlashcardReviewProps } from './types';
 import { useFlipAnimation } from './useFlipAnimation';
 
 const FLIP_HEIGHT = 360;
+const CARD_ENTER_DURATION_MS = 260;
+const CARD_ENTER_OFFSET = 32;
 
 /**
  * Card de revisão flutuante com animação de flip (§35).
@@ -34,6 +43,7 @@ const FLIP_HEIGHT = 360;
  */
 export function FlashcardReview({
   visible,
+  cardKey,
   card,
   strings,
   onRate,
@@ -46,12 +56,24 @@ export function FlashcardReview({
   const [checked, setChecked] = useState<CheckedAnswer | null>(null);
   const [override, setOverride] = useState<boolean | null>(null);
 
+  const systemReduceMotion = useReducedMotion();
+  const prefersReducedMotion = reduceMotion ?? systemReduceMotion;
+
   const { isFlipped, frontAnimatedStyle, backAnimatedStyle, flip, reset } = useFlipAnimation({
     reduceMotion,
     onFlipped: onFlip,
   });
 
-  // Ao abrir, sempre começa pela frente, com a resposta zerada.
+  // Animação de entrada do card (§35): cada novo card desliza + aparece. Entre cards apenas.
+  const enter = useSharedValue(1);
+  const prevCardKeyRef = useRef(cardKey);
+  const cardAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: enter.value,
+    transform: [{ translateX: interpolate(enter.value, [0, 1], [CARD_ENTER_OFFSET, 0]) }],
+  }));
+
+  // Ao abrir (ou trocar de card), sempre começa pela frente, com a resposta zerada;
+  // e, quando o card muda dentro da sessão, dispara a animação de entrada.
   useEffect(() => {
     if (!visible) {
       return;
@@ -60,7 +82,21 @@ export function FlashcardReview({
     setChecked(null);
     setOverride(null);
     reset();
-  }, [visible, reset]);
+
+    const changed = prevCardKeyRef.current !== cardKey;
+    prevCardKeyRef.current = cardKey;
+
+    if (cardKey === undefined || !changed || prefersReducedMotion) {
+      enter.value = 1;
+      return;
+    }
+
+    enter.value = 0;
+    enter.value = withTiming(1, {
+      duration: CARD_ENTER_DURATION_MS,
+      easing: Easing.out(Easing.cubic),
+    });
+  }, [visible, cardKey, reset, enter, prefersReducedMotion]);
 
   const { answer } = card;
   const hasTyped = typed.trim().length > 0;
@@ -101,8 +137,8 @@ export function FlashcardReview({
         >
           {/* Pressable interno "vazio" evita que toques no card fechem o teclado/repassem. */}
           <Pressable onPress={() => undefined} className="w-full">
-            <View
-              style={{ backgroundColor: colors.background, ...shadows.lg }}
+            <Animated.View
+              style={[{ backgroundColor: colors.background, ...shadows.lg }, cardAnimatedStyle]}
               className="w-full gap-4 rounded-2xl p-5"
             >
               <View className="flex-row items-center justify-between">
@@ -231,7 +267,7 @@ export function FlashcardReview({
                   </View>
                 </Animated.View>
               </View>
-            </View>
+            </Animated.View>
           </Pressable>
         </KeyboardAvoidingView>
       </Pressable>

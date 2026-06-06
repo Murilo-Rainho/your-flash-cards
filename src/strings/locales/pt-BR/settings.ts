@@ -10,4 +10,7 @@ export const settings = {
   paletteMidnight: 'Meia-noite',
   paletteCarbon: 'Carbono',
   saved: 'Preferências salvas.',
+  devToolsSection: 'Ferramentas de desenvolvimento',
+  devToolsDescription: 'Inspetor SQLite e reset de revisão (somente builds de dev).',
+  devToolsButton: 'Abrir ferramentas de dev',
 } as const;

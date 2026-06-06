@@ -87,6 +87,11 @@ export type FlashcardViewModel = {
 export type FlashcardReviewProps = {
   /** Controla o Modal de overlay. */
   visible: boolean;
+  /**
+   * Identidade do card exibido. Quando muda (avanço de card na sessão), reseta o estado de
+   * flip/resposta e dispara a animação de entrada. Opcional: o modo "Testar" não precisa.
+   */
+  cardKey?: number;
   card: FlashcardViewModel;
   strings: StringCatalog['review'];
   /**

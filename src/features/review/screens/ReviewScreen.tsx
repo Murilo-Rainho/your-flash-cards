@@ -75,6 +75,7 @@ export function ReviewScreen() {
       {session.viewModel ? (
         <FlashcardReview
           visible
+          cardKey={session.cardKey}
           card={session.viewModel}
           strings={strings.review}
           onRate={session.handleRate}

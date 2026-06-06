@@ -10,4 +10,7 @@ export const settings = {
   paletteMidnight: 'Midnight',
   paletteCarbon: 'Carbon',
   saved: 'Preferences saved.',
+  devToolsSection: 'Development tools',
+  devToolsDescription: 'SQLite inspector and review reset (dev builds only).',
+  devToolsButton: 'Open dev tools',
 } as const;
