@@ -7,6 +7,7 @@ import type { Collection } from '@/domain/entities/Collection';
  */
 export type CollectionRepository = {
   create(collection: Collection): Promise<Collection>;
+  update(collection: Collection): Promise<Collection>;
   listActive(): Promise<Collection[]>;
   findById(id: string): Promise<Collection | null>;
 };

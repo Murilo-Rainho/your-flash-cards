@@ -17,4 +17,13 @@ export type CardAggregate = {
  */
 export type CardRepository = {
   createAggregate(aggregate: CardAggregate): Promise<CardAggregate>;
+  listActiveByDeck(deckId: string): Promise<Card[]>;
+  findAggregateById(id: string): Promise<CardAggregate | null>;
+  /**
+   * Atualiza o card físico e sincroniza mídia/tags com o aggregate informado.
+   * Preserva variants e review_items (mantém o histórico SM-2).
+   */
+  updateAggregate(aggregate: CardAggregate): Promise<CardAggregate>;
+  /** Soft-delete: marca o card como arquivado (não remove fisicamente). */
+  archiveCard(id: string, archivedAt: string): Promise<void>;
 };

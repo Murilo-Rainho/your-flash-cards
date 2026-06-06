@@ -86,6 +86,46 @@ WHERE id = $collectionId
     return deck;
   }
 
+  async update(deck: Deck): Promise<Deck> {
+    const db = await this.getDatabase();
+
+    await db.withTransactionAsync(async () => {
+      await db.runAsync(
+        `
+UPDATE decks
+SET name = $name,
+    description = $description,
+    auto_generate_reverse_cards = $autoGenerateReverseCards,
+    updated_at = $updatedAt
+WHERE id = $id
+  AND archived_at IS NULL
+`,
+        {
+          $id: deck.id,
+          $name: deck.name,
+          $description: deck.description ?? null,
+          $autoGenerateReverseCards: deck.autoGenerateReverseCards ? 1 : 0,
+          $updatedAt: deck.updatedAt,
+        },
+      );
+
+      await db.runAsync(
+        `
+UPDATE collections
+SET updated_at = $updatedAt
+WHERE id = $collectionId
+  AND archived_at IS NULL
+`,
+        {
+          $collectionId: deck.collectionId,
+          $updatedAt: deck.updatedAt,
+        },
+      );
+    });
+
+    return deck;
+  }
+
   async listActiveByCollection(collectionId: string): Promise<Deck[]> {
     const db = await this.getDatabase();
     const rows = await db.getAllAsync<DeckRow>(

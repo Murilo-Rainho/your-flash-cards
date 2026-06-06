@@ -76,6 +76,19 @@ export async function createCollection(
     );
   }
 
+  const activeCollections = await repository.listActive();
+  const hasDuplicateLanguagePair = activeCollections.some(
+    (collection) =>
+      collection.baseLanguage === parsed.data.baseLanguage &&
+      collection.targetLanguage === parsed.data.targetLanguage,
+  );
+
+  if (hasDuplicateLanguagePair) {
+    throw new CreateCollectionInputError({
+      targetLanguage: 'Já existe uma coleção com este par de idiomas.',
+    });
+  }
+
   const timestamp = now().toISOString();
   const collection: Collection = {
     id: idFactory(),

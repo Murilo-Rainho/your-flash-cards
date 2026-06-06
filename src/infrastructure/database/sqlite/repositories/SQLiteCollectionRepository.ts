@@ -71,6 +71,29 @@ INSERT INTO collections (
     return collection;
   }
 
+  async update(collection: Collection): Promise<Collection> {
+    const db = await this.getDatabase();
+
+    await db.runAsync(
+      `
+UPDATE collections
+SET name = $name,
+    description = $description,
+    updated_at = $updatedAt
+WHERE id = $id
+  AND archived_at IS NULL
+`,
+      {
+        $id: collection.id,
+        $name: collection.name,
+        $description: collection.description ?? null,
+        $updatedAt: collection.updatedAt,
+      },
+    );
+
+    return collection;
+  }
+
   async listActive(): Promise<Collection[]> {
     const db = await this.getDatabase();
     const rows = await db.getAllAsync<CollectionRow>(

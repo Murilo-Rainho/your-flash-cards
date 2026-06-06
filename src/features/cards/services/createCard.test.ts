@@ -20,6 +20,14 @@ class FakeCollectionRepository implements CollectionRepository {
     return collection;
   }
 
+  async update(collection: Collection): Promise<Collection> {
+    const index = this.collections.findIndex((existing) => existing.id === collection.id);
+    if (index >= 0) {
+      this.collections[index] = collection;
+    }
+    return collection;
+  }
+
   async listActive(): Promise<Collection[]> {
     return this.collections;
   }
@@ -34,6 +42,14 @@ class FakeDeckRepository implements DeckRepository {
 
   async create(deck: Deck): Promise<Deck> {
     this.decks.push(deck);
+    return deck;
+  }
+
+  async update(deck: Deck): Promise<Deck> {
+    const index = this.decks.findIndex((existing) => existing.id === deck.id);
+    if (index >= 0) {
+      this.decks[index] = deck;
+    }
     return deck;
   }
 
@@ -58,6 +74,31 @@ class FakeCardRepository implements CardRepository {
 
     this.aggregates.push(aggregate);
     return aggregate;
+  }
+
+  async listActiveByDeck(deckId: string) {
+    return this.aggregates
+      .map((aggregate) => aggregate.card)
+      .filter((card) => card.deckId === deckId && !card.archivedAt);
+  }
+
+  async findAggregateById(id: string) {
+    return this.aggregates.find((aggregate) => aggregate.card.id === id) ?? null;
+  }
+
+  async updateAggregate(aggregate: CardAggregate) {
+    const index = this.aggregates.findIndex((existing) => existing.card.id === aggregate.card.id);
+    if (index >= 0) {
+      this.aggregates[index] = aggregate;
+    }
+    return aggregate;
+  }
+
+  async archiveCard(id: string, archivedAt: string) {
+    const aggregate = this.aggregates.find((existing) => existing.card.id === id);
+    if (aggregate) {
+      aggregate.card = { ...aggregate.card, archivedAt };
+    }
   }
 }
 

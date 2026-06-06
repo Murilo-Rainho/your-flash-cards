@@ -13,6 +13,14 @@ class FakeCollectionRepository implements CollectionRepository {
     return collection;
   }
 
+  async update(collection: Collection): Promise<Collection> {
+    const index = this.collections.findIndex((existing) => existing.id === collection.id);
+    if (index >= 0) {
+      this.collections[index] = collection;
+    }
+    return collection;
+  }
+
   async listActive(): Promise<Collection[]> {
     return this.collections;
   }
@@ -27,6 +35,14 @@ class FakeDeckRepository implements DeckRepository {
 
   async create(deck: Deck): Promise<Deck> {
     this.decks.push(deck);
+    return deck;
+  }
+
+  async update(deck: Deck): Promise<Deck> {
+    const index = this.decks.findIndex((existing) => existing.id === deck.id);
+    if (index >= 0) {
+      this.decks[index] = deck;
+    }
     return deck;
   }
 

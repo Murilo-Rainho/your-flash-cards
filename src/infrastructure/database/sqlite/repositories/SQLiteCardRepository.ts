@@ -1,3 +1,9 @@
+import type { Card } from '@/domain/entities/Card';
+import type { CardType } from '@/constants/cardTypes';
+import type { CardVariant, VariantType } from '@/domain/entities/CardVariant';
+import type { Media, MediaSide, MediaType } from '@/domain/entities/Media';
+import type { ReviewItem } from '@/domain/entities/ReviewItem';
+import type { Tag } from '@/domain/entities/Tag';
 import type { CardAggregate, CardRepository } from '@/domain/repositories/CardRepository';
 
 import type { SqliteDatabaseConnection } from '../types';
@@ -7,6 +13,128 @@ type GetDatabase = () => Promise<SqliteDatabaseConnection>;
 type TagIdRow = {
   id: string;
 };
+
+type CardRow = {
+  id: string;
+  deckId: string;
+  type: CardType;
+  front: string;
+  back: string;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  archivedAt: string | null;
+};
+
+type CardVariantRow = {
+  id: string;
+  cardId: string;
+  variantType: VariantType;
+  isGenerated: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type MediaRow = {
+  id: string;
+  cardId: string;
+  cardVariantId: string | null;
+  side: MediaSide;
+  type: MediaType;
+  uri: string;
+  mimeType: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type TagRow = {
+  id: string;
+  name: string;
+  normalizedName: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type ReviewItemRow = {
+  id: string;
+  cardVariantId: string;
+  schedulerType: string;
+  schedulerVersion: string;
+  repetitions: number;
+  intervalDays: number;
+  easeFactor: number;
+  nextReviewAt: string;
+  lastReviewedAt: string | null;
+  lapses: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+function mapCard(row: CardRow): Card {
+  return {
+    id: row.id,
+    deckId: row.deckId,
+    type: row.type,
+    front: row.front,
+    back: row.back,
+    notes: row.notes ?? undefined,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+    archivedAt: row.archivedAt ?? undefined,
+  };
+}
+
+function mapCardVariant(row: CardVariantRow): CardVariant {
+  return {
+    id: row.id,
+    cardId: row.cardId,
+    variantType: row.variantType,
+    isGenerated: row.isGenerated === 1,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+}
+
+function mapMedia(row: MediaRow): Media {
+  return {
+    id: row.id,
+    cardId: row.cardId,
+    cardVariantId: row.cardVariantId ?? undefined,
+    side: row.side,
+    type: row.type,
+    uri: row.uri,
+    mimeType: row.mimeType,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+}
+
+function mapTag(row: TagRow): Tag {
+  return {
+    id: row.id,
+    name: row.name,
+    normalizedName: row.normalizedName,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+}
+
+function mapReviewItem(row: ReviewItemRow): ReviewItem {
+  return {
+    id: row.id,
+    cardVariantId: row.cardVariantId,
+    schedulerType: row.schedulerType,
+    schedulerVersion: row.schedulerVersion,
+    repetitions: row.repetitions,
+    intervalDays: row.intervalDays,
+    easeFactor: row.easeFactor,
+    nextReviewAt: row.nextReviewAt,
+    lastReviewedAt: row.lastReviewedAt ?? undefined,
+    lapses: row.lapses,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+}
 
 export class SQLiteCardRepository implements CardRepository {
   constructor(private readonly getDatabase: GetDatabase) {}
@@ -264,5 +392,386 @@ WHERE id = (
     });
 
     return aggregate;
+  }
+
+  async updateAggregate(aggregate: CardAggregate): Promise<CardAggregate> {
+    const db = await this.getDatabase();
+
+    await db.withTransactionAsync(async () => {
+      await db.runAsync(
+        `
+UPDATE cards
+SET deck_id = $deckId,
+    front = $front,
+    back = $back,
+    notes = $notes,
+    updated_at = $updatedAt
+WHERE id = $id
+  AND archived_at IS NULL
+`,
+        {
+          $id: aggregate.card.id,
+          $deckId: aggregate.card.deckId,
+          $front: aggregate.card.front,
+          $back: aggregate.card.back,
+          $notes: aggregate.card.notes ?? null,
+          $updatedAt: aggregate.card.updatedAt,
+        },
+      );
+
+      // Mídia: substitui o conjunto por completo (o serviço já copiou/removeu arquivos).
+      await db.runAsync(`DELETE FROM media WHERE card_id = $cardId`, {
+        $cardId: aggregate.card.id,
+      });
+
+      for (const media of aggregate.media) {
+        await db.runAsync(
+          `
+INSERT INTO media (
+  id,
+  card_id,
+  card_variant_id,
+  side,
+  type,
+  uri,
+  mime_type,
+  created_at,
+  updated_at
+) VALUES (
+  $id,
+  $cardId,
+  $cardVariantId,
+  $side,
+  $type,
+  $uri,
+  $mimeType,
+  $createdAt,
+  $updatedAt
+)`,
+          {
+            $id: media.id,
+            $cardId: media.cardId,
+            $cardVariantId: media.cardVariantId ?? null,
+            $side: media.side,
+            $type: media.type,
+            $uri: media.uri,
+            $mimeType: media.mimeType,
+            $createdAt: media.createdAt,
+            $updatedAt: media.updatedAt,
+          },
+        );
+      }
+
+      // Tags: recria os vínculos do card (tags órfãs permanecem no catálogo).
+      await db.runAsync(`DELETE FROM card_tags WHERE card_id = $cardId`, {
+        $cardId: aggregate.card.id,
+      });
+
+      for (const tag of aggregate.tags) {
+        await db.runAsync(
+          `
+INSERT OR IGNORE INTO tags (
+  id,
+  name,
+  normalized_name,
+  created_at,
+  updated_at
+) VALUES (
+  $id,
+  $name,
+  $normalizedName,
+  $createdAt,
+  $updatedAt
+)`,
+          {
+            $id: tag.id,
+            $name: tag.name,
+            $normalizedName: tag.normalizedName,
+            $createdAt: tag.createdAt,
+            $updatedAt: tag.updatedAt,
+          },
+        );
+
+        await db.runAsync(
+          `
+UPDATE tags
+SET name = $name,
+    updated_at = $updatedAt
+WHERE normalized_name = $normalizedName
+`,
+          {
+            $name: tag.name,
+            $normalizedName: tag.normalizedName,
+            $updatedAt: tag.updatedAt,
+          },
+        );
+
+        const storedTag = await db.getFirstAsync<TagIdRow>(
+          `
+SELECT id
+FROM tags
+WHERE normalized_name = $normalizedName
+LIMIT 1
+`,
+          { $normalizedName: tag.normalizedName },
+        );
+
+        if (storedTag) {
+          await db.runAsync(
+            `
+INSERT OR IGNORE INTO card_tags (
+  card_id,
+  tag_id
+) VALUES (
+  $cardId,
+  $tagId
+)`,
+            {
+              $cardId: aggregate.card.id,
+              $tagId: storedTag.id,
+            },
+          );
+        }
+      }
+
+      await db.runAsync(
+        `
+UPDATE decks
+SET updated_at = $updatedAt
+WHERE id = $deckId
+  AND archived_at IS NULL
+`,
+        {
+          $deckId: aggregate.card.deckId,
+          $updatedAt: aggregate.card.updatedAt,
+        },
+      );
+
+      await db.runAsync(
+        `
+UPDATE collections
+SET updated_at = $updatedAt
+WHERE id = (
+  SELECT collection_id
+  FROM decks
+  WHERE id = $deckId
+)
+  AND archived_at IS NULL
+`,
+        {
+          $deckId: aggregate.card.deckId,
+          $updatedAt: aggregate.card.updatedAt,
+        },
+      );
+    });
+
+    return aggregate;
+  }
+
+  async archiveCard(id: string, archivedAt: string): Promise<void> {
+    const db = await this.getDatabase();
+
+    await db.withTransactionAsync(async () => {
+      await db.runAsync(
+        `
+UPDATE cards
+SET archived_at = $archivedAt,
+    updated_at = $archivedAt
+WHERE id = $id
+  AND archived_at IS NULL
+`,
+        {
+          $id: id,
+          $archivedAt: archivedAt,
+        },
+      );
+
+      await db.runAsync(
+        `
+UPDATE decks
+SET updated_at = $archivedAt
+WHERE id = (
+  SELECT deck_id
+  FROM cards
+  WHERE id = $id
+)
+`,
+        {
+          $id: id,
+          $archivedAt: archivedAt,
+        },
+      );
+
+      await db.runAsync(
+        `
+UPDATE collections
+SET updated_at = $archivedAt
+WHERE id = (
+  SELECT collection_id
+  FROM decks
+  WHERE id = (
+    SELECT deck_id
+    FROM cards
+    WHERE id = $id
+  )
+)
+`,
+        {
+          $id: id,
+          $archivedAt: archivedAt,
+        },
+      );
+    });
+  }
+
+  async listActiveByDeck(deckId: string): Promise<Card[]> {
+    const db = await this.getDatabase();
+    const rows = await db.getAllAsync<CardRow>(
+      `
+SELECT
+  id,
+  deck_id AS deckId,
+  type,
+  front,
+  back,
+  notes,
+  created_at AS createdAt,
+  updated_at AS updatedAt,
+  archived_at AS archivedAt
+FROM cards
+WHERE deck_id = $deckId
+  AND archived_at IS NULL
+ORDER BY updated_at DESC, created_at DESC
+`,
+      { $deckId: deckId },
+    );
+
+    return rows.map(mapCard);
+  }
+
+  async findAggregateById(id: string): Promise<CardAggregate | null> {
+    const db = await this.getDatabase();
+
+    const cardRow = await db.getFirstAsync<CardRow>(
+      `
+SELECT
+  id,
+  deck_id AS deckId,
+  type,
+  front,
+  back,
+  notes,
+  created_at AS createdAt,
+  updated_at AS updatedAt,
+  archived_at AS archivedAt
+FROM cards
+WHERE id = $id
+  AND archived_at IS NULL
+LIMIT 1
+`,
+      { $id: id },
+    );
+
+    if (!cardRow) {
+      return null;
+    }
+
+    const [variantRows, mediaRows, tagRows] = await Promise.all([
+      db.getAllAsync<CardVariantRow>(
+        `
+SELECT
+  id,
+  card_id AS cardId,
+  variant_type AS variantType,
+  is_generated AS isGenerated,
+  created_at AS createdAt,
+  updated_at AS updatedAt
+FROM card_variants
+WHERE card_id = $cardId
+ORDER BY created_at ASC
+`,
+        { $cardId: id },
+      ),
+      db.getAllAsync<MediaRow>(
+        `
+SELECT
+  id,
+  card_id AS cardId,
+  card_variant_id AS cardVariantId,
+  side,
+  type,
+  uri,
+  mime_type AS mimeType,
+  created_at AS createdAt,
+  updated_at AS updatedAt
+FROM media
+WHERE card_id = $cardId
+ORDER BY created_at ASC
+`,
+        { $cardId: id },
+      ),
+      db.getAllAsync<TagRow>(
+        `
+SELECT
+  tag.id AS id,
+  tag.name AS name,
+  tag.normalized_name AS normalizedName,
+  tag.created_at AS createdAt,
+  tag.updated_at AS updatedAt
+FROM card_tags link
+INNER JOIN tags tag ON tag.id = link.tag_id
+WHERE link.card_id = $cardId
+ORDER BY tag.normalized_name ASC
+`,
+        { $cardId: id },
+      ),
+    ]);
+
+    const variantIds = variantRows.map((variant) => variant.id);
+    const reviewItemRows = await this.loadReviewItems(db, variantIds);
+
+    return {
+      card: mapCard(cardRow),
+      variants: variantRows.map(mapCardVariant),
+      media: mediaRows.map(mapMedia),
+      tags: tagRows.map(mapTag),
+      reviewItems: reviewItemRows.map(mapReviewItem),
+    };
+  }
+
+  private async loadReviewItems(
+    db: SqliteDatabaseConnection,
+    variantIds: string[],
+  ): Promise<ReviewItemRow[]> {
+    if (variantIds.length === 0) {
+      return [];
+    }
+
+    const placeholders = variantIds.map((_, index) => `$id${index}`).join(', ');
+    const params: Record<string, string> = {};
+    variantIds.forEach((variantId, index) => {
+      params[`$id${index}`] = variantId;
+    });
+
+    return db.getAllAsync<ReviewItemRow>(
+      `
+SELECT
+  id,
+  card_variant_id AS cardVariantId,
+  scheduler_type AS schedulerType,
+  scheduler_version AS schedulerVersion,
+  repetitions,
+  interval_days AS intervalDays,
+  ease_factor AS easeFactor,
+  next_review_at AS nextReviewAt,
+  last_reviewed_at AS lastReviewedAt,
+  lapses,
+  created_at AS createdAt,
+  updated_at AS updatedAt
+FROM review_items
+WHERE card_variant_id IN (${placeholders})
+`,
+      params,
+    );
   }
 }

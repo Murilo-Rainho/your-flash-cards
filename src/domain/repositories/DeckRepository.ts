@@ -7,6 +7,7 @@ import type { Deck } from '@/domain/entities/Deck';
  */
 export type DeckRepository = {
   create(deck: Deck): Promise<Deck>;
+  update(deck: Deck): Promise<Deck>;
   listActiveByCollection(collectionId: string): Promise<Deck[]>;
   findById(id: string): Promise<Deck | null>;
 };

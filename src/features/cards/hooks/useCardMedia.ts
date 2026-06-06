@@ -12,6 +12,8 @@ type UseCardMediaParams = {
   selectedType: CardType;
   onError: (message: string | null) => void;
   onChange: () => void;
+  /** Mídia já existente (edição). Usada apenas como estado inicial. */
+  initialMedia?: CreateCardMediaInput[];
 };
 
 export type CardMedia = {
@@ -25,8 +27,13 @@ export type CardMedia = {
 };
 
 /** Estado e seleção de mídia (imagem/áudio) do card em criação. */
-export function useCardMedia({ selectedType, onError, onChange }: UseCardMediaParams): CardMedia {
-  const [media, setMedia] = useState<CreateCardMediaInput[]>([]);
+export function useCardMedia({
+  selectedType,
+  onError,
+  onChange,
+  initialMedia = [],
+}: UseCardMediaParams): CardMedia {
+  const [media, setMedia] = useState<CreateCardMediaInput[]>(initialMedia);
 
   const setSideMedia = useCallback(
     (nextMedia: CreateCardMediaInput) => {

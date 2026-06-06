@@ -11,6 +11,13 @@ class FakeCollectionRepository implements CollectionRepository {
     return collection;
   }
 
+  async update(collection: Collection): Promise<Collection> {
+    this.collections = this.collections.map((existing) =>
+      existing.id === collection.id ? collection : existing,
+    );
+    return collection;
+  }
+
   async listActive(): Promise<Collection[]> {
     return this.collections;
   }
@@ -72,5 +79,76 @@ describe('createCollection', () => {
     });
 
     expect(repository.collections).toEqual([]);
+  });
+
+  it('rejects duplicate language pair before persisting', async () => {
+    const repository = new FakeCollectionRepository();
+
+    await createCollection(
+      {
+        name: 'Português para Inglês',
+        baseLanguage: 'pt',
+        targetLanguage: 'en',
+      },
+      {
+        repository,
+        idFactory: () => 'collection-1',
+        now: () => new Date('2026-06-03T12:00:00.000Z'),
+      },
+    );
+
+    await expect(
+      createCollection(
+        {
+          name: 'Outro nome',
+          baseLanguage: 'pt',
+          targetLanguage: 'en',
+        },
+        { repository },
+      ),
+    ).rejects.toMatchObject({
+      fieldErrors: {
+        targetLanguage: 'Já existe uma coleção com este par de idiomas.',
+      },
+    });
+
+    expect(repository.collections).toHaveLength(1);
+  });
+
+  it('allows the same target language with a different base language', async () => {
+    const repository = new FakeCollectionRepository();
+
+    await createCollection(
+      {
+        name: 'Português para Inglês',
+        baseLanguage: 'pt',
+        targetLanguage: 'en',
+      },
+      {
+        repository,
+        idFactory: () => 'collection-1',
+        now: () => new Date('2026-06-03T12:00:00.000Z'),
+      },
+    );
+
+    await expect(
+      createCollection(
+        {
+          name: 'Espanhol para Inglês',
+          baseLanguage: 'es',
+          targetLanguage: 'en',
+        },
+        {
+          repository,
+          idFactory: () => 'collection-2',
+          now: () => new Date('2026-06-03T13:00:00.000Z'),
+        },
+      ),
+    ).resolves.toMatchObject({
+      baseLanguage: 'es',
+      targetLanguage: 'en',
+    });
+
+    expect(repository.collections).toHaveLength(2);
   });
 });

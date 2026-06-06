@@ -1,7 +1,7 @@
 import { type Href, useRouter } from 'expo-router';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 
-import { ROUTES } from '@/constants/routes';
+import { ROUTES, routeHrefs } from '@/constants/routes';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { QuickAction } from '@/domain/entities/QuickAction';
@@ -43,7 +43,7 @@ export function HomeScreen() {
   };
 
   const handleCollectionPress = (item: CollectionSummary) => {
-    console.log('[Home] Abrir coleção', item.collection.id);
+    router.push(routeHrefs.collectionDetail(item.collection.id) as Href);
   };
 
   const handleQuickAction = (action: QuickAction) => {
