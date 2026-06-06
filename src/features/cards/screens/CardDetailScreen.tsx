@@ -162,6 +162,7 @@ function CardDetailForm({ aggregate }: { aggregate: CardAggregate }) {
       />
 
       <OptionalCardFields
+        collectionId={form.collectionId ?? ''}
         expanded={form.showOptionalFields}
         tags={form.tags}
         notes={form.notes}

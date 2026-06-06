@@ -92,7 +92,7 @@ export async function createCard(
   const timestamp = now().toISOString();
   const collectionId = input.collectionId?.trim() ?? '';
   const deckId = input.deckId?.trim() ?? '';
-  const sanitized = sanitizeCardContent(input, timestamp, idFactory);
+  const sanitized = sanitizeCardContent(input, collectionId, timestamp, idFactory);
   const fieldErrors: FieldErrors<CreateCardField> = { ...sanitized.fieldErrors };
 
   if (!collectionId) {

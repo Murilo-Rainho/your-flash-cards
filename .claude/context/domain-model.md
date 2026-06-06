@@ -63,9 +63,10 @@ Existe mesmo **sem conta** (Free é local-first).
 
 ### Tag (§30.7) e CardTag (§30.8)
 
-`Tag: id, name, normalizedName, createdAt, updatedAt` · `CardTag: cardId, tagId`
+`Tag: id, collectionId, name, normalizedName, createdAt, updatedAt` · `CardTag: cardId, tagId`
 
-> Tags flexíveis e reutilizáveis; o app pode sugerir tags comuns (§6).
+> Tags flexíveis e reutilizáveis dentro de uma coleção; unicidade por
+> `(collectionId, normalizedName)`. O app pode sugerir tags comuns por contexto da coleção (§6).
 
 ### ReviewItem (§30.9) — unidade revisável (metadados do SM-2)
 

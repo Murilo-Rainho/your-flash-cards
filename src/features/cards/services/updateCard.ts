@@ -77,26 +77,8 @@ export async function updateCard(
     throw new UpdateCardInputError({ id: 'Card nao encontrado.' });
   }
 
-  const sanitized = sanitizeCardContent(
-    {
-      type: existing.card.type,
-      frontText: input.frontText,
-      backText: input.backText,
-      notes: input.notes,
-      tags: input.tags,
-      media: input.media,
-    },
-    timestamp,
-    idFactory,
-  );
-  const fieldErrors: FieldErrors<UpdateCardField> = { ...sanitized.fieldErrors };
-
   if (!deckId) {
-    fieldErrors.deckId = 'Escolha um deck.';
-  }
-
-  if (Object.keys(fieldErrors).length > 0 || !sanitized.data) {
-    throw new UpdateCardInputError(fieldErrors);
+    throw new UpdateCardInputError({ deckId: 'Escolha um deck.' });
   }
 
   const [currentDeck, targetDeck] = await Promise.all([
@@ -110,6 +92,25 @@ export async function updateCard(
 
   if (currentDeck && targetDeck.collectionId !== currentDeck.collectionId) {
     throw new UpdateCardInputError({ deckId: 'Escolha um deck desta colecao.' });
+  }
+
+  const sanitized = sanitizeCardContent(
+    {
+      type: existing.card.type,
+      frontText: input.frontText,
+      backText: input.backText,
+      notes: input.notes,
+      tags: input.tags,
+      media: input.media,
+    },
+    targetDeck.collectionId,
+    timestamp,
+    idFactory,
+  );
+  const fieldErrors: FieldErrors<UpdateCardField> = { ...sanitized.fieldErrors };
+
+  if (Object.keys(fieldErrors).length > 0 || !sanitized.data) {
+    throw new UpdateCardInputError(fieldErrors);
   }
 
   const existingByUri = new Map(existing.media.map((media) => [media.uri, media]));

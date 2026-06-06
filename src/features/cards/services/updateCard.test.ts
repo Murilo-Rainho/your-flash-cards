@@ -188,6 +188,7 @@ describe('updateCard', () => {
     expect(result.variants).toHaveLength(1);
     expect(result.reviewItems[0]?.repetitions).toBe(3);
     expect(result.tags.map((tag) => tag.name)).toEqual(['Animais']);
+    expect(result.tags[0]?.collectionId).toBe('collection-pt-en');
   });
 
   it('moves the card to another deck of the same collection', async () => {

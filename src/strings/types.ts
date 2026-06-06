@@ -115,6 +115,12 @@ export type StringCatalog = {
     notFound: string;
     languagesLockedHint: string;
     noDescription: string;
+    tagsSectionTitle: string;
+    addTagLabel: string;
+    addTagA11y: string;
+    noTags: string;
+    tagsLoadError: string;
+    tagsLoadRetryA11y: string;
   };
   decks: {
     newTitle: string;
@@ -367,6 +373,24 @@ export type StringCatalog = {
     title: string;
     createPlaceholder: string;
     createError: string;
+    newTitle: string;
+    editTitle: string;
+    editLabel: string;
+    editA11y: string;
+    nameLabel: string;
+    collectionLabel: string;
+    saveLabel: string;
+    saveA11y: string;
+    saveEditLabel: string;
+    saveEditA11y: string;
+    updateError: string;
+    deleteLabel: string;
+    deleteA11y: string;
+    deleteError: string;
+    deleteConfirmTitle: string;
+    deleteConfirmMessage: string;
+    deleteConfirmCancel: string;
+    deleteConfirmConfirm: string;
   };
   settings: {
     title: string;

@@ -15,7 +15,7 @@ Base: `CONTRATO_README.md` §5, §17, §19, §20, §30. Espelha `.claude/context
 - **Card** (físico): `id, deckId, type, front, back, notes?, createdAt, updatedAt, archivedAt?`.
 - **CardVariant**: `id, cardId, variantType('original'|'reverse'), isGenerated, createdAt, updatedAt`.
 - **Media**: `id, cardId, cardVariantId?, side('front'|'back'), type('image'|'audio'|'recording'|'tts'), uri, mimeType, createdAt, updatedAt`.
-- **Tag**: `id, name, normalizedName, createdAt, updatedAt`; **CardTag**: `cardId, tagId`.
+- **Tag**: `id, collectionId, name, normalizedName, createdAt, updatedAt`; **CardTag**: `cardId, tagId`.
 - **ReviewItem**: `id, cardVariantId, schedulerType, schedulerVersion, repetitions, intervalDays, easeFactor, nextReviewAt, lastReviewedAt?, lapses, createdAt, updatedAt`.
 - **StudySession**: `id, startedAt, endedAt?, collectionId?, deckId?, mode, cardsReviewed, durationMs, createdAt, updatedAt`.
 - **ReviewLog**: `id, reviewItemId, sessionId?, rating, reviewedAt, timeSpentMs, previousIntervalDays, nextIntervalDays, previousEaseFactor, nextEaseFactor`.

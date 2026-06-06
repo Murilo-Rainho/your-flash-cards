@@ -6,6 +6,7 @@ import { TagPicker } from '@/features/tags/components/TagPicker';
 import { useTheme } from '@/theme/useTheme';
 
 type OptionalCardFieldsProps = {
+  collectionId: string;
   expanded: boolean;
   tags: string[];
   notes: string;
@@ -19,6 +20,7 @@ type OptionalCardFieldsProps = {
 
 /** Bloco recolhível de campos opcionais do card (tags e observações). */
 export function OptionalCardFields({
+  collectionId,
   expanded,
   tags,
   notes,
@@ -52,7 +54,13 @@ export function OptionalCardFields({
 
       {expanded ? (
         <>
-          <TagPicker value={tags} error={tagsError} disabled={disabled} onChange={onChangeTags} />
+          <TagPicker
+            collectionId={collectionId}
+            value={tags}
+            error={tagsError}
+            disabled={disabled}
+            onChange={onChangeTags}
+          />
 
           <TextAreaField
             label={strings.cards.optionalFields.notesLabel}

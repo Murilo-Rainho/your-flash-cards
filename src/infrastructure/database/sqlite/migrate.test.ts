@@ -52,11 +52,12 @@ describe('migrateSqliteDatabase', () => {
     expect(
       db.execStatements.filter((statement) => statement === 'PRAGMA foreign_keys = ON'),
     ).toHaveLength(1);
-    expect(db.transactionCount).toBe(1);
+    expect(db.transactionCount).toBe(2);
     expect(db.runCalls[0]?.source).toBe(
       'INSERT INTO schema_migrations (version, applied_at) VALUES (?, ?)',
     );
     expect(db.runCalls[0]?.params[0]).toEqual(['001_initial_schema', expect.any(String)]);
+    expect(db.runCalls[1]?.params[0]).toEqual(['002_tags_collection_scope', expect.any(String)]);
   });
 
   it('skips already applied migrations', async () => {

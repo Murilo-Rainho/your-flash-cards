@@ -84,6 +84,7 @@ const aggregate: CardAggregate = {
   tags: [
     {
       id: 'tag-travel',
+      collectionId: 'collection-pt-en',
       name: 'travel',
       normalizedName: 'travel',
       createdAt: '2026-06-03T12:00:00.000Z',

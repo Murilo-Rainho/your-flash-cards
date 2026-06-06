@@ -26,14 +26,26 @@ export async function migrateSqliteDatabase(db: SqliteDatabaseConnection): Promi
     }
 
     await db.withTransactionAsync(async () => {
-      for (const statement of migration.statements) {
-        const trimmedStatement = statement.trim();
+      const runStatements = async (statements: readonly string[]) => {
+        for (const statement of statements) {
+          const trimmedStatement = statement.trim();
 
-        if (!trimmedStatement || trimmedStatement === 'PRAGMA foreign_keys = ON') {
-          continue;
+          if (!trimmedStatement || trimmedStatement === 'PRAGMA foreign_keys = ON') {
+            continue;
+          }
+
+          await db.execAsync(trimmedStatement);
         }
+      };
 
-        await db.execAsync(trimmedStatement);
+      await runStatements(migration.statements);
+
+      if (migration.migrateData) {
+        await migration.migrateData(db);
+      }
+
+      if (migration.finalizeStatements) {
+        await runStatements(migration.finalizeStatements);
       }
 
       await db.runAsync('INSERT INTO schema_migrations (version, applied_at) VALUES (?, ?)', [

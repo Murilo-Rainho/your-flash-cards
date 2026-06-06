@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Alert, Pressable, Text, View } from 'react-native';
 import { type Href, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { PrimaryButton } from '@/components/common/PrimaryButton';
@@ -9,6 +9,7 @@ import { StateCard } from '@/components/common/StateCard';
 import { FormScreen } from '@/components/forms/FormScreen';
 import { routeHrefs } from '@/constants/routes';
 import type { Deck } from '@/domain/entities/Deck';
+import type { Tag } from '@/domain/entities/Tag';
 import {
   CollectionEditModal,
   type CollectionEditErrors,
@@ -27,13 +28,26 @@ import { useCreateDeck } from '@/features/decks/hooks/useCreateDeck';
 import { useUpdateDeck } from '@/features/decks/hooks/useUpdateDeck';
 import { isCreateDeckInputError } from '@/features/decks/services/createDeck';
 import { isUpdateDeckInputError } from '@/features/decks/services/updateDeck';
+import {
+  TagFormModal,
+  type TagFormErrors,
+  type TagFormValues,
+} from '@/features/tags/components/TagFormModal';
+import { useCreateTag } from '@/features/tags/hooks/useCreateTag';
+import { useDeleteTag } from '@/features/tags/hooks/useDeleteTag';
+import { useTags } from '@/features/tags/hooks/useTags';
+import { useUpdateTag } from '@/features/tags/hooks/useUpdateTag';
+import { isCreateTagInputError } from '@/features/tags/services/createTag';
+import { isUpdateTagInputError } from '@/features/tags/services/updateTag';
 import { useStrings } from '@/features/settings/providers/PreferencesProvider';
 import { useGoBack } from '@/hooks/useGoBack';
 import { useTheme } from '@/theme/useTheme';
 
 type DeckModalState = { mode: 'create' } | { mode: 'edit'; deck: Deck };
+type TagModalState = { mode: 'create' } | { mode: 'edit'; tag: Tag };
 
 const emptyDecks: Deck[] = [];
+const emptyTags: Tag[] = [];
 
 export function CollectionDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -44,12 +58,17 @@ export function CollectionDetailScreen() {
 
   const collectionQuery = useCollection(id);
   const decksQuery = useActiveDecks(id);
+  const tagsQuery = useTags(id ?? '');
   const updateCollectionMutation = useUpdateCollection();
   const createDeckMutation = useCreateDeck();
   const updateDeckMutation = useUpdateDeck();
+  const createTagMutation = useCreateTag();
+  const updateTagMutation = useUpdateTag();
+  const deleteTagMutation = useDeleteTag();
 
   const collection = collectionQuery.data;
   const decks = decksQuery.data ?? emptyDecks;
+  const tags = tagsQuery.data ?? emptyTags;
 
   const [isEditingCollection, setIsEditingCollection] = useState(false);
   const [collectionErrors, setCollectionErrors] = useState<CollectionEditErrors>({});
@@ -58,6 +77,10 @@ export function CollectionDetailScreen() {
   const [deckModal, setDeckModal] = useState<DeckModalState | null>(null);
   const [deckErrors, setDeckErrors] = useState<DeckFormErrors>({});
   const [deckFormError, setDeckFormError] = useState<string | undefined>(undefined);
+
+  const [tagModal, setTagModal] = useState<TagModalState | null>(null);
+  const [tagErrors, setTagErrors] = useState<TagFormErrors>({});
+  const [tagFormError, setTagFormError] = useState<string | undefined>(undefined);
 
   const languagePair = collection
     ? `${collection.baseLanguage.toUpperCase()} -> ${collection.targetLanguage.toUpperCase()}`
@@ -136,6 +159,71 @@ export function CollectionDetailScreen() {
     setDeckErrors({});
     setDeckFormError(undefined);
     setDeckModal({ mode: 'edit', deck });
+  };
+
+  const handleTagSubmit = async (values: TagFormValues) => {
+    if (!id || !tagModal) {
+      return;
+    }
+    setTagErrors({});
+    setTagFormError(undefined);
+
+    try {
+      if (tagModal.mode === 'create') {
+        await createTagMutation.mutateAsync({
+          collectionId: id,
+          name: values.name,
+        });
+      } else {
+        await updateTagMutation.mutateAsync({
+          id: tagModal.tag.id,
+          name: values.name,
+        });
+      }
+      setTagModal(null);
+    } catch (error) {
+      if (isCreateTagInputError(error) || isUpdateTagInputError(error)) {
+        setTagErrors(error.fieldErrors);
+        return;
+      }
+      setTagFormError(
+        tagModal.mode === 'create' ? strings.tags.createError : strings.tags.updateError,
+      );
+    }
+  };
+
+  const openCreateTag = () => {
+    setTagErrors({});
+    setTagFormError(undefined);
+    setTagModal({ mode: 'create' });
+  };
+
+  const openEditTag = (tag: Tag) => {
+    setTagErrors({});
+    setTagFormError(undefined);
+    setTagModal({ mode: 'edit', tag });
+  };
+
+  const confirmDeleteTag = (tag: Tag) => {
+    Alert.alert(
+      strings.tags.deleteConfirmTitle,
+      strings.tags.deleteConfirmMessage,
+      [
+        { text: strings.tags.deleteConfirmCancel, style: 'cancel' },
+        {
+          text: strings.tags.deleteConfirmConfirm,
+          style: 'destructive',
+          onPress: () => {
+            void deleteTagMutation
+              .mutateAsync({ id: tag.id, collectionId: tag.collectionId })
+              .catch(() => {
+                Alert.alert(strings.tags.deleteError);
+              });
+          },
+        },
+      ],
+      { cancelable: true },
+    );
   };
 
   const renderBody = () => {
@@ -258,6 +346,77 @@ export function CollectionDetailScreen() {
             onPress={openCreateDeck}
           />
         </View>
+
+        <View className="gap-3">
+          <View className="flex-row items-center justify-between gap-3">
+            <Text style={{ color: colors.textPrimary }} className="text-lg font-semibold">
+              {strings.collections.tagsSectionTitle}
+            </Text>
+          </View>
+
+          {tagsQuery.isLoading ? (
+            <Text style={{ color: colors.textSecondary }} className="text-sm">
+              {strings.common.loading}
+            </Text>
+          ) : tagsQuery.error ? (
+            <StateCard
+              title={strings.collections.tagsLoadError}
+              action={{
+                label: strings.common.retry,
+                accessibilityLabel: strings.collections.tagsLoadRetryA11y,
+                variant: 'secondary',
+                onPress: () => {
+                  void tagsQuery.refetch();
+                },
+              }}
+            />
+          ) : tags.length === 0 ? (
+            <StateCard title={strings.collections.noTags} />
+          ) : (
+            tags.map((tag) => (
+              <View
+                key={tag.id}
+                style={{ borderColor: colors.border, backgroundColor: colors.surface }}
+                className="flex-row items-center gap-3 rounded-2xl border p-4"
+              >
+                <View className="flex-1">
+                  <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
+                    {tag.name}
+                  </Text>
+                </View>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`${strings.tags.editA11y}: ${tag.name}`}
+                  onPress={() => openEditTag(tag)}
+                  style={{ borderColor: colors.border }}
+                  className="rounded-xl border px-3 py-2 active:opacity-90"
+                >
+                  <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+                    {strings.tags.editLabel}
+                  </Text>
+                </Pressable>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`${strings.tags.deleteA11y}: ${tag.name}`}
+                  onPress={() => confirmDeleteTag(tag)}
+                  style={{ borderColor: colors.border }}
+                  className="rounded-xl border px-3 py-2 active:opacity-90"
+                  disabled={deleteTagMutation.isPending}
+                >
+                  <Text style={{ color: colors.danger }} className="text-sm font-semibold">
+                    {strings.tags.deleteLabel}
+                  </Text>
+                </Pressable>
+              </View>
+            ))
+          )}
+
+          <PrimaryButton
+            label={strings.collections.addTagLabel}
+            accessibilityLabel={strings.collections.addTagA11y}
+            onPress={openCreateTag}
+          />
+        </View>
       </>
     );
   };
@@ -299,6 +458,20 @@ export function CollectionDetailScreen() {
           formError={deckFormError}
           onSubmit={handleDeckSubmit}
           onClose={() => setDeckModal(null)}
+        />
+      ) : null}
+
+      {collection ? (
+        <TagFormModal
+          visible={tagModal !== null}
+          mode={tagModal?.mode ?? 'create'}
+          collectionName={collection.name}
+          initialValues={tagModal?.mode === 'edit' ? { name: tagModal.tag.name } : undefined}
+          isSaving={createTagMutation.isPending || updateTagMutation.isPending}
+          fieldErrors={tagErrors}
+          formError={tagFormError}
+          onSubmit={handleTagSubmit}
+          onClose={() => setTagModal(null)}
         />
       ) : null}
     </FormScreen>

@@ -196,7 +196,14 @@ listening
 pronunciation
 ```
 
-As tags devem ser flexíveis e reutilizáveis.
+As tags devem ser flexíveis e reutilizáveis **dentro de uma coleção**.
+
+Cada tag pertence a uma coleção (`collectionId`). O mesmo nome pode existir em coleções
+diferentes (ex.: `restaurant` em Português→Inglês e em Português→Francês), mas com `id`
+distinto. A unicidade é por par `(collectionId, normalizedName)`.
+
+Sugestões de tags comuns (travel, verbs, listening…) devem considerar o contexto da coleção
+e o idioma alvo.
 
 ---
 
@@ -948,6 +955,7 @@ tts
 
 ```txt
 id
+collectionId
 name
 normalizedName
 createdAt

@@ -16,6 +16,8 @@ import { useTags } from '../hooks/useTags';
 const { MAX_TAGS, MAX_TAG_LENGTH } = LIMITS;
 
 type TagPickerProps = {
+  /** Collection à qual as tags pertencem (§6/§30.7). */
+  collectionId: string;
   /** Nomes das tags selecionadas (fonte da verdade no formulário). */
   value: string[];
   onChange: (names: string[]) => void;
@@ -46,12 +48,18 @@ function createErrorMessage(error: unknown, fallback: string): string | undefine
  *
  * A criação persiste a tag imediatamente (offline, SQLite) e a lista é revalidada via
  * React Query, então a nova tag aparece na hora — sem reload. A comparação é feita por
- * `normalizedName` para evitar duplicatas como "verbs" vs "Verb" (§6/§30.7).
+ * `normalizedName` na collection para evitar duplicatas como "verbs" vs "Verb" (§6/§30.7).
  */
-export function TagPicker({ value, onChange, disabled = false, error }: TagPickerProps) {
+export function TagPicker({
+  collectionId,
+  value,
+  onChange,
+  disabled = false,
+  error,
+}: TagPickerProps) {
   const strings = useStrings();
   const { colors } = useTheme();
-  const tagsQuery = useTags();
+  const tagsQuery = useTags(collectionId);
   const createTagMutation = useCreateTag();
   const [draft, setDraft] = useState('');
 
@@ -96,6 +104,7 @@ export function TagPicker({ value, onChange, disabled = false, error }: TagPicke
     draftKey.length > 0 && (knownKeys.has(draftKey) || selectedKeys.has(draftKey));
   const isTooLong = draftName.length > MAX_TAG_LENGTH;
   const canCreate =
+    collectionId.length > 0 &&
     !disabled &&
     !createTagMutation.isPending &&
     !atMaxTags &&
@@ -109,7 +118,7 @@ export function TagPicker({ value, onChange, disabled = false, error }: TagPicke
     }
 
     createTagMutation.mutate(
-      { name: draftName },
+      { collectionId, name: draftName },
       {
         onSuccess: (created) => {
           setDraft('');

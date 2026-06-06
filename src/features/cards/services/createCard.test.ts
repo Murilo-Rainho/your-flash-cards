@@ -213,7 +213,11 @@ describe('createCard', () => {
       back: 'casa',
     });
     expect(aggregate.tags).toHaveLength(1);
-    expect(aggregate.tags[0]).toMatchObject({ name: 'Travel', normalizedName: 'travel' });
+    expect(aggregate.tags[0]).toMatchObject({
+      collectionId: 'collection-pt-en',
+      name: 'Travel',
+      normalizedName: 'travel',
+    });
     expect(aggregate.media[0]).toMatchObject({
       side: MEDIA_SIDES.FRONT,
       type: MEDIA_TYPES.AUDIO,

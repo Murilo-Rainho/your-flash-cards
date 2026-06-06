@@ -523,6 +523,7 @@ export function useEditCardForm({ aggregate, onSaved, onDeleted }: UseEditCardFo
 
   return {
     type,
+    collectionId,
     selectedTypeLabel: selectedTypeConfig.label,
     deckOptions,
     selectedDeckId,

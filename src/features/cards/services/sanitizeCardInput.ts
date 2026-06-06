@@ -101,6 +101,7 @@ function sideMediaField(side: MediaSide): 'frontMedia' | 'backMedia' {
  */
 export function sanitizeCardContent(
   input: CardContentInput,
+  collectionId: string,
   timestamp: string,
   idFactory: (prefix: string) => string,
 ): { data?: SanitizedCardContent; fieldErrors: FieldErrors<CardContentField> } {
@@ -271,6 +272,7 @@ export function sanitizeCardContent(
 
   const tags = Array.from(normalizedTagMap.entries()).map<Tag>(([normalizedName, name]) => ({
     id: idFactory('tag'),
+    collectionId,
     name,
     normalizedName,
     createdAt: timestamp,

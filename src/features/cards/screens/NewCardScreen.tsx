@@ -187,6 +187,7 @@ export function NewCardScreen() {
         />
 
         <OptionalCardFields
+          collectionId={form.selectedCollectionId}
           expanded={form.showOptionalFields}
           tags={form.tags}
           notes={form.notes}

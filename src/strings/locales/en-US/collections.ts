@@ -26,4 +26,10 @@ export const collections = {
   notFound: 'Collection not found.',
   languagesLockedHint: 'Base and target languages cannot be changed.',
   noDescription: 'No description',
+  tagsSectionTitle: 'Tags',
+  addTagLabel: 'New tag',
+  addTagA11y: 'Create tag in this collection',
+  noTags: 'No tags in this collection yet.',
+  tagsLoadError: 'Could not load tags',
+  tagsLoadRetryA11y: 'Retry loading tags',
 } as const;

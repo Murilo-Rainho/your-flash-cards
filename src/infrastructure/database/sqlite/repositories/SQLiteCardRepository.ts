@@ -49,6 +49,7 @@ type MediaRow = {
 
 type TagRow = {
   id: string;
+  collectionId: string;
   name: string;
   normalizedName: string;
   createdAt: string;
@@ -112,6 +113,7 @@ function mapMedia(row: MediaRow): Media {
 function mapTag(row: TagRow): Tag {
   return {
     id: row.id,
+    collectionId: row.collectionId,
     name: row.name,
     normalizedName: row.normalizedName,
     createdAt: row.createdAt,
@@ -251,12 +253,14 @@ INSERT INTO media (
           `
 INSERT OR IGNORE INTO tags (
   id,
+  collection_id,
   name,
   normalized_name,
   created_at,
   updated_at
 ) VALUES (
   $id,
+  $collectionId,
   $name,
   $normalizedName,
   $createdAt,
@@ -264,6 +268,7 @@ INSERT OR IGNORE INTO tags (
 )`,
           {
             $id: tag.id,
+            $collectionId: tag.collectionId,
             $name: tag.name,
             $normalizedName: tag.normalizedName,
             $createdAt: tag.createdAt,
@@ -276,10 +281,12 @@ INSERT OR IGNORE INTO tags (
 UPDATE tags
 SET name = $name,
     updated_at = $updatedAt
-WHERE normalized_name = $normalizedName
+WHERE collection_id = $collectionId
+  AND normalized_name = $normalizedName
 `,
           {
             $name: tag.name,
+            $collectionId: tag.collectionId,
             $normalizedName: tag.normalizedName,
             $updatedAt: tag.updatedAt,
           },
@@ -289,10 +296,14 @@ WHERE normalized_name = $normalizedName
           `
 SELECT id
 FROM tags
-WHERE normalized_name = $normalizedName
+WHERE collection_id = $collectionId
+  AND normalized_name = $normalizedName
 LIMIT 1
 `,
-          { $normalizedName: tag.normalizedName },
+          {
+            $collectionId: tag.collectionId,
+            $normalizedName: tag.normalizedName,
+          },
         );
 
         if (storedTag) {
@@ -472,12 +483,14 @@ INSERT INTO media (
           `
 INSERT OR IGNORE INTO tags (
   id,
+  collection_id,
   name,
   normalized_name,
   created_at,
   updated_at
 ) VALUES (
   $id,
+  $collectionId,
   $name,
   $normalizedName,
   $createdAt,
@@ -485,6 +498,7 @@ INSERT OR IGNORE INTO tags (
 )`,
           {
             $id: tag.id,
+            $collectionId: tag.collectionId,
             $name: tag.name,
             $normalizedName: tag.normalizedName,
             $createdAt: tag.createdAt,
@@ -497,10 +511,12 @@ INSERT OR IGNORE INTO tags (
 UPDATE tags
 SET name = $name,
     updated_at = $updatedAt
-WHERE normalized_name = $normalizedName
+WHERE collection_id = $collectionId
+  AND normalized_name = $normalizedName
 `,
           {
             $name: tag.name,
+            $collectionId: tag.collectionId,
             $normalizedName: tag.normalizedName,
             $updatedAt: tag.updatedAt,
           },
@@ -510,10 +526,14 @@ WHERE normalized_name = $normalizedName
           `
 SELECT id
 FROM tags
-WHERE normalized_name = $normalizedName
+WHERE collection_id = $collectionId
+  AND normalized_name = $normalizedName
 LIMIT 1
 `,
-          { $normalizedName: tag.normalizedName },
+          {
+            $collectionId: tag.collectionId,
+            $normalizedName: tag.normalizedName,
+          },
         );
 
         if (storedTag) {
@@ -714,6 +734,7 @@ ORDER BY created_at ASC
         `
 SELECT
   tag.id AS id,
+  tag.collection_id AS collectionId,
   tag.name AS name,
   tag.normalized_name AS normalizedName,
   tag.created_at AS createdAt,

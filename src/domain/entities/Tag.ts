@@ -1,5 +1,6 @@
 export type Tag = {
   id: string;
+  collectionId: string;
   name: string;
   normalizedName: string;
   createdAt: string;

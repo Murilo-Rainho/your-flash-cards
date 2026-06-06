@@ -3,18 +3,18 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getSQLiteTagRepository } from '@/infrastructure/database/sqlite/repositories';
 
 import { tagsQueryKey } from './useTags';
-import { createTag, type CreateTagInput } from '../services/createTag';
+import { updateTag, type UpdateTagInput } from '../services/updateTag';
 
-export function useCreateTag() {
+export function useUpdateTag() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: CreateTagInput) =>
-      createTag(input, {
+    mutationFn: (input: UpdateTagInput) =>
+      updateTag(input, {
         repository: getSQLiteTagRepository(),
       }),
-    onSuccess: async (_tag, input) => {
-      await queryClient.invalidateQueries({ queryKey: tagsQueryKey(input.collectionId) });
+    onSuccess: async (tag) => {
+      await queryClient.invalidateQueries({ queryKey: tagsQueryKey(tag.collectionId) });
     },
   });
 }
