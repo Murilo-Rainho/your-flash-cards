@@ -25,6 +25,8 @@ export type StringCatalog = {
     backSide: string;
     recommended: string;
     none: string;
+    fast: string;
+    slow: string;
     appName: string;
     menu: string;
     openMenu: string;
@@ -94,6 +96,7 @@ export type StringCatalog = {
   };
   collections: {
     newTitle: string;
+    detailTitle: string;
     nameLabel: string;
     namePlaceholder: string;
     baseLanguageLabel: string;
@@ -154,6 +157,7 @@ export type StringCatalog = {
     saveEditA11y: string;
     updateError: string;
     detailCardsTitle: string;
+    detailTitle: string;
     addCardLabel: string;
     addCardA11y: string;
     noCards: string;
@@ -422,6 +426,8 @@ export type StringCatalog = {
     languageDescription: string;
     themeSection: string;
     themeDescription: string;
+    ttsSpeedSection: string;
+    ttsSpeedDescription: string;
     paletteDefault: string;
     paletteOcean: string;
     paletteForest: string;

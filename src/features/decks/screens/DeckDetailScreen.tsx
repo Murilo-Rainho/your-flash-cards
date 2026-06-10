@@ -238,7 +238,11 @@ export function DeckDetailScreen() {
 
   return (
     <FormScreen>
-      <Header variant="page" title={collection?.name ?? strings.common.appName} onBack={goBack} />
+      <Header
+        variant="page"
+        title={collection?.name ?? strings.decks.detailTitle}
+        onBack={goBack}
+      />
       {renderBody()}
 
       {deck ? (

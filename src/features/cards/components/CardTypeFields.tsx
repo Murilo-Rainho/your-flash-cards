@@ -1,6 +1,7 @@
 import { ClozeBackField, ClozeFrontField } from '@/components/forms/ClozeFrontField';
 import { TextAreaField } from '@/components/forms/TextAreaField';
 import type { CardType } from '@/constants/cardTypes';
+import type { TtsPlaybackSpeed } from '@/constants/tts';
 import { MEDIA_SIDES, MEDIA_TYPES, type MediaSide } from '@/domain/entities/Media';
 
 import { useStrings } from '@/features/settings/providers/PreferencesProvider';
@@ -45,7 +46,7 @@ type CardTypeFieldsProps = {
   onListeningModeChange: (side: MediaSide, mode: ListeningInputMode) => void;
   onVocabularyFrontModeChange: (mode: VocabularyFrontMode) => void;
   onTypingFrontModeChange: (mode: TypingFrontMode) => void;
-  onTestListeningAudio: (side: MediaSide) => void;
+  onTestListeningAudio: (side: MediaSide, speed?: TtsPlaybackSpeed) => void;
   onChangeCloze: (side: 'front' | 'back', part: 'before' | 'gap' | 'after', value: string) => void;
   onPickImage: (side: MediaSide, source: 'library' | 'camera') => void;
   onPickAudio: (side: MediaSide) => void;
@@ -54,7 +55,7 @@ type CardTypeFieldsProps = {
   onRemoveMedia: (side: MediaSide, type: CreateCardMediaInput['type']) => void;
   onPlayAudio: (uri: string) => void;
   onToggleTts: (side: MediaSide) => void;
-  onSpeakTts: (side: MediaSide) => void;
+  onSpeakTts: (side: MediaSide, speed: TtsPlaybackSpeed) => void;
   onTtsLanguageChange: (side: MediaSide, language: string) => void;
 };
 
@@ -150,7 +151,7 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
         onRemoveMedia={(mediaType) => onRemoveMedia(side, mediaType)}
         onPlayAudio={onPlayAudio}
         onToggleTts={() => onToggleTts(side)}
-        onSpeakTts={() => onSpeakTts(side)}
+        onSpeakTts={(speed) => onSpeakTts(side, speed)}
         onTtsLanguageChange={(language) => onTtsLanguageChange(side, language)}
       />
     );
@@ -220,7 +221,7 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
           onStopRecording={onStopRecording}
           onRemoveMedia={(mediaType) => onRemoveMedia(MEDIA_SIDES.FRONT, mediaType)}
           onPlayAudio={onPlayAudio}
-          onTestAudio={() => onTestListeningAudio(MEDIA_SIDES.FRONT)}
+          onTestAudio={(speed) => onTestListeningAudio(MEDIA_SIDES.FRONT, speed)}
         />
         {renderTextField(MEDIA_SIDES.BACK)}
       </>
@@ -254,7 +255,7 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
           onStartRecording={() => onStartRecording(MEDIA_SIDES.FRONT)}
           onStopRecording={onStopRecording}
           onRemoveMedia={(mediaType) => onRemoveMedia(MEDIA_SIDES.FRONT, mediaType)}
-          onTestAudio={() => onTestListeningAudio(MEDIA_SIDES.FRONT)}
+          onTestAudio={(speed) => onTestListeningAudio(MEDIA_SIDES.FRONT, speed)}
         />
         {showBackText ? (
           <TextAreaField
@@ -295,7 +296,7 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
           onStartRecording={() => onStartRecording(MEDIA_SIDES.FRONT)}
           onStopRecording={onStopRecording}
           onRemoveMedia={() => onRemoveMedia(MEDIA_SIDES.FRONT, MEDIA_TYPES.AUDIO)}
-          onTestAudio={() => onTestListeningAudio(MEDIA_SIDES.FRONT)}
+          onTestAudio={(speed) => onTestListeningAudio(MEDIA_SIDES.FRONT, speed)}
         />
         {showTranscript ? (
           <TextAreaField
@@ -344,7 +345,7 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
           onStartRecording={() => onStartRecording(MEDIA_SIDES.BACK)}
           onStopRecording={onStopRecording}
           onRemoveMedia={() => onRemoveMedia(MEDIA_SIDES.BACK, MEDIA_TYPES.AUDIO)}
-          onTestAudio={() => onTestListeningAudio(MEDIA_SIDES.BACK)}
+          onTestAudio={(speed) => onTestListeningAudio(MEDIA_SIDES.BACK, speed)}
         />
       </>
     );

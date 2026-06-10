@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Text, TextInput, type TextInputProps, View } from 'react-native';
 
 import { FieldError } from '@/components/common/FieldError';
-import { withAlpha } from '@/theme/createShadows';
 import { useTheme } from '@/theme/useTheme';
 
 type TextFieldProps = {
@@ -30,7 +29,6 @@ export function TextField({
   const { colors, shadows } = useTheme();
   const [focused, setFocused] = useState(false);
   const borderColor = error ? colors.danger : focused ? colors.primary : colors.border;
-  const backgroundColor = focused ? withAlpha(colors.primary, 0.06) : colors.surface;
 
   return (
     <View className="gap-2">
@@ -47,13 +45,17 @@ export function TextField({
         }}
         placeholder={placeholder}
         placeholderTextColor={colors.textSecondary}
+        selectionColor={colors.primary}
+        selectionHandleColor={colors.primary}
+        cursorColor={colors.primary}
+        underlineColorAndroid="transparent"
         editable={!disabled}
         accessibilityLabel={label}
         accessibilityState={{ disabled }}
         autoCapitalize={autoCapitalize}
         style={{
           borderColor,
-          backgroundColor,
+          backgroundColor: colors.surface,
           color: colors.textPrimary,
           opacity: disabled ? 0.5 : 1,
           ...shadows.sm,

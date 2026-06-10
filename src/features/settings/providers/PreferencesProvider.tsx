@@ -9,6 +9,11 @@ import {
 } from 'react';
 
 import { APP_SETTINGS_KEYS } from '@/constants/appSettingsKeys';
+import {
+  DEFAULT_TTS_PLAYBACK_SPEED,
+  resolveTtsPlaybackSpeedPreference,
+  type TtsPlaybackSpeed,
+} from '@/constants/tts';
 import type { AppSettingsRepository } from '@/domain/repositories/AppSettingsRepository';
 import { getSQLiteAppSettingsRepository } from '@/infrastructure/database/sqlite/repositories';
 import { resolveStrings } from '@/strings';
@@ -24,9 +29,11 @@ type PreferencesContextValue = {
   locale: LocaleCode;
   strings: StringCatalog;
   palettePresetId: ThemePalettePresetId;
+  ttsPlaybackSpeed: TtsPlaybackSpeed;
   isReady: boolean;
   setLocale: (locale: LocaleCode) => Promise<void>;
   setPalettePresetId: (presetId: ThemePalettePresetId) => Promise<void>;
+  setTtsPlaybackSpeed: (speed: TtsPlaybackSpeed) => Promise<void>;
 };
 
 const PreferencesContext = createContext<PreferencesContextValue | null>(null);
@@ -39,14 +46,17 @@ type PreferencesProviderProps = {
 async function loadPreferences(repository: AppSettingsRepository): Promise<{
   locale: LocaleCode;
   palettePresetId: ThemePalettePresetId;
+  ttsPlaybackSpeed: TtsPlaybackSpeed;
 }> {
   const settings = await repository.getMany([
     APP_SETTINGS_KEYS.UI_LOCALE,
     APP_SETTINGS_KEYS.THEME_PALETTE,
+    APP_SETTINGS_KEYS.TTS_PLAYBACK_SPEED,
   ]);
 
   const localeValue = settings[APP_SETTINGS_KEYS.UI_LOCALE];
   const paletteValue = settings[APP_SETTINGS_KEYS.THEME_PALETTE];
+  const ttsPlaybackSpeedValue = settings[APP_SETTINGS_KEYS.TTS_PLAYBACK_SPEED];
 
   return {
     locale: localeValue === 'en-US' || localeValue === 'pt-BR' ? localeValue : DEFAULT_LOCALE,
@@ -54,6 +64,7 @@ async function loadPreferences(repository: AppSettingsRepository): Promise<{
       paletteValue && isThemePalettePresetId(paletteValue)
         ? paletteValue
         : DEFAULT_THEME_PALETTE_PRESET,
+    ttsPlaybackSpeed: resolveTtsPlaybackSpeedPreference(ttsPlaybackSpeedValue),
   };
 }
 
@@ -64,6 +75,9 @@ export function PreferencesProvider({
   const [locale, setLocaleState] = useState<LocaleCode>(DEFAULT_LOCALE);
   const [palettePresetId, setPalettePresetIdState] = useState<ThemePalettePresetId>(
     DEFAULT_THEME_PALETTE_PRESET,
+  );
+  const [ttsPlaybackSpeed, setTtsPlaybackSpeedState] = useState<TtsPlaybackSpeed>(
+    DEFAULT_TTS_PLAYBACK_SPEED,
   );
   const [isReady, setIsReady] = useState(false);
 
@@ -77,6 +91,7 @@ export function PreferencesProvider({
 
       setLocaleState(preferences.locale);
       setPalettePresetIdState(preferences.palettePresetId);
+      setTtsPlaybackSpeedState(preferences.ttsPlaybackSpeed);
       setIsReady(true);
     });
 
@@ -101,16 +116,34 @@ export function PreferencesProvider({
     [repository],
   );
 
+  const setTtsPlaybackSpeed = useCallback(
+    async (nextSpeed: TtsPlaybackSpeed) => {
+      setTtsPlaybackSpeedState(nextSpeed);
+      await repository.set(APP_SETTINGS_KEYS.TTS_PLAYBACK_SPEED, nextSpeed);
+    },
+    [repository],
+  );
+
   const value = useMemo<PreferencesContextValue>(
     () => ({
       locale,
       strings: resolveStrings(locale),
       palettePresetId,
+      ttsPlaybackSpeed,
       isReady,
       setLocale,
       setPalettePresetId,
+      setTtsPlaybackSpeed,
     }),
-    [isReady, locale, palettePresetId, setLocale, setPalettePresetId],
+    [
+      isReady,
+      locale,
+      palettePresetId,
+      setLocale,
+      setPalettePresetId,
+      setTtsPlaybackSpeed,
+      ttsPlaybackSpeed,
+    ],
   );
 
   return (

@@ -4,6 +4,8 @@ export const settings = {
   languageDescription: 'Changes labels, placeholders, and app messages.',
   themeSection: 'App colors',
   themeDescription: 'Choose the main color palette.',
+  ttsSpeedSection: 'TTS speed',
+  ttsSpeedDescription: 'Choose the speed used by TTS listen buttons.',
   paletteDefault: 'Default',
   paletteOcean: 'Ocean',
   paletteForest: 'Forest',

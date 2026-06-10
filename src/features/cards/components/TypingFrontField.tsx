@@ -1,10 +1,12 @@
 import { Image, Pressable, Text, View } from 'react-native';
 
 import { FieldError } from '@/components/common/FieldError';
+import { TtsPlaybackButton } from '@/components/common/TtsPlaybackButton';
 import { SelectField } from '@/components/forms/SelectField';
 import { TextAreaField } from '@/components/forms/TextAreaField';
+import type { TtsPlaybackSpeed } from '@/constants/tts';
 import { MEDIA_TYPES } from '@/domain/entities/Media';
-import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+import { usePreferences } from '@/features/settings/providers/PreferencesProvider';
 import { useTheme } from '@/theme/useTheme';
 import { formatRecordingDuration } from '@/utils/format';
 
@@ -31,7 +33,7 @@ type TypingFrontFieldProps = {
   onStartRecording: () => void;
   onStopRecording: () => void;
   onRemoveMedia: (type: CreateCardMediaInput['type']) => void;
-  onTestAudio: () => void;
+  onTestAudio: (speed?: TtsPlaybackSpeed) => void;
 };
 
 /**
@@ -60,8 +62,12 @@ export function TypingFrontField({
   onTestAudio,
 }: TypingFrontFieldProps) {
   const { colors } = useTheme();
-  const strings = useStrings();
+  const { setTtsPlaybackSpeed, strings, ttsPlaybackSpeed } = usePreferences();
   const mediaStrings = strings.cards.media;
+  const speedLabels = {
+    fast: strings.common.fast,
+    slow: strings.common.slow,
+  };
   const audioMedia = media.find((item) => item.type !== MEDIA_TYPES.IMAGE);
   const imageMedia = media.find((item) => item.type === MEDIA_TYPES.IMAGE);
   const sideError = mediaError ?? textError;
@@ -247,12 +253,23 @@ export function TypingFrontField({
         </View>
       ) : null}
 
-      {showAudioTest ? (
+      {showAudioTest && mode === TYPING_FRONT_MODES.TTS ? (
+        <TtsPlaybackButton
+          label={mediaStrings.testAudio}
+          accessibilityLabel={`${mediaStrings.testAudioA11y} ${strings.common.front}`}
+          disabled={isSaving}
+          playDisabled={!canTestAudio}
+          speed={ttsPlaybackSpeed}
+          speedLabels={speedLabels}
+          onPlay={() => onTestAudio(ttsPlaybackSpeed)}
+          onChangeSpeed={(speed) => void setTtsPlaybackSpeed(speed)}
+        />
+      ) : showAudioTest ? (
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`${mediaStrings.testAudioA11y} ${strings.common.front}`}
           disabled={isSaving || !canTestAudio}
-          onPress={onTestAudio}
+          onPress={() => onTestAudio()}
           style={{
             borderColor: colors.border,
             backgroundColor: colors.surface,

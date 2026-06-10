@@ -10,7 +10,7 @@ import { FormScreen } from '@/components/forms/FormScreen';
 import { SelectField } from '@/components/forms/SelectField';
 import { FlashcardReview } from '@/components/review';
 import { DeckSelectField } from '../components/DeckSelectField';
-import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+import { usePreferences } from '@/features/settings/providers/PreferencesProvider';
 import { withAlpha } from '@/theme/createShadows';
 import { useTheme } from '@/theme/useTheme';
 
@@ -24,7 +24,7 @@ import { useNewCardForm } from '../hooks/useNewCardForm';
  */
 export function NewCardScreen() {
   const form = useNewCardForm();
-  const strings = useStrings();
+  const { setTtsPlaybackSpeed, strings, ttsPlaybackSpeed } = usePreferences();
   const { colors, shadows } = useTheme();
 
   const saveLabel = form.isSaving
@@ -254,8 +254,11 @@ export function NewCardScreen() {
             visible
             card={form.testReview.viewModel}
             strings={strings.review}
+            ttsPlaybackSpeed={ttsPlaybackSpeed}
+            ttsSpeedLabels={{ fast: strings.common.fast, slow: strings.common.slow }}
             onRate={form.testReview.handleRate}
             onClose={form.testReview.close}
+            onTtsPlaybackSpeedChange={(speed) => void setTtsPlaybackSpeed(speed)}
           />
         ) : null}
       </>

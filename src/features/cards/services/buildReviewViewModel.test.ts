@@ -1,4 +1,6 @@
+import type { AudioAffordance } from '@/components/review';
 import { CARD_TYPES } from '@/constants/cardTypes';
+import { TTS_PLAYBACK_SPEEDS, type TtsPlaybackSpeed } from '@/constants/tts';
 import { enUS } from '@/strings/locales/en-US';
 
 import { buildReviewViewModel, type ReviewSource } from './buildReviewViewModel';
@@ -14,7 +16,7 @@ function createSource(
   recordingState: { isRecording?: boolean; recordedUri?: string | null } = {},
 ) {
   const played: string[] = [];
-  const spoken: string[] = [];
+  const spoken: Array<{ side: string; speed: TtsPlaybackSpeed }> = [];
   const recordingCalls = { start: 0, stop: 0, play: 0 };
 
   const source: ReviewSource = {
@@ -26,7 +28,7 @@ function createSource(
     backMedia: [],
     reviewStrings: enUS.review,
     onPlayAudio: (uri) => played.push(uri),
-    onSpeakTts: (side) => spoken.push(side),
+    onSpeakTts: (side, speed) => spoken.push({ side, speed }),
     ...overrides,
     recording: {
       isRecording: recordingState.isRecording ?? false,
@@ -38,6 +40,25 @@ function createSource(
   };
 
   return { source, played, spoken, recordingCalls };
+}
+
+function playAudio(audio: AudioAffordance | undefined): void {
+  if (audio?.type !== 'audio') {
+    throw new Error('esperado audio');
+  }
+
+  audio.onPlay();
+}
+
+function playTts(
+  audio: AudioAffordance | undefined,
+  speed: TtsPlaybackSpeed = TTS_PLAYBACK_SPEEDS.SLOW,
+): void {
+  if (audio?.type !== 'tts') {
+    throw new Error('esperado tts');
+  }
+
+  audio.onPlay(speed);
 }
 
 const imageFront: CreateCardMediaInput = {
@@ -75,7 +96,7 @@ describe('buildReviewViewModel', () => {
     expect(vm.back.text).toBe('maçã');
     expect(vm.answer.kind).toBe('reveal');
 
-    vm.front.audio?.onPlay();
+    playAudio(vm.front.audio);
     expect(played).toEqual(['file://a.m4a']);
   });
 
@@ -126,7 +147,7 @@ describe('buildReviewViewModel', () => {
 
     // A frente nunca mostra texto: é o áudio/imagem do enunciado.
     expect(vm.front.text).toBeUndefined();
-    vm.front.audio?.onPlay();
+    playAudio(vm.front.audio);
     expect(played).toEqual(['file://a.m4a']);
 
     expect(vm.back.text).toBe("I'm tired now.");
@@ -151,8 +172,8 @@ describe('buildReviewViewModel', () => {
 
     expect(vm.front.imageUri).toBe('file://img.png');
     // Sem arquivo de áudio, o texto-fonte vira TTS ao vivo na frente.
-    vm.front.audio?.onPlay();
-    expect(spoken).toEqual(['front']);
+    playTts(vm.front.audio);
+    expect(spoken).toEqual([{ side: 'front', speed: TTS_PLAYBACK_SPEEDS.SLOW }]);
     expect(vm.front.text).toBeUndefined();
   });
 
@@ -168,8 +189,8 @@ describe('buildReviewViewModel', () => {
     expect(vm.answer.kind).toBe('listening');
     // O verso mostra a transcrição e reouve o mesmo áudio da frente.
     expect(vm.back.text).toBe("I'm tired now.");
-    vm.front.audio?.onPlay();
-    vm.back.audio?.onPlay();
+    playAudio(vm.front.audio);
+    playAudio(vm.back.audio);
     expect(played).toEqual(['file://a.m4a', 'file://a.m4a']);
 
     if (vm.answer.kind !== 'listening') {
@@ -200,8 +221,8 @@ describe('buildReviewViewModel', () => {
     expect(recordingCalls.play).toBe(1);
 
     // Sem mídia de arquivo, o áudio da frente cai no TTS da transcrição.
-    vm.front.audio?.onPlay();
-    expect(spoken).toEqual(['front']);
+    playTts(vm.front.audio);
+    expect(spoken).toEqual([{ side: 'front', speed: TTS_PLAYBACK_SPEEDS.SLOW }]);
   });
 
   it('pronúncia: texto na frente, áudio modelo no verso e callbacks de gravação', () => {
@@ -227,7 +248,7 @@ describe('buildReviewViewModel', () => {
     expect(vm.answer.isRecording).toBe(true);
     expect(vm.answer.recordedUri).toBe('file://rec.m4a');
 
-    vm.back.audio?.onPlay();
+    playAudio(vm.back.audio);
     expect(played).toEqual(['file://b.m4a']);
 
     vm.answer.onStopRecording();
@@ -245,7 +266,7 @@ describe('buildReviewViewModel', () => {
     const vm = buildReviewViewModel(source);
 
     // Sem mídia de arquivo, o áudio modelo do verso cai no TTS (fallback ao vivo).
-    vm.back.audio?.onPlay();
-    expect(spoken).toEqual(['back']);
+    playTts(vm.back.audio);
+    expect(spoken).toEqual([{ side: 'back', speed: TTS_PLAYBACK_SPEEDS.SLOW }]);
   });
 });

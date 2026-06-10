@@ -190,6 +190,10 @@ export function TagPicker({
             onBlur={() => setFocused(false)}
             placeholder={strings.tags.createPlaceholder}
             placeholderTextColor={colors.textSecondary}
+            selectionColor={colors.primary}
+            selectionHandleColor={colors.primary}
+            cursorColor={colors.primary}
+            underlineColorAndroid="transparent"
             editable={!disabled}
             accessibilityLabel={strings.tags.createPlaceholder}
             accessibilityState={{ disabled }}

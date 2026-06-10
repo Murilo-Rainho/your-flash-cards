@@ -70,6 +70,10 @@ function ClozeSideField({
           onChangeText={onChangeBefore}
           placeholder={placeholders.before}
           placeholderTextColor={colors.textSecondary}
+          selectionColor={colors.primary}
+          selectionHandleColor={colors.primary}
+          cursorColor={colors.primary}
+          underlineColorAndroid="transparent"
           editable={!disabled}
           style={{ color: colors.textPrimary }}
           className={clozeInputClassName}
@@ -82,6 +86,10 @@ function ClozeSideField({
           onChangeText={onChangeGap}
           placeholder={placeholders.gap}
           placeholderTextColor={colors.textSecondary}
+          selectionColor={colors.primary}
+          selectionHandleColor={colors.primary}
+          cursorColor={colors.primary}
+          underlineColorAndroid="transparent"
           editable={!disabled}
           autoCapitalize="none"
           style={{ color: colors.textPrimary }}
@@ -95,6 +103,10 @@ function ClozeSideField({
           onChangeText={onChangeAfter}
           placeholder={placeholders.after}
           placeholderTextColor={colors.textSecondary}
+          selectionColor={colors.primary}
+          selectionHandleColor={colors.primary}
+          cursorColor={colors.primary}
+          underlineColorAndroid="transparent"
           editable={!disabled}
           autoCapitalize="none"
           style={{ color: colors.textPrimary }}

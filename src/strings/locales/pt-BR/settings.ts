@@ -4,6 +4,8 @@ export const settings = {
   languageDescription: 'Altera rótulos, placeholders e mensagens do app.',
   themeSection: 'Cores do app',
   themeDescription: 'Escolha a paleta de cores principal.',
+  ttsSpeedSection: 'Velocidade do TTS',
+  ttsSpeedDescription: 'Escolha a velocidade usada pelos botões de ouvir TTS.',
   paletteDefault: 'Padrão',
   paletteOcean: 'Oceano',
   paletteForest: 'Floresta',

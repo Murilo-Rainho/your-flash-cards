@@ -57,7 +57,7 @@ export function AppDrawer({ visible, onClose }: AppDrawerProps) {
         accessibilityRole="button"
         accessibilityLabel={strings.common.closeMenu}
         onPress={onClose}
-        style={{ backgroundColor: `${colors.textPrimary}66` }}
+        style={{ backgroundColor: withAlpha(colors.textPrimary, 0.4) }}
         className="flex-1 flex-row justify-end"
       >
         {/* Painel: Pressable que não propaga o toque para não fechar ao tocar dentro. */}

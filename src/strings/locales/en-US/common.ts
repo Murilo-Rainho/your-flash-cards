@@ -12,6 +12,8 @@ export const common = {
   backSide: 'Back',
   recommended: 'Recommended',
   none: 'None',
+  fast: 'Fast',
+  slow: 'Slow',
   appName: 'Your Flash Cards',
   menu: 'Menu',
   openMenu: 'Open menu',

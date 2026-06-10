@@ -49,9 +49,12 @@ export function FlashcardReview({
   cardKey,
   card,
   strings,
+  ttsPlaybackSpeed,
+  ttsSpeedLabels,
   onRate,
   onClose,
   onFlip,
+  onTtsPlaybackSpeedChange,
   reduceMotion,
 }: FlashcardReviewProps) {
   const { colors, shadows } = useTheme();
@@ -173,6 +176,9 @@ export function FlashcardReview({
                     face={card.front}
                     emptyHint={strings.face.frontEmpty}
                     imageAccessibilityLabel={strings.face.imageA11y}
+                    ttsPlaybackSpeed={ttsPlaybackSpeed}
+                    ttsSpeedLabels={ttsSpeedLabels}
+                    onTtsPlaybackSpeedChange={onTtsPlaybackSpeedChange}
                   />
                 </Pressable>
               ) : (
@@ -181,6 +187,9 @@ export function FlashcardReview({
                     face={card.front}
                     emptyHint={strings.face.frontEmpty}
                     imageAccessibilityLabel={strings.face.imageA11y}
+                    ttsPlaybackSpeed={ttsPlaybackSpeed}
+                    ttsSpeedLabels={ttsSpeedLabels}
+                    onTtsPlaybackSpeedChange={onTtsPlaybackSpeedChange}
                   />
                   <AnswerInput
                     answer={answer}
@@ -212,6 +221,9 @@ export function FlashcardReview({
                   face={card.back}
                   emptyHint={strings.face.backEmpty}
                   imageAccessibilityLabel={strings.face.imageA11y}
+                  ttsPlaybackSpeed={ttsPlaybackSpeed}
+                  ttsSpeedLabels={ttsSpeedLabels}
+                  onTtsPlaybackSpeedChange={onTtsPlaybackSpeedChange}
                 />
                 {checked ? (
                   <AnswerFeedback

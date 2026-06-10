@@ -6,6 +6,7 @@ import { Header } from '@/components/common/Header';
 import { SecondaryButton } from '@/components/common/SecondaryButton';
 import { SectionTitle } from '@/components/common/SectionTitle';
 import { ROUTES } from '@/constants/routes';
+import { TTS_PLAYBACK_SPEEDS, type TtsPlaybackSpeed } from '@/constants/tts';
 import { FormScreen } from '@/components/forms/FormScreen';
 import { SelectField, type SelectOption } from '@/components/forms/SelectField';
 import { usePreferences, useStrings } from '@/features/settings/providers/PreferencesProvider';
@@ -67,7 +68,14 @@ export function SettingsScreen() {
   const router = useRouter();
   const strings = useStrings();
   const { colors } = useTheme();
-  const { locale, palettePresetId, setLocale, setPalettePresetId } = usePreferences();
+  const {
+    locale,
+    palettePresetId,
+    setLocale,
+    setPalettePresetId,
+    setTtsPlaybackSpeed,
+    ttsPlaybackSpeed,
+  } = usePreferences();
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
   const localeOptions: SelectOption[] = SUPPORTED_LOCALES.map((supportedLocale) => ({
     value: supportedLocale,
@@ -77,6 +85,10 @@ export function SettingsScreen() {
     value: option.id,
     label: strings.settings[option.labelKey],
   }));
+  const ttsSpeedOptions: SelectOption[] = [
+    { value: TTS_PLAYBACK_SPEEDS.FAST, label: strings.common.fast },
+    { value: TTS_PLAYBACK_SPEEDS.SLOW, label: strings.common.slow },
+  ];
   const selectedPalette = THEME_PALETTE_PRESETS[palettePresetId];
 
   const handleLocaleChange = async (nextLocale: LocaleCode) => {
@@ -86,6 +98,11 @@ export function SettingsScreen() {
 
   const handlePaletteChange = async (nextPreset: ThemePalettePresetId) => {
     await setPalettePresetId(nextPreset);
+    setSavedMessage(strings.settings.saved);
+  };
+
+  const handleTtsPlaybackSpeedChange = async (nextSpeed: TtsPlaybackSpeed) => {
+    await setTtsPlaybackSpeed(nextSpeed);
     setSavedMessage(strings.settings.saved);
   };
 
@@ -139,6 +156,21 @@ export function SettingsScreen() {
             className="h-8 w-8 rounded-full border"
           />
         </View>
+      </SettingsSection>
+
+      <SettingsSection
+        title={strings.settings.ttsSpeedSection}
+        description={strings.settings.ttsSpeedDescription}
+      >
+        <SelectField
+          label={strings.settings.ttsSpeedSection}
+          value={ttsPlaybackSpeed}
+          placeholder={strings.settings.ttsSpeedSection}
+          options={ttsSpeedOptions}
+          showLabel={false}
+          closeAccessibilityLabel={`${strings.common.cancel} ${strings.settings.ttsSpeedSection}`}
+          onChange={(nextSpeed) => void handleTtsPlaybackSpeedChange(nextSpeed as TtsPlaybackSpeed)}
+        />
       </SettingsSection>
 
       {__DEV__ ? (

@@ -171,6 +171,10 @@ export function DevToolsScreen() {
           onChangeText={setSearchQuery}
           placeholder="Buscar por frente ou verso..."
           placeholderTextColor={colors.textSecondary}
+          selectionColor={colors.primary}
+          selectionHandleColor={colors.primary}
+          cursorColor={colors.primary}
+          underlineColorAndroid="transparent"
           style={{
             borderColor: colors.border,
             backgroundColor: colors.surface,

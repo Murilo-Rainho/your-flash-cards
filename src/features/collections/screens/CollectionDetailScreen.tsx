@@ -446,7 +446,7 @@ export function CollectionDetailScreen() {
 
   return (
     <FormScreen>
-      <Header variant="page" title={collection?.name ?? strings.collections.newTitle} />
+      <Header variant="page" title={collection?.name ?? strings.collections.detailTitle} />
       {renderBody()}
 
       {collection ? (

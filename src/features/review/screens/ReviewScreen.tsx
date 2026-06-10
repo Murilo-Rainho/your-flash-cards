@@ -10,7 +10,7 @@ import { StateCard } from '@/components/common/StateCard';
 import { ROUTES } from '@/constants/routes';
 import { useReviewSession } from '@/features/review/hooks/useReviewSession';
 import { serializeReviewStats } from '@/features/review/services/reviewResultParams';
-import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+import { usePreferences } from '@/features/settings/providers/PreferencesProvider';
 import { useTheme } from '@/theme/useTheme';
 
 /**
@@ -19,7 +19,7 @@ import { useTheme } from '@/theme/useTheme';
  */
 export function ReviewScreen() {
   const router = useRouter();
-  const strings = useStrings();
+  const { setTtsPlaybackSpeed, strings, ttsPlaybackSpeed } = usePreferences();
   const { colors } = useTheme();
   const session = useReviewSession();
   const { current, total } = session.progress;
@@ -73,8 +73,11 @@ export function ReviewScreen() {
                 cardKey={session.cardKey}
                 card={session.viewModel}
                 strings={strings.review}
+                ttsPlaybackSpeed={ttsPlaybackSpeed}
+                ttsSpeedLabels={{ fast: strings.common.fast, slow: strings.common.slow }}
                 onRate={session.handleRate}
                 onFlip={session.handleFlip}
+                onTtsPlaybackSpeedChange={(speed) => void setTtsPlaybackSpeed(speed)}
               />
             ) : null}
           </View>

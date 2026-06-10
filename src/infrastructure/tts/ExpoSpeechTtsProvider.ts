@@ -1,5 +1,10 @@
 import * as Speech from 'expo-speech';
 
+import {
+  DEFAULT_TTS_PLAYBACK_SPEED,
+  TTS_PLAYBACK_RATES,
+  type TtsPlaybackSpeed,
+} from '@/constants/tts';
 import type {
   TtsAvailabilityInput,
   TtsProvider,
@@ -17,6 +22,10 @@ function voiceMatchesLanguage(voiceLanguage: string, requestedLanguage: string):
   const voiceBase = voice.split('-')[0] ?? voice;
 
   return voice === requested || voiceBase === requestedBase;
+}
+
+function rateForSpeed(speed: TtsPlaybackSpeed | undefined): number {
+  return TTS_PLAYBACK_RATES[speed ?? DEFAULT_TTS_PLAYBACK_SPEED];
 }
 
 export class ExpoSpeechTtsProvider implements TtsProvider {
@@ -48,6 +57,7 @@ export class ExpoSpeechTtsProvider implements TtsProvider {
     await new Promise<void>((resolve, reject) => {
       Speech.speak(text, {
         language,
+        rate: rateForSpeed(input.speed),
         onDone: resolve,
         onStopped: resolve,
         onError: reject,
