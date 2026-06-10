@@ -15,7 +15,7 @@ const existingTag: Tag = {
 };
 
 class FakeTagRepository implements TagRepository {
-  readonly tags: Tag[] = [];
+  tags: Tag[] = [];
 
   async createIfAbsent(tag: Tag): Promise<Tag> {
     this.tags.push(tag);

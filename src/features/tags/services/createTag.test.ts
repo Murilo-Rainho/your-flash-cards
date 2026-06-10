@@ -6,7 +6,7 @@ import { createTag, isCreateTagInputError, type CreateTagInputError } from './cr
 const COLLECTION_ID = 'collection-pt-en';
 
 class FakeTagRepository implements TagRepository {
-  readonly tags: Tag[] = [];
+  tags: Tag[] = [];
 
   async createIfAbsent(tag: Tag): Promise<Tag> {
     const existing = this.tags.find(

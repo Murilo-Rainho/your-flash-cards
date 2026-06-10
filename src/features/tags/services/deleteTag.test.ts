@@ -4,7 +4,7 @@ import type { TagRepository } from '@/domain/repositories/TagRepository';
 import { deleteTag } from './deleteTag';
 
 class FakeTagRepository implements TagRepository {
-  readonly tags: Tag[] = [];
+  tags: Tag[] = [];
 
   async createIfAbsent(tag: Tag): Promise<Tag> {
     this.tags.push(tag);

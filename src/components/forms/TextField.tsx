@@ -1,4 +1,4 @@
-import { Text, TextInput, View } from 'react-native';
+import { Text, TextInput, type TextInputProps, View } from 'react-native';
 
 import { FieldError } from '@/components/common/FieldError';
 import { useTheme } from '@/theme/useTheme';
@@ -9,6 +9,7 @@ type TextFieldProps = {
   placeholder: string;
   error?: string;
   disabled?: boolean;
+  autoCapitalize?: TextInputProps['autoCapitalize'];
   onChangeText: (value: string) => void;
   onBlur?: () => void;
 };
@@ -20,6 +21,7 @@ export function TextField({
   placeholder,
   error,
   disabled = false,
+  autoCapitalize,
   onChangeText,
   onBlur,
 }: TextFieldProps) {
@@ -37,6 +39,7 @@ export function TextField({
         placeholder={placeholder}
         placeholderTextColor={colors.textSecondary}
         editable={!disabled}
+        autoCapitalize={autoCapitalize}
         style={{
           borderColor: colors.border,
           backgroundColor: colors.surface,

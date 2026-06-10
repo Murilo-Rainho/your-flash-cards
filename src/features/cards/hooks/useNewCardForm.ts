@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { BackHandler } from 'react-native';
 import { useForm } from 'react-hook-form';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import type { SelectOption } from '@/components/forms/SelectField';
 import { CARD_TYPES, type CardType } from '@/constants/cardTypes';
@@ -35,6 +35,10 @@ import {
   type CreateCardInput,
   type CreateCardMediaInput,
 } from '../services/createCard';
+import {
+  resolveCollectionSelection,
+  resolveDeckSelection,
+} from '../services/resolveNewCardSetupSelection';
 import { useAudioRecording } from './useAudioRecording';
 import { useCardMedia } from './useCardMedia';
 import { useCardTestReview } from './useCardTestReview';
@@ -44,6 +48,11 @@ import { useCreateCard } from './useCreateCard';
 const MAX_RECORDING_MS = 30_000;
 
 export type CardFormStep = 'setup' | 'content';
+
+type NewCardSearchParams = {
+  collectionId?: string | string[];
+  deckId?: string | string[];
+};
 
 export type CardFormValues = {
   collectionId: string;
@@ -89,14 +98,21 @@ const defaultListeningModes: Record<MediaSide, ListeningInputMode> = {
   back: LISTENING_INPUT_MODES.AUDIO_FILE,
 };
 
+function firstSearchParam(value?: string | string[]) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
 /** Orquestra todo o estado do formulário de "Novo Card", entregando um view-model à tela. */
 export function useNewCardForm() {
   const router = useRouter();
+  const searchParams = useLocalSearchParams<NewCardSearchParams>();
   const goBack = useGoBack();
   const createCardMutation = useCreateCard();
   const createDeckMutation = useCreateDeck();
   const activeCollectionsQuery = useActiveCollections();
   const tts = useCardTts();
+  const routeCollectionId = firstSearchParam(searchParams.collectionId);
+  const routeDeckId = firstSearchParam(searchParams.deckId);
 
   const [step, setStep] = useState<CardFormStep>('setup');
   const [formError, setFormError] = useState<string | null>(null);
@@ -226,13 +242,23 @@ export function useNewCardForm() {
   }, [clearErrors, media, setValue]);
 
   useEffect(() => {
-    if (!selectedCollectionId && collections[0]) {
-      setValue('collectionId', collections[0].id, {
+    if (collections.length === 0) {
+      return;
+    }
+
+    const nextCollectionId = resolveCollectionSelection({
+      collections,
+      selectedCollectionId,
+      routeCollectionId,
+    });
+
+    if (nextCollectionId !== selectedCollectionId) {
+      setValue('collectionId', nextCollectionId, {
         shouldDirty: false,
         shouldValidate: false,
       });
     }
-  }, [collections, selectedCollectionId, setValue]);
+  }, [collections, routeCollectionId, selectedCollectionId, setValue]);
 
   useEffect(() => {
     if (!selectedCollection) {
@@ -253,13 +279,19 @@ export function useNewCardForm() {
       return;
     }
 
-    if (!decks.some((deck) => deck.id === selectedDeckId)) {
-      setValue('deckId', decks[0]?.id ?? '', {
+    const nextDeckId = resolveDeckSelection({
+      decks,
+      selectedDeckId,
+      routeDeckId,
+    });
+
+    if (nextDeckId !== selectedDeckId) {
+      setValue('deckId', nextDeckId, {
         shouldDirty: false,
         shouldValidate: false,
       });
     }
-  }, [decks, selectedCollectionId, selectedDeckId, setValue]);
+  }, [decks, routeDeckId, selectedCollectionId, selectedDeckId, setValue]);
 
   const handleBack = useCallback(() => {
     if (step === 'content') {

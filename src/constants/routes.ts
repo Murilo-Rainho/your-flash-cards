@@ -29,8 +29,14 @@ export const ROUTES = {
 
 export type Route = (typeof ROUTES)[keyof typeof ROUTES];
 
+type NewCardRouteParams = {
+  collectionId?: string;
+  deckId?: string;
+};
+
 /** Helpers para montar `pathname` + `params` das rotas dinâmicas (expo-router). */
 export const routeHrefs = {
+  cardNew: (params: NewCardRouteParams = {}) => ({ pathname: ROUTES.CARD_NEW, params }),
   collectionDetail: (id: string) => ({ pathname: ROUTES.COLLECTION_DETAIL, params: { id } }),
   deckDetail: (id: string) => ({ pathname: ROUTES.DECK_DETAIL, params: { id } }),
   cardDetail: (id: string) => ({ pathname: ROUTES.CARD_DETAIL, params: { id } }),

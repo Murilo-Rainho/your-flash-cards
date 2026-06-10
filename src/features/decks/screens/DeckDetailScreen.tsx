@@ -8,7 +8,7 @@ import { SecondaryButton } from '@/components/common/SecondaryButton';
 import { StateCard } from '@/components/common/StateCard';
 import { FormScreen } from '@/components/forms/FormScreen';
 import type { CardType } from '@/constants/cardTypes';
-import { ROUTES, routeHrefs } from '@/constants/routes';
+import { routeHrefs } from '@/constants/routes';
 import { useCollection } from '@/features/collections/hooks/useCollection';
 import {
   DeckFormModal,
@@ -186,7 +186,11 @@ export function DeckDetailScreen() {
           <PrimaryButton
             label={strings.decks.addCardLabel}
             accessibilityLabel={strings.decks.addCardA11y}
-            onPress={() => router.push(ROUTES.CARD_NEW as Href)}
+            onPress={() =>
+              router.push(
+                routeHrefs.cardNew({ collectionId: deck.collectionId, deckId: deck.id }) as Href,
+              )
+            }
           />
         </View>
       </>
