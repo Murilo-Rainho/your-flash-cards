@@ -1,29 +1,116 @@
-import { Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { type Href, useLocalSearchParams, useRouter } from 'expo-router';
+import { ScrollView, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Header } from '@/components/common/Header';
+import { Icon } from '@/components/common/Icon';
+import { MetricCard } from '@/components/common/MetricCard';
 import { PrimaryButton } from '@/components/common/PrimaryButton';
-import { ScreenHeader } from '@/components/common/ScreenHeader';
+import { SectionTitle } from '@/components/common/SectionTitle';
 import { StateCard } from '@/components/common/StateCard';
-import { REVIEW_RATING_ORDER } from '@/constants/reviewRatings';
+import { REVIEW_RATINGS, REVIEW_RATING_ORDER, type ReviewRating } from '@/constants/reviewRatings';
 import { ROUTES } from '@/constants/routes';
 import { parseReviewResult } from '@/features/review/services/reviewResultParams';
 import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+import type { ColorToken } from '@/theme/colors';
+import { withAlpha } from '@/theme/createShadows';
 import { useTheme } from '@/theme/useTheme';
 
-function StatRow({ label, value }: { label: string; value: number }) {
-  const { colors } = useTheme();
+const RATING_TONES = {
+  [REVIEW_RATINGS.AGAIN]: 'danger',
+  [REVIEW_RATINGS.HARD]: 'warning',
+  [REVIEW_RATINGS.GOOD]: 'primary',
+  [REVIEW_RATINGS.EASY]: 'success',
+} as const satisfies Record<ReviewRating, ColorToken>;
+
+type ResultHeroProps = {
+  title: string;
+  subtitle: string;
+  reviewedLabel: string;
+  reviewed: number;
+};
+
+function ResultHero({ title, subtitle, reviewedLabel, reviewed }: ResultHeroProps) {
+  const { colors, shadows } = useTheme();
+
   return (
     <View
-      style={{ borderColor: colors.border }}
-      className="flex-row items-center justify-between border-b py-3"
+      style={{ backgroundColor: colors.primary, ...shadows.lg }}
+      className="gap-5 rounded-2xl p-6"
     >
-      <Text style={{ color: colors.textSecondary }} className="text-base">
-        {label}
-      </Text>
-      <Text style={{ color: colors.textPrimary }} className="text-base font-bold">
-        {value}
-      </Text>
+      <View className="flex-row items-start gap-4">
+        <View
+          style={{ backgroundColor: colors.surface }}
+          className="h-14 w-14 items-center justify-center rounded-2xl"
+        >
+          <Icon name="done" size={28} tone="primary" />
+        </View>
+        <View className="min-w-0 flex-1 gap-1">
+          <Text style={{ color: colors.background }} className="text-3xl font-bold">
+            {title}
+          </Text>
+          <Text style={{ color: colors.background }} className="text-sm font-medium opacity-90">
+            {subtitle}
+          </Text>
+        </View>
+      </View>
+
+      <View
+        style={{ backgroundColor: withAlpha(colors.background, 0.16) }}
+        className="rounded-2xl p-4"
+      >
+        <Text style={{ color: colors.background }} className="text-4xl font-bold">
+          {reviewed}
+        </Text>
+        <Text style={{ color: colors.background }} className="mt-1 text-sm font-medium opacity-90">
+          {reviewedLabel}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+type RatingBreakdownCardProps = {
+  labels: Record<ReviewRating, string>;
+  values: Record<ReviewRating, number>;
+};
+
+function RatingBreakdownCard({ labels, values }: RatingBreakdownCardProps) {
+  const { colors, shadows } = useTheme();
+
+  return (
+    <View
+      style={{
+        borderColor: colors.border,
+        backgroundColor: colors.surface,
+        ...shadows.sm,
+      }}
+      className="gap-2 rounded-2xl border p-3"
+    >
+      {REVIEW_RATING_ORDER.map((rating) => {
+        const tone = RATING_TONES[rating];
+        const accent = colors[tone];
+
+        return (
+          <View
+            key={rating}
+            style={{ backgroundColor: withAlpha(accent, 0.1) }}
+            className="flex-row items-center gap-3 rounded-xl px-3 py-3"
+          >
+            <View style={{ backgroundColor: accent }} className="h-2.5 w-2.5 rounded-full" />
+            <Text
+              style={{ color: colors.textPrimary }}
+              className="min-w-0 flex-1 text-base font-semibold"
+              numberOfLines={1}
+            >
+              {labels[rating]}
+            </Text>
+            <Text style={{ color: accent }} className="text-lg font-bold">
+              {values[rating]}
+            </Text>
+          </View>
+        );
+      })}
     </View>
   );
 }
@@ -42,49 +129,59 @@ export function ReviewResultScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.background }}>
-      <View className="flex-1 gap-6 px-4 pt-2">
-        <ScreenHeader title={strings.review.result.title} onBack={goHome} />
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <View className="gap-6 px-4 pb-10 pt-2">
+          <Header variant="page" title={strings.common.appName} onBack={goHome} />
 
-        {!summary.hasData ? (
-          <StateCard
-            title={strings.review.result.emptyTitle}
-            action={{
-              label: strings.review.result.backHome,
-              accessibilityLabel: strings.review.result.backHomeA11y,
-              onPress: goHome,
-              variant: 'secondary',
-            }}
-          />
-        ) : (
-          <>
-            <Text style={{ color: colors.textSecondary }} className="text-sm">
-              {strings.review.result.subtitle}
-            </Text>
-
-            <View
-              style={{ borderColor: colors.border, backgroundColor: colors.surface }}
-              className="gap-1 rounded-2xl border p-4"
-            >
-              <StatRow label={strings.review.result.reviewedLabel} value={summary.reviewed} />
-              <StatRow label={strings.review.result.correctLabel} value={summary.correct} />
-              <StatRow label={strings.review.result.wrongLabel} value={summary.wrong} />
-              {REVIEW_RATING_ORDER.map((rating) => (
-                <StatRow
-                  key={rating}
-                  label={strings.review.ratings[rating]}
-                  value={summary.byRating[rating]}
-                />
-              ))}
+          {!summary.hasData ? (
+            <View className="gap-3">
+              <StateCard title={strings.review.result.emptyTitle} />
+              <PrimaryButton
+                label={strings.review.result.backHome}
+                accessibilityLabel={strings.review.result.backHomeA11y}
+                icon="home"
+                onPress={goHome}
+              />
             </View>
+          ) : (
+            <>
+              <ResultHero
+                title={strings.review.result.title}
+                subtitle={strings.review.result.subtitle}
+                reviewedLabel={strings.review.result.reviewedLabel}
+                reviewed={summary.reviewed}
+              />
 
-            <PrimaryButton
-              label={strings.review.result.backHome}
-              accessibilityLabel={strings.review.result.backHomeA11y}
-              onPress={goHome}
-            />
-          </>
-        )}
-      </View>
+              <View className="flex-row gap-3">
+                <MetricCard
+                  label={strings.review.result.correctLabel}
+                  value={String(summary.correct)}
+                  icon="done"
+                  accentTone="success"
+                />
+                <MetricCard
+                  label={strings.review.result.wrongLabel}
+                  value={String(summary.wrong)}
+                  icon="close"
+                  accentTone="danger"
+                />
+              </View>
+
+              <View className="gap-3">
+                <SectionTitle title={strings.review.howDidYouDo} />
+                <RatingBreakdownCard labels={strings.review.ratings} values={summary.byRating} />
+              </View>
+
+              <PrimaryButton
+                label={strings.review.result.backHome}
+                accessibilityLabel={strings.review.result.backHomeA11y}
+                icon="home"
+                onPress={goHome}
+              />
+            </>
+          )}
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

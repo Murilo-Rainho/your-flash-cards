@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 import type { FlashcardViewModel } from '@/components/review';
 import type { CardType } from '@/constants/cardTypes';
+import type { TtsPlaybackSpeed } from '@/constants/tts';
 import { MEDIA_SIDES, type MediaSide } from '@/domain/entities/Media';
 import type { StringCatalog } from '@/strings/types';
 
@@ -22,7 +23,7 @@ type UseCardTestReviewParams = {
   backMedia: CreateCardMediaInput[];
   reviewStrings: StringCatalog['review'];
   onPlayAudio: (uri: string) => void;
-  onSpeakTts: (side: MediaSide) => void;
+  onSpeakTts: (side: MediaSide, speed: TtsPlaybackSpeed) => void;
 };
 
 export type CardTestReview = {

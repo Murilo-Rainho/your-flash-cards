@@ -25,6 +25,13 @@ export type StringCatalog = {
     backSide: string;
     recommended: string;
     none: string;
+    fast: string;
+    slow: string;
+    appName: string;
+    menu: string;
+    openMenu: string;
+    closeMenu: string;
+    backToHome: string;
   };
   home: {
     greeting: {
@@ -89,6 +96,7 @@ export type StringCatalog = {
   };
   collections: {
     newTitle: string;
+    detailTitle: string;
     nameLabel: string;
     namePlaceholder: string;
     baseLanguageLabel: string;
@@ -149,6 +157,7 @@ export type StringCatalog = {
     saveEditA11y: string;
     updateError: string;
     detailCardsTitle: string;
+    detailTitle: string;
     addCardLabel: string;
     addCardA11y: string;
     noCards: string;
@@ -385,6 +394,12 @@ export type StringCatalog = {
   tags: {
     title: string;
     createPlaceholder: string;
+    createA11y: string;
+    selectA11yPrefix: string;
+    noTagsHint: string;
+    duplicateHint: string;
+    tooLongHint: string;
+    limitHint: string;
     createError: string;
     newTitle: string;
     editTitle: string;
@@ -411,9 +426,15 @@ export type StringCatalog = {
     languageDescription: string;
     themeSection: string;
     themeDescription: string;
+    ttsSpeedSection: string;
+    ttsSpeedDescription: string;
     paletteDefault: string;
     paletteOcean: string;
     paletteForest: string;
+    paletteSunset: string;
+    paletteSakura: string;
+    paletteEmerald: string;
+    paletteRoyal: string;
     paletteMidnight: string;
     paletteCarbon: string;
     saved: string;

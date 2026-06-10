@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react';
 import { Alert, Pressable, Text, TextInput, View } from 'react-native';
 import { type Href, useRouter } from 'expo-router';
 
+import { Header } from '@/components/common/Header';
 import { PrimaryButton } from '@/components/common/PrimaryButton';
-import { ScreenHeader } from '@/components/common/ScreenHeader';
 import { SecondaryButton } from '@/components/common/SecondaryButton';
 import { FormScreen } from '@/components/forms/FormScreen';
 import { routeHrefs } from '@/constants/routes';
@@ -118,7 +118,7 @@ export function DevToolsScreen() {
 
   return (
     <FormScreen>
-      <ScreenHeader title="Dev Tools" onBack={goBack} />
+      <Header variant="page" title="Dev Tools" onBack={goBack} />
 
       <View className="gap-3">
         <Text style={{ color: colors.textPrimary }} className="text-lg font-semibold">
@@ -171,6 +171,10 @@ export function DevToolsScreen() {
           onChangeText={setSearchQuery}
           placeholder="Buscar por frente ou verso..."
           placeholderTextColor={colors.textSecondary}
+          selectionColor={colors.primary}
+          selectionHandleColor={colors.primary}
+          cursorColor={colors.primary}
+          underlineColorAndroid="transparent"
           style={{
             borderColor: colors.border,
             backgroundColor: colors.surface,

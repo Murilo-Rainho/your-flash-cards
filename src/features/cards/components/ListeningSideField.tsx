@@ -1,10 +1,12 @@
 import { Pressable, Text, View } from 'react-native';
 
 import { FieldError } from '@/components/common/FieldError';
+import { TtsPlaybackButton } from '@/components/common/TtsPlaybackButton';
 import { SelectField } from '@/components/forms/SelectField';
 import { TextAreaField } from '@/components/forms/TextAreaField';
+import type { TtsPlaybackSpeed } from '@/constants/tts';
 import { MEDIA_TYPES } from '@/domain/entities/Media';
-import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+import { usePreferences } from '@/features/settings/providers/PreferencesProvider';
 import { useTheme } from '@/theme/useTheme';
 import { formatRecordingDuration } from '@/utils/format';
 
@@ -35,7 +37,7 @@ type ListeningSideFieldProps = {
   onStartRecording: () => void;
   onStopRecording: () => void;
   onRemoveMedia: () => void;
-  onTestAudio: () => void;
+  onTestAudio: (speed?: TtsPlaybackSpeed) => void;
 };
 
 /** Um lado (frente/verso) do card de Escuta: modo exclusivo + teste de audio. */
@@ -61,8 +63,12 @@ export function ListeningSideField({
   onTestAudio,
 }: ListeningSideFieldProps) {
   const { colors } = useTheme();
-  const strings = useStrings();
+  const { setTtsPlaybackSpeed, strings, ttsPlaybackSpeed } = usePreferences();
   const mediaStrings = strings.cards.media;
+  const speedLabels = {
+    fast: strings.common.fast,
+    slow: strings.common.slow,
+  };
   const audioMedia = media.find((item) => item.type !== MEDIA_TYPES.IMAGE);
   const sideError = textError ?? mediaError;
   const modeOptions = [
@@ -197,22 +203,35 @@ export function ListeningSideField({
         </View>
       ) : null}
 
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`${mediaStrings.testAudioA11y} ${label}`}
-        disabled={isSaving || !canTestAudio}
-        onPress={onTestAudio}
-        style={{
-          borderColor: colors.border,
-          backgroundColor: colors.surface,
-          opacity: !canTestAudio ? 0.5 : 1,
-        }}
-        className="items-center rounded-xl border px-4 py-3 active:opacity-90"
-      >
-        <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
-          {mediaStrings.testAudio}
-        </Text>
-      </Pressable>
+      {mode === LISTENING_INPUT_MODES.TTS ? (
+        <TtsPlaybackButton
+          label={mediaStrings.testAudio}
+          accessibilityLabel={`${mediaStrings.testAudioA11y} ${label}`}
+          disabled={isSaving}
+          playDisabled={!canTestAudio}
+          speed={ttsPlaybackSpeed}
+          speedLabels={speedLabels}
+          onPlay={() => onTestAudio(ttsPlaybackSpeed)}
+          onChangeSpeed={(speed) => void setTtsPlaybackSpeed(speed)}
+        />
+      ) : (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`${mediaStrings.testAudioA11y} ${label}`}
+          disabled={isSaving || !canTestAudio}
+          onPress={() => onTestAudio()}
+          style={{
+            borderColor: colors.border,
+            backgroundColor: colors.surface,
+            opacity: !canTestAudio ? 0.5 : 1,
+          }}
+          className="items-center rounded-xl border px-4 py-3 active:opacity-90"
+        >
+          <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
+            {mediaStrings.testAudio}
+          </Text>
+        </Pressable>
+      )}
 
       <FieldError message={sideError} />
     </View>

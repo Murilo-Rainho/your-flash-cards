@@ -1,4 +1,6 @@
+import type { AudioAffordance } from '@/components/review';
 import { CARD_TYPES } from '@/constants/cardTypes';
+import { TTS_PLAYBACK_SPEEDS, type TtsPlaybackSpeed } from '@/constants/tts';
 import { VARIANT_TYPES } from '@/domain/entities/CardVariant';
 import { MEDIA_SIDES, MEDIA_TYPES, type Media } from '@/domain/entities/Media';
 import type { DueReviewCard } from '@/domain/repositories/ReviewRepository';
@@ -50,14 +52,14 @@ function makeCard(overrides: Partial<DueReviewCard> = {}): DueReviewCard {
 
 function createSource(card: DueReviewCard) {
   const played: string[] = [];
-  const spoken: Array<{ text: string; language: string }> = [];
+  const spoken: Array<{ text: string; language: string; speed: TtsPlaybackSpeed }> = [];
   const recordingCalls = { start: 0, stop: 0, play: 0 };
 
   const source: BuildReviewViewModelFromCardSource = {
     card,
     reviewStrings: enUS.review,
     onPlayAudio: (uri) => played.push(uri),
-    onSpeakTts: (text, language) => spoken.push({ text, language }),
+    onSpeakTts: (text, language, speed) => spoken.push({ text, language, speed }),
     currentlyPlayingUri: null,
     recording: {
       isRecording: false,
@@ -69,6 +71,25 @@ function createSource(card: DueReviewCard) {
   };
 
   return { source, played, spoken, recordingCalls };
+}
+
+function playAudio(audio: AudioAffordance | undefined): void {
+  if (audio?.type !== 'audio') {
+    throw new Error('esperado audio');
+  }
+
+  audio.onPlay();
+}
+
+function playTts(
+  audio: AudioAffordance | undefined,
+  speed: TtsPlaybackSpeed = TTS_PLAYBACK_SPEEDS.SLOW,
+): void {
+  if (audio?.type !== 'tts') {
+    throw new Error('esperado tts');
+  }
+
+  audio.onPlay(speed);
 }
 
 describe('buildReviewViewModelFromCard', () => {
@@ -96,7 +117,7 @@ describe('buildReviewViewModelFromCard', () => {
     expect(vm.back.text).toBe('maçã');
     expect(vm.answer.kind).toBe('reveal');
 
-    vm.front.audio?.onPlay();
+    playAudio(vm.front.audio);
     expect(played).toEqual(['file://a.m4a']);
   });
 
@@ -117,9 +138,9 @@ describe('buildReviewViewModelFromCard', () => {
     const { source, spoken } = createSource(card);
 
     const vm = buildReviewViewModelFromCard(source);
-    vm.front.audio?.onPlay();
+    playTts(vm.front.audio);
 
-    expect(spoken).toEqual([{ text: 'apple', language: 'en-US' }]);
+    expect(spoken).toEqual([{ text: 'apple', language: 'en-US', speed: TTS_PLAYBACK_SPEEDS.SLOW }]);
   });
 
   it('marca isPlaying quando a uri tocando casa com a do áudio', () => {
@@ -167,7 +188,7 @@ describe('buildReviewViewModelFromCard', () => {
     const vm = buildReviewViewModelFromCard(source);
 
     expect(vm.front.text).toBeUndefined();
-    vm.front.audio?.onPlay();
+    playAudio(vm.front.audio);
     expect(played).toEqual(['file://a.m4a']);
     expect(vm.back.text).toBe("I'm tired now.");
     if (vm.answer.kind !== 'typing') {
@@ -189,8 +210,8 @@ describe('buildReviewViewModelFromCard', () => {
     const vm = buildReviewViewModelFromCard(source);
 
     expect(vm.back.text).toBe("I'm tired now.");
-    vm.front.audio?.onPlay();
-    vm.back.audio?.onPlay();
+    playAudio(vm.front.audio);
+    playAudio(vm.back.audio);
     expect(played).toEqual(['file://a.m4a', 'file://a.m4a']);
     if (vm.answer.kind !== 'listening') {
       throw new Error('esperado listening');
@@ -214,9 +235,11 @@ describe('buildReviewViewModelFromCard', () => {
     const { source, spoken } = createSource(card);
 
     const vm = buildReviewViewModelFromCard(source);
-    vm.front.audio?.onPlay();
+    playTts(vm.front.audio);
 
-    expect(spoken).toEqual([{ text: "I'm tired now.", language: 'en-US' }]);
+    expect(spoken).toEqual([
+      { text: "I'm tired now.", language: 'en-US', speed: TTS_PLAYBACK_SPEEDS.SLOW },
+    ]);
   });
 
   it('pronúncia: texto na frente, áudio modelo no verso, kind recording', () => {
@@ -235,7 +258,7 @@ describe('buildReviewViewModelFromCard', () => {
     if (vm.answer.kind !== 'recording') {
       throw new Error('esperado recording');
     }
-    vm.back.audio?.onPlay();
+    playAudio(vm.back.audio);
     expect(played).toEqual(['file://b.m4a']);
     vm.answer.onStopRecording();
     expect(recordingCalls.stop).toBe(1);
@@ -258,9 +281,9 @@ describe('buildReviewViewModelFromCard', () => {
     const { source, spoken } = createSource(card);
 
     const vm = buildReviewViewModelFromCard(source);
-    vm.back.audio?.onPlay();
+    playTts(vm.back.audio);
 
-    expect(spoken).toEqual([{ text: 'water', language: 'en-US' }]);
+    expect(spoken).toEqual([{ text: 'water', language: 'en-US', speed: TTS_PLAYBACK_SPEEDS.SLOW }]);
   });
 
   it('reverso: vira vocabulário/reveal com os lados trocados', () => {
@@ -279,7 +302,7 @@ describe('buildReviewViewModelFromCard', () => {
     expect(vm.back.text).toBe('apple');
     expect(vm.answer.kind).toBe('reveal');
     // A mídia (que era da frente original) aparece no verso do reverso.
-    vm.back.audio?.onPlay();
+    playAudio(vm.back.audio);
     expect(played).toEqual(['file://a.m4a']);
   });
 

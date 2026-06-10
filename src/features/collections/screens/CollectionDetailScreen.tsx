@@ -2,9 +2,12 @@ import { useMemo, useState } from 'react';
 import { Alert, Pressable, Text, View } from 'react-native';
 import { type Href, useLocalSearchParams, useRouter } from 'expo-router';
 
+import { Badge } from '@/components/common/Badge';
+import { Header } from '@/components/common/Header';
+import { Icon } from '@/components/common/Icon';
+import { IconButton } from '@/components/common/IconButton';
 import { PrimaryButton } from '@/components/common/PrimaryButton';
-import { ScreenHeader } from '@/components/common/ScreenHeader';
-import { SecondaryButton } from '@/components/common/SecondaryButton';
+import { SectionTitle } from '@/components/common/SectionTitle';
 import { StateCard } from '@/components/common/StateCard';
 import { FormScreen } from '@/components/forms/FormScreen';
 import { routeHrefs } from '@/constants/routes';
@@ -40,7 +43,7 @@ import { useUpdateTag } from '@/features/tags/hooks/useUpdateTag';
 import { isCreateTagInputError } from '@/features/tags/services/createTag';
 import { isUpdateTagInputError } from '@/features/tags/services/updateTag';
 import { useStrings } from '@/features/settings/providers/PreferencesProvider';
-import { useGoBack } from '@/hooks/useGoBack';
+import { withAlpha } from '@/theme/createShadows';
 import { useTheme } from '@/theme/useTheme';
 
 type DeckModalState = { mode: 'create' } | { mode: 'edit'; deck: Deck };
@@ -52,9 +55,8 @@ const emptyTags: Tag[] = [];
 export function CollectionDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const goBack = useGoBack();
   const strings = useStrings();
-  const { colors } = useTheme();
+  const { colors, shadows } = useTheme();
 
   const collectionQuery = useCollection(id);
   const decksQuery = useActiveDecks(id);
@@ -83,8 +85,9 @@ export function CollectionDetailScreen() {
   const [tagFormError, setTagFormError] = useState<string | undefined>(undefined);
 
   const languagePair = collection
-    ? `${collection.baseLanguage.toUpperCase()} -> ${collection.targetLanguage.toUpperCase()}`
+    ? `${collection.baseLanguage.toUpperCase()} → ${collection.targetLanguage.toUpperCase()}`
     : '';
+  const collectionInitial = collection?.name.trim().charAt(0).toUpperCase() || '•';
 
   const collectionInitialValues = useMemo<CollectionEditValues>(
     () => ({ name: collection?.name ?? '', description: collection?.description ?? '' }),
@@ -258,32 +261,38 @@ export function CollectionDetailScreen() {
     return (
       <>
         <View
-          style={{ borderColor: colors.border, backgroundColor: colors.surface }}
-          className="gap-2 rounded-2xl border p-4"
+          style={{ borderColor: colors.border, backgroundColor: colors.surface, ...shadows.sm }}
+          className="gap-3 rounded-2xl border p-4"
         >
-          <Text style={{ color: colors.textSecondary }} className="text-sm font-semibold">
-            {languagePair}
-          </Text>
-          <Text style={{ color: colors.textPrimary }} className="text-base">
+          <View className="flex-row items-center gap-3">
+            <View
+              style={{ backgroundColor: withAlpha(colors.primary, 0.16) }}
+              className="h-11 w-11 items-center justify-center rounded-2xl"
+            >
+              <Text style={{ color: colors.primary }} className="text-lg font-bold">
+                {collectionInitial}
+              </Text>
+            </View>
+            <View className="min-w-0 flex-1 flex-row">
+              <Badge label={languagePair} tone="textSecondary" />
+            </View>
+            <IconButton
+              icon="edit"
+              accessibilityLabel={strings.collections.editA11y}
+              onPress={() => {
+                setCollectionErrors({});
+                setCollectionFormError(undefined);
+                setIsEditingCollection(true);
+              }}
+            />
+          </View>
+          <Text style={{ color: colors.textSecondary }} className="text-sm">
             {collection.description ?? strings.collections.noDescription}
           </Text>
-          <SecondaryButton
-            label={strings.collections.editLabel}
-            accessibilityLabel={strings.collections.editA11y}
-            onPress={() => {
-              setCollectionErrors({});
-              setCollectionFormError(undefined);
-              setIsEditingCollection(true);
-            }}
-          />
         </View>
 
         <View className="gap-3">
-          <View className="flex-row items-center justify-between gap-3">
-            <Text style={{ color: colors.textPrimary }} className="text-lg font-semibold">
-              {strings.collections.decksSectionTitle}
-            </Text>
-          </View>
+          <SectionTitle title={strings.collections.decksSectionTitle} />
 
           {decksQuery.isLoading ? (
             <Text style={{ color: colors.textSecondary }} className="text-sm">
@@ -307,35 +316,50 @@ export function CollectionDetailScreen() {
             decks.map((deck) => (
               <View
                 key={deck.id}
-                style={{ borderColor: colors.border, backgroundColor: colors.surface }}
+                style={{
+                  borderColor: colors.border,
+                  backgroundColor: colors.surface,
+                  ...shadows.sm,
+                }}
                 className="flex-row items-center gap-3 rounded-2xl border p-4"
               >
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel={deck.name}
                   onPress={() => router.push(routeHrefs.deckDetail(deck.id) as Href)}
-                  className="flex-1 active:opacity-90"
+                  className="flex-1 flex-row items-center gap-3 active:opacity-90"
                 >
-                  <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
-                    {deck.name}
-                  </Text>
-                  {deck.description ? (
-                    <Text style={{ color: colors.textSecondary }} className="mt-1 text-sm">
-                      {deck.description}
+                  <View
+                    style={{ backgroundColor: withAlpha(colors.primary, 0.16) }}
+                    className="h-11 w-11 items-center justify-center rounded-2xl"
+                  >
+                    <Icon name="deck" size={22} tone="primary" />
+                  </View>
+                  <View className="min-w-0 flex-1 gap-1">
+                    <Text
+                      style={{ color: colors.textPrimary }}
+                      className="text-base font-bold"
+                      numberOfLines={1}
+                    >
+                      {deck.name}
                     </Text>
-                  ) : null}
+                    {deck.description ? (
+                      <Text
+                        style={{ color: colors.textSecondary }}
+                        className="text-sm"
+                        numberOfLines={1}
+                      >
+                        {deck.description}
+                      </Text>
+                    ) : null}
+                  </View>
+                  <Icon name="chevron" size={22} tone="textSecondary" />
                 </Pressable>
-                <Pressable
-                  accessibilityRole="button"
+                <IconButton
+                  icon="edit"
                   accessibilityLabel={`${strings.decks.editA11y}: ${deck.name}`}
                   onPress={() => openEditDeck(deck)}
-                  style={{ borderColor: colors.border }}
-                  className="rounded-xl border px-3 py-2 active:opacity-90"
-                >
-                  <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                    {strings.decks.editLabel}
-                  </Text>
-                </Pressable>
+                />
               </View>
             ))
           )}
@@ -348,11 +372,7 @@ export function CollectionDetailScreen() {
         </View>
 
         <View className="gap-3">
-          <View className="flex-row items-center justify-between gap-3">
-            <Text style={{ color: colors.textPrimary }} className="text-lg font-semibold">
-              {strings.collections.tagsSectionTitle}
-            </Text>
-          </View>
+          <SectionTitle title={strings.collections.tagsSectionTitle} />
 
           {tagsQuery.isLoading ? (
             <Text style={{ color: colors.textSecondary }} className="text-sm">
@@ -376,37 +396,40 @@ export function CollectionDetailScreen() {
             tags.map((tag) => (
               <View
                 key={tag.id}
-                style={{ borderColor: colors.border, backgroundColor: colors.surface }}
+                style={{
+                  borderColor: colors.border,
+                  backgroundColor: colors.surface,
+                  ...shadows.sm,
+                }}
                 className="flex-row items-center gap-3 rounded-2xl border p-4"
               >
-                <View className="flex-1">
-                  <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
+                <View
+                  style={{ backgroundColor: withAlpha(colors.primary, 0.16) }}
+                  className="h-11 w-11 items-center justify-center rounded-2xl"
+                >
+                  <Icon name="tag" size={22} tone="primary" />
+                </View>
+                <View className="min-w-0 flex-1">
+                  <Text
+                    style={{ color: colors.textPrimary }}
+                    className="text-base font-bold"
+                    numberOfLines={1}
+                  >
                     {tag.name}
                   </Text>
                 </View>
-                <Pressable
-                  accessibilityRole="button"
+                <IconButton
+                  icon="edit"
                   accessibilityLabel={`${strings.tags.editA11y}: ${tag.name}`}
                   onPress={() => openEditTag(tag)}
-                  style={{ borderColor: colors.border }}
-                  className="rounded-xl border px-3 py-2 active:opacity-90"
-                >
-                  <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                    {strings.tags.editLabel}
-                  </Text>
-                </Pressable>
-                <Pressable
-                  accessibilityRole="button"
+                />
+                <IconButton
+                  icon="delete"
+                  tone="danger"
                   accessibilityLabel={`${strings.tags.deleteA11y}: ${tag.name}`}
                   onPress={() => confirmDeleteTag(tag)}
-                  style={{ borderColor: colors.border }}
-                  className="rounded-xl border px-3 py-2 active:opacity-90"
                   disabled={deleteTagMutation.isPending}
-                >
-                  <Text style={{ color: colors.danger }} className="text-sm font-semibold">
-                    {strings.tags.deleteLabel}
-                  </Text>
-                </Pressable>
+                />
               </View>
             ))
           )}
@@ -423,7 +446,7 @@ export function CollectionDetailScreen() {
 
   return (
     <FormScreen>
-      <ScreenHeader title={collection?.name ?? strings.collections.newTitle} onBack={goBack} />
+      <Header variant="page" title={collection?.name ?? strings.collections.detailTitle} />
       {renderBody()}
 
       {collection ? (

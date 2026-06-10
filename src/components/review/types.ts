@@ -1,5 +1,6 @@
 import type { CardType } from '@/constants/cardTypes';
 import type { ReviewRating } from '@/constants/reviewRatings';
+import type { TtsPlaybackSpeed } from '@/constants/tts';
 import type { StringCatalog } from '@/strings/types';
 
 /**
@@ -10,13 +11,22 @@ import type { StringCatalog } from '@/strings/types';
  * áudio/TTS, gravação) é resolvida na camada `features/` e injetada aqui como callback.
  */
 
-/** Afordância de áudio genérica (arquivo local ou TTS). O componente só dispara `onPlay`. */
-export type AudioAffordance = {
+type AudioAffordanceBase = {
   label: string;
-  onPlay: () => void;
   isPlaying?: boolean;
   accessibilityLabel?: string;
 };
+
+/** Afordância de áudio genérica (arquivo local ou TTS). O componente só dispara `onPlay`. */
+export type AudioAffordance =
+  | (AudioAffordanceBase & {
+      type: 'audio';
+      onPlay: () => void;
+    })
+  | (AudioAffordanceBase & {
+      type: 'tts';
+      onPlay: (speed: TtsPlaybackSpeed) => void;
+    });
 
 /** Um lado do card (frente ou verso). Tudo opcional → pode ser só texto, só imagem ou só áudio. */
 export type CardFaceViewModel = {
@@ -84,9 +94,13 @@ export type FlashcardViewModel = {
   answer: ReviewAnswerBehavior;
 };
 
+export type FlashcardReviewPresentation = 'modal' | 'container';
+
 export type FlashcardReviewProps = {
-  /** Controla o Modal de overlay. */
+  /** Controla se o card está visível/renderizado. */
   visible: boolean;
+  /** `modal` preserva o preview flutuante; `container` embute o card na tela atual. */
+  presentation?: FlashcardReviewPresentation;
   /**
    * Identidade do card exibido. Quando muda (avanço de card na sessão), reseta o estado de
    * flip/resposta e dispara a animação de entrada. Opcional: o modo "Testar" não precisa.
@@ -94,12 +108,15 @@ export type FlashcardReviewProps = {
   cardKey?: number;
   card: FlashcardViewModel;
   strings: StringCatalog['review'];
+  ttsPlaybackSpeed: TtsPlaybackSpeed;
+  ttsSpeedLabels: Record<TtsPlaybackSpeed, string>;
+  onTtsPlaybackSpeedChange: (speed: TtsPlaybackSpeed) => void;
   /**
    * Disparado ao escolher uma das 4 avaliações. O componente é agnóstico:
    * em "Testar" (criação) apenas fecha; na revisão real agenda + grava estatística.
    */
   onRate: (rating: ReviewRating) => void;
-  /** Fechar o overlay (botão fechar / back do Android). */
+  /** Fechar o preview/modal (botão fechar / back do Android). */
   onClose?: () => void;
   /** Notifica que o card foi virado (telemetria/áudio do verso). */
   onFlip?: () => void;

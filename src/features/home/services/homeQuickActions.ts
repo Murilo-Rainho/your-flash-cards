@@ -9,21 +9,21 @@ export function getHomeQuickActions(
     {
       id: 'new-collection',
       label: quickActionStrings.newCollection,
-      icon: '📚',
+      icon: 'collection',
       route: ROUTES.COLLECTION_NEW,
     },
     {
       id: 'new-deck',
       label: quickActionStrings.newDeck,
-      icon: '🗂️',
+      icon: 'deck',
       route: ROUTES.DECK_NEW,
     },
     {
       id: 'new-card',
       label: quickActionStrings.newCard,
-      icon: '✏️',
+      icon: 'card',
       route: ROUTES.CARD_NEW,
     },
-    { id: 'import', label: quickActionStrings.import, icon: '📥', disabled: true },
+    { id: 'import', label: quickActionStrings.import, icon: 'import', disabled: true },
   ];
 }

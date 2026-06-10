@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 
+import { Header } from '@/components/common/Header';
 import { PrimaryButton } from '@/components/common/PrimaryButton';
-import { ScreenHeader } from '@/components/common/ScreenHeader';
 import { FormScreen } from '@/components/forms/FormScreen';
 import { useGoBack } from '@/hooks/useGoBack';
 import { useTheme } from '@/theme/useTheme';
@@ -49,7 +49,7 @@ export function DevTableDetailScreen() {
 
   return (
     <FormScreen>
-      <ScreenHeader title={name ?? 'Tabela'} onBack={goBack} />
+      <Header variant="page" title={name ?? 'Tabela'} onBack={goBack} />
 
       <Text style={{ color: colors.textSecondary }} className="text-sm">
         Página {page + 1} • {rows.length} registro(s) carregado(s)

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'r
 
 import type { FlashcardViewModel } from '@/components/review';
 import type { ReviewRating } from '@/constants/reviewRatings';
+import type { TtsPlaybackSpeed } from '@/constants/tts';
 import { MEDIA_SIDES } from '@/domain/entities/Media';
 import { useAudioRecording } from '@/features/cards/hooks/useAudioRecording';
 import { useCardTts } from '@/features/cards/hooks/useCardTts';
@@ -75,8 +76,8 @@ export function useReviewSession(): ReviewSession {
       card: currentCard,
       reviewStrings: strings.review,
       onPlayAudio: audio.playAudio,
-      onSpeakTts: (text, language) => {
-        void tts.speak(text, language);
+      onSpeakTts: (text: string, language: string, speed: TtsPlaybackSpeed) => {
+        void tts.speak(text, language, speed);
       },
       currentlyPlayingUri: null,
       recording: {

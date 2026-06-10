@@ -4,6 +4,7 @@ import type {
   ReviewAnswerBehavior,
 } from '@/components/review';
 import { CARD_TYPES, type CardType } from '@/constants/cardTypes';
+import type { TtsPlaybackSpeed } from '@/constants/tts';
 import {
   composeClozeBack,
   composeClozeFront,
@@ -38,7 +39,7 @@ export type ReviewSource = {
   backMedia: readonly CreateCardMediaInput[];
   reviewStrings: StringCatalog['review'];
   onPlayAudio: (uri: string) => void;
-  onSpeakTts: (side: MediaSide) => void;
+  onSpeakTts: (side: MediaSide, speed: TtsPlaybackSpeed) => void;
   recording: ReviewRecordingControls;
 };
 
@@ -67,13 +68,21 @@ function buildAudioFace(
 
   if (file && file.type !== MEDIA_TYPES.TTS) {
     const uri = file.uri;
-    return { label: source.reviewStrings.face.playAudio, onPlay: () => source.onPlayAudio(uri) };
+    return {
+      type: 'audio',
+      label: source.reviewStrings.face.playAudio,
+      onPlay: () => source.onPlayAudio(uri),
+    };
   }
 
   const hasTtsMedia = media.some((item) => item.side === side && item.type === MEDIA_TYPES.TTS);
 
   if (hasTtsMedia || ttsFallbackText?.trim()) {
-    return { label: source.reviewStrings.face.playTts, onPlay: () => source.onSpeakTts(side) };
+    return {
+      type: 'tts',
+      label: source.reviewStrings.face.playTts,
+      onPlay: (speed) => source.onSpeakTts(side, speed),
+    };
   }
 
   return undefined;

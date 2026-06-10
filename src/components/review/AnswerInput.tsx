@@ -42,6 +42,10 @@ export function AnswerInput({
           editable={!disabled}
           placeholder={strings.placeholder}
           placeholderTextColor={colors.textSecondary}
+          selectionColor={colors.primary}
+          selectionHandleColor={colors.primary}
+          cursorColor={colors.primary}
+          underlineColorAndroid="transparent"
           autoCapitalize="none"
           autoCorrect={false}
           style={{
@@ -68,6 +72,10 @@ export function AnswerInput({
             editable={!disabled}
             placeholder={strings.placeholder}
             placeholderTextColor={colors.textSecondary}
+            selectionColor={colors.primary}
+            selectionHandleColor={colors.primary}
+            cursorColor={colors.primary}
+            underlineColorAndroid="transparent"
             autoCapitalize="none"
             autoCorrect={false}
             style={{

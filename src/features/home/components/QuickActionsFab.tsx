@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { Modal, Pressable, Text, View } from 'react-native';
 
+import { Icon } from '@/components/common/Icon';
 import type { QuickAction } from '@/domain/entities/QuickAction';
 import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+import { withAlpha } from '@/theme/createShadows';
+import type { IconName } from '@/theme/icons';
 import { useTheme } from '@/theme/useTheme';
 
 type QuickActionsFabProps = {
@@ -75,9 +78,7 @@ export function QuickActionsFab({
         }}
         className="absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full active:opacity-90"
       >
-        <Text style={{ color: colors.background }} className="text-3xl leading-none">
-          +
-        </Text>
+        <Icon name="add" size={28} color={colors.background} />
       </Pressable>
 
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
@@ -90,50 +91,61 @@ export function QuickActionsFab({
         >
           <View
             style={{ backgroundColor: colors.background, ...shadows.lg }}
-            className="gap-1 rounded-2xl p-2"
+            className="rounded-2xl p-2 pt-3"
           >
-            {actions.map((action) => {
-              const shouldHighlightAction =
-                showFirstCollectionHint && action.id === 'new-collection';
+            <View
+              style={{ backgroundColor: withAlpha(colors.textSecondary, 0.3) }}
+              className="mb-2 h-1 w-10 self-center rounded-full"
+            />
+            <View className="gap-1">
+              {actions.map((action) => {
+                const shouldHighlightAction =
+                  showFirstCollectionHint && action.id === 'new-collection';
 
-              return (
-                <Pressable
-                  key={action.id}
-                  accessibilityRole="button"
-                  accessibilityLabel={
-                    shouldHighlightAction
-                      ? `${action.label}, ${strings.home.quickActions.hintStartHere}`
-                      : action.label
-                  }
-                  accessibilityState={{ disabled: action.disabled }}
-                  disabled={action.disabled}
-                  onPress={() => handleActionPress(action)}
-                  className={`flex-row items-center gap-3 rounded-xl p-3 active:opacity-90 ${
-                    action.disabled ? 'opacity-40' : ''
-                  }`}
-                >
-                  <Text className="text-xl">{action.icon}</Text>
-                  <View className="min-w-0 flex-1 flex-row items-center gap-2">
-                    <Text
-                      style={{ color: colors.textPrimary }}
-                      className="shrink text-base font-medium"
+                return (
+                  <Pressable
+                    key={action.id}
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      shouldHighlightAction
+                        ? `${action.label}, ${strings.home.quickActions.hintStartHere}`
+                        : action.label
+                    }
+                    accessibilityState={{ disabled: action.disabled }}
+                    disabled={action.disabled}
+                    onPress={() => handleActionPress(action)}
+                    className={`flex-row items-center gap-3 rounded-xl p-3 active:opacity-90 ${
+                      action.disabled ? 'opacity-40' : ''
+                    }`}
+                  >
+                    <View
+                      style={{ backgroundColor: withAlpha(colors.primary, 0.16) }}
+                      className="h-10 w-10 items-center justify-center rounded-full"
                     >
-                      {action.label}
-                    </Text>
-                    {shouldHighlightAction ? (
-                      <View
-                        style={{ backgroundColor: colors.warning }}
-                        className="rounded-lg px-2 py-1"
+                      <Icon name={action.icon as IconName} size={20} tone="primary" />
+                    </View>
+                    <View className="min-w-0 flex-1 flex-row items-center gap-2">
+                      <Text
+                        style={{ color: colors.textPrimary }}
+                        className="shrink text-base font-medium"
                       >
-                        <Text style={{ color: colors.textPrimary }} className="text-xs font-bold">
-                          {strings.home.quickActions.hintStartHere}
-                        </Text>
-                      </View>
-                    ) : null}
-                  </View>
-                </Pressable>
-              );
-            })}
+                        {action.label}
+                      </Text>
+                      {shouldHighlightAction ? (
+                        <View
+                          style={{ backgroundColor: colors.warning }}
+                          className="rounded-lg px-2 py-1"
+                        >
+                          <Text style={{ color: colors.textPrimary }} className="text-xs font-bold">
+                            {strings.home.quickActions.hintStartHere}
+                          </Text>
+                        </View>
+                      ) : null}
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </View>
           </View>
         </Pressable>
       </Modal>

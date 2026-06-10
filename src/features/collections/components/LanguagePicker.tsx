@@ -1,9 +1,5 @@
-import { Text, View } from 'react-native';
-
-import { FieldError } from '@/components/common/FieldError';
-import { SelectableChip } from '@/components/forms/SelectableChip';
+import { SelectField, type SelectOption } from '@/components/forms/SelectField';
 import { LANGUAGES, type LanguageCode } from '@/constants/languages';
-import { useTheme } from '@/theme/useTheme';
 
 type LanguagePickerProps = {
   label: string;
@@ -14,7 +10,13 @@ type LanguagePickerProps = {
   disabled?: boolean;
 };
 
-/** Seleção de idioma (base/alvo) por chips, a partir de `LANGUAGES`. */
+const languageOptions = LANGUAGES.map<SelectOption>((language) => ({
+  value: language.code,
+  label: language.label,
+  badge: language.code.toUpperCase(),
+}));
+
+/** Seleção de idioma (base/alvo) usando o SelectField compartilhado do app. */
 export function LanguagePicker({
   label,
   value,
@@ -23,26 +25,16 @@ export function LanguagePicker({
   error,
   disabled = false,
 }: LanguagePickerProps) {
-  const { colors } = useTheme();
-
   return (
-    <View className="gap-3">
-      <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-        {label}
-      </Text>
-      <View className="flex-row flex-wrap gap-2">
-        {LANGUAGES.map((language) => (
-          <SelectableChip
-            key={language.code}
-            label={language.label}
-            selected={language.code === value}
-            disabled={disabled}
-            accessibilityLabel={`${accessibilityPrefix} ${language.label}`}
-            onPress={() => onChange(language.code)}
-          />
-        ))}
-      </View>
-      <FieldError message={error} />
-    </View>
+    <SelectField
+      label={label}
+      value={value}
+      placeholder={label}
+      options={languageOptions}
+      disabled={disabled}
+      error={error}
+      closeAccessibilityLabel={accessibilityPrefix}
+      onChange={(code) => onChange(code as LanguageCode)}
+    />
   );
 }

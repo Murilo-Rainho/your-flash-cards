@@ -1,5 +1,6 @@
 export const collections = {
   newTitle: 'New Collection',
+  detailTitle: 'Collection details',
   nameLabel: 'Name',
   namePlaceholder: 'Portuguese to English',
   baseLanguageLabel: 'Base language',

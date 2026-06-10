@@ -3,8 +3,8 @@ import { Controller, useForm } from 'react-hook-form';
 import { Switch, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
+import { Header } from '@/components/common/Header';
 import { PrimaryButton } from '@/components/common/PrimaryButton';
-import { ScreenHeader } from '@/components/common/ScreenHeader';
 import { StateCard } from '@/components/common/StateCard';
 import { FormScreen } from '@/components/forms/FormScreen';
 import { SelectField, type SelectOption } from '@/components/forms/SelectField';
@@ -200,7 +200,7 @@ export function NewDeckScreen() {
 
   return (
     <FormScreen>
-      <ScreenHeader title={strings.decks.newTitle} onBack={goBack} />
+      <Header variant="page" title={strings.decks.newTitle} onBack={goBack} />
       {renderBody()}
 
       {formError ? (

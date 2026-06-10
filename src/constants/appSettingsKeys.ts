@@ -2,6 +2,7 @@
 export const APP_SETTINGS_KEYS = {
   UI_LOCALE: 'ui.locale',
   THEME_PALETTE: 'theme.palette',
+  TTS_PLAYBACK_SPEED: 'tts.playbackSpeed',
 } as const;
 
 export type AppSettingsKey = (typeof APP_SETTINGS_KEYS)[keyof typeof APP_SETTINGS_KEYS];

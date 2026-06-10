@@ -1,9 +1,11 @@
 import { Image, Pressable, Text, View } from 'react-native';
 
+import { TtsPlaybackButton } from '@/components/common/TtsPlaybackButton';
 import { SelectField } from '@/components/forms/SelectField';
 import { LANGUAGES, toSpeechLanguage } from '@/constants/languages';
+import type { TtsPlaybackSpeed } from '@/constants/tts';
 import { MEDIA_TYPES } from '@/domain/entities/Media';
-import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+import { usePreferences } from '@/features/settings/providers/PreferencesProvider';
 import { useTheme } from '@/theme/useTheme';
 import { formatRecordingDuration } from '@/utils/format';
 
@@ -31,7 +33,7 @@ type MediaControlsProps = {
   onRemoveMedia: (type: CreateCardMediaInput['type']) => void;
   onPlayAudio: (uri: string) => void;
   onToggleTts: () => void;
-  onSpeakTts: () => void;
+  onSpeakTts: (speed: TtsPlaybackSpeed) => void;
   onTtsLanguageChange: (language: string) => void;
 };
 
@@ -61,8 +63,12 @@ export function MediaControls({
   onTtsLanguageChange,
 }: MediaControlsProps) {
   const { colors } = useTheme();
-  const strings = useStrings();
+  const { setTtsPlaybackSpeed, strings, ttsPlaybackSpeed } = usePreferences();
   const mediaStrings = strings.cards.media;
+  const speedLabels = {
+    fast: strings.common.fast,
+    slow: strings.common.slow,
+  };
   const imageMedia = media.find((item) => item.type === MEDIA_TYPES.IMAGE);
   const audioMedia = media.find((item) => item.type !== MEDIA_TYPES.IMAGE);
   const canShowAudioBlock = allowAudioFile || allowRecording || allowTts || audioMedia;
@@ -143,9 +149,9 @@ export function MediaControls({
               <Text style={{ color: colors.textSecondary }} className="text-sm" numberOfLines={1}>
                 {getMediaLabel(audioMedia)}
               </Text>
-              <View className="flex-row gap-2">
-                {audioMedia.type === MEDIA_TYPES.AUDIO ||
-                audioMedia.type === MEDIA_TYPES.RECORDING ? (
+              {audioMedia.type === MEDIA_TYPES.AUDIO ||
+              audioMedia.type === MEDIA_TYPES.RECORDING ? (
+                <View className="flex-row gap-2">
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel={`${mediaStrings.playAudioA11y} ${label}`}
@@ -158,33 +164,46 @@ export function MediaControls({
                       {mediaStrings.play}
                     </Text>
                   </Pressable>
-                ) : (
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel={`${mediaStrings.playTtsA11y} ${label}`}
+                    accessibilityLabel={`${mediaStrings.removeAudioA11y} ${label}`}
                     disabled={isSaving}
-                    onPress={onSpeakTts}
+                    onPress={() => onRemoveMedia(audioMedia.type)}
                     style={{ borderColor: colors.border, backgroundColor: colors.background }}
                     className="flex-1 items-center rounded-xl border px-3 py-3 active:opacity-90"
                   >
                     <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                      {mediaStrings.listen}
+                      {mediaStrings.remove}
                     </Text>
                   </Pressable>
-                )}
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`${mediaStrings.removeAudioA11y} ${label}`}
-                  disabled={isSaving}
-                  onPress={() => onRemoveMedia(audioMedia.type)}
-                  style={{ borderColor: colors.border, backgroundColor: colors.background }}
-                  className="flex-1 items-center rounded-xl border px-3 py-3 active:opacity-90"
-                >
-                  <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                    {mediaStrings.remove}
-                  </Text>
-                </Pressable>
-              </View>
+                </View>
+              ) : (
+                <View className="gap-2">
+                  <TtsPlaybackButton
+                    label={mediaStrings.listen}
+                    accessibilityLabel={`${mediaStrings.playTtsA11y} ${label}`}
+                    disabled={isSaving}
+                    speed={ttsPlaybackSpeed}
+                    speedLabels={speedLabels}
+                    onPlay={() => onSpeakTts(ttsPlaybackSpeed)}
+                    onChangeSpeed={(speed) => {
+                      void setTtsPlaybackSpeed(speed).catch(() => undefined);
+                    }}
+                  />
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`${mediaStrings.removeAudioA11y} ${label}`}
+                    disabled={isSaving}
+                    onPress={() => onRemoveMedia(audioMedia.type)}
+                    style={{ borderColor: colors.border, backgroundColor: colors.background }}
+                    className="items-center rounded-xl border px-3 py-3 active:opacity-90"
+                  >
+                    <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+                      {mediaStrings.remove}
+                    </Text>
+                  </Pressable>
+                </View>
+              )}
             </View>
           ) : (
             <View className="gap-2">

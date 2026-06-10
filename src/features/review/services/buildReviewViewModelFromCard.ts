@@ -4,6 +4,7 @@ import type {
   ReviewAnswerBehavior,
 } from '@/components/review';
 import { CARD_TYPES } from '@/constants/cardTypes';
+import type { TtsPlaybackSpeed } from '@/constants/tts';
 import {
   extractExpectedClozeAnswer,
   isClozeAnswerCorrect,
@@ -28,7 +29,7 @@ export type BuildReviewViewModelFromCardSource = {
   card: DueReviewCard;
   reviewStrings: StringCatalog['review'];
   onPlayAudio: (uri: string) => void;
-  onSpeakTts: (text: string, language: string) => void;
+  onSpeakTts: (text: string, language: string, speed: TtsPlaybackSpeed) => void;
   currentlyPlayingUri?: string | null;
   recording: ReviewRecordingControls;
 };
@@ -79,6 +80,7 @@ function buildAudioFace(
   if (file) {
     const uri = file.uri;
     return {
+      type: 'audio',
       label: source.reviewStrings.face.playAudio,
       onPlay: () => source.onPlayAudio(uri),
       isPlaying: source.currentlyPlayingUri === uri,
@@ -91,8 +93,9 @@ function buildAudioFace(
     const language = parseTtsLanguage(tts.uri);
     const text = ttsText.trim();
     return {
+      type: 'tts',
       label: source.reviewStrings.face.playTts,
-      onPlay: () => source.onSpeakTts(text, language),
+      onPlay: (speed) => source.onSpeakTts(text, language, speed),
     };
   }
 

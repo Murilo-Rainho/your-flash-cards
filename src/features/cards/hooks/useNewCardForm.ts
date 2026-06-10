@@ -7,6 +7,7 @@ import type { SelectOption } from '@/components/forms/SelectField';
 import { CARD_TYPES, type CardType } from '@/constants/cardTypes';
 import { toSpeechLanguage } from '@/constants/languages';
 import { ROUTES } from '@/constants/routes';
+import { DEFAULT_TTS_PLAYBACK_SPEED, type TtsPlaybackSpeed } from '@/constants/tts';
 import { composeClozeBack, composeClozeFront } from '@/domain/cloze/cloze';
 import type { Collection } from '@/domain/entities/Collection';
 import type { Deck } from '@/domain/entities/Deck';
@@ -548,12 +549,12 @@ export function useNewCardForm() {
   );
 
   const speakTts = useCallback(
-    async (side: MediaSide) => {
+    async (side: MediaSide, speed: TtsPlaybackSpeed) => {
       setFormError(null);
       const text = side === MEDIA_SIDES.FRONT ? frontText : backText;
 
       try {
-        await tts.speak(text, ttsLanguages[side]);
+        await tts.speak(text, ttsLanguages[side], speed);
       } catch {
         setFormError(strings.cards.ttsPlaybackError);
       }
@@ -592,11 +593,11 @@ export function useNewCardForm() {
   );
 
   const testListeningAudio = useCallback(
-    async (side: MediaSide) => {
+    async (side: MediaSide, speed: TtsPlaybackSpeed = DEFAULT_TTS_PLAYBACK_SPEED) => {
       setFormError(null);
 
       if (listeningModes[side] === LISTENING_INPUT_MODES.TTS) {
-        await speakTts(side);
+        await speakTts(side, speed);
         return;
       }
 
@@ -759,8 +760,8 @@ export function useNewCardForm() {
     backMedia,
     reviewStrings: strings.review,
     onPlayAudio: recording.playAudio,
-    onSpeakTts: (side: MediaSide) => {
-      void speakTts(side);
+    onSpeakTts: (side: MediaSide, speed: TtsPlaybackSpeed) => {
+      void speakTts(side, speed);
     },
   });
 
@@ -841,13 +842,13 @@ export function useNewCardForm() {
     onToggleTts: (side: MediaSide) => {
       void toggleTts(side);
     },
-    onSpeakTts: (side: MediaSide) => {
-      void speakTts(side);
+    onSpeakTts: (side: MediaSide, speed: TtsPlaybackSpeed) => {
+      void speakTts(side, speed);
     },
     onTtsLanguageChange: handleTtsLanguageChange,
     onListeningModeChange: handleListeningModeChange,
-    onTestListeningAudio: (side: MediaSide) => {
-      void testListeningAudio(side);
+    onTestListeningAudio: (side: MediaSide, speed?: TtsPlaybackSpeed) => {
+      void testListeningAudio(side, speed);
     },
     onToggleOptional: () => setShowOptionalFields((current) => !current),
     onChangeTags: (names: string[]) => setValue('tags', names, { shouldDirty: true }),

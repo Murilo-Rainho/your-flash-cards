@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 
 import { FieldError } from '@/components/common/FieldError';
+import { Icon } from '@/components/common/Icon';
 import { SelectableChip } from '@/components/forms/SelectableChip';
 import { LIMITS } from '@/constants/limits';
 import type { Tag } from '@/domain/entities/Tag';
@@ -58,10 +59,11 @@ export function TagPicker({
   error,
 }: TagPickerProps) {
   const strings = useStrings();
-  const { colors } = useTheme();
+  const { colors, shadows } = useTheme();
   const tagsQuery = useTags(collectionId);
   const createTagMutation = useCreateTag();
   const [draft, setDraft] = useState('');
+  const [focused, setFocused] = useState(false);
 
   const tags = useMemo<Tag[]>(() => tagsQuery.data ?? [], [tagsQuery.data]);
 
@@ -135,19 +137,21 @@ export function TagPicker({
 
   const createHint = (() => {
     if (isDuplicate) {
-      return 'Essa tag ja esta na lista.';
+      return strings.tags.duplicateHint;
     }
 
     if (isTooLong) {
-      return `Use tags com no maximo ${MAX_TAG_LENGTH} caracteres.`;
+      return strings.tags.tooLongHint;
     }
 
     if (atMaxTags) {
-      return `Limite de ${MAX_TAGS} tags por card atingido.`;
+      return strings.tags.limitHint;
     }
 
     return createErrorMessage(createTagMutation.error, strings.tags.createError);
   })();
+
+  const inputBorderColor = focused || draft.length > 0 ? colors.primary : colors.border;
 
   return (
     <View className="gap-3">
@@ -155,62 +159,71 @@ export function TagPicker({
         {strings.tags.title}
       </Text>
 
-      {chips.length > 0 ? (
-        <View className="flex-row flex-wrap gap-2">
-          {chips.map((chip) => (
-            <SelectableChip
-              key={chip.key}
-              label={chip.name}
-              selected={chip.selected}
-              disabled={disabled || (!chip.selected && atMaxTags)}
-              accessibilityLabel={`Tag ${chip.name}`}
-              onPress={() => toggle(chip)}
-            />
-          ))}
-        </View>
-      ) : (
-        <Text style={{ color: colors.textSecondary }} className="text-sm">
-          Nenhuma tag ainda. Crie a primeira abaixo.
-        </Text>
-      )}
-
-      <View className="flex-row items-center gap-2">
-        <TextInput
-          value={draft}
-          onChangeText={setDraft}
-          placeholder={strings.tags.createPlaceholder}
-          placeholderTextColor={colors.textSecondary}
-          editable={!disabled}
-          autoCapitalize="none"
-          returnKeyType="done"
-          onSubmitEditing={handleCreate}
-          style={{
-            borderColor: colors.border,
-            backgroundColor: colors.surface,
-            color: colors.textPrimary,
-          }}
-          className="flex-1 rounded-xl border px-4 py-3 text-base"
-        />
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Criar tag"
-          accessibilityState={{ disabled: !canCreate }}
-          disabled={!canCreate}
-          onPress={handleCreate}
-          style={{
-            borderColor: colors.primary,
-            backgroundColor: canCreate ? colors.primary : colors.background,
-            opacity: canCreate ? 1 : 0.5,
-          }}
-          className="items-center justify-center rounded-xl border px-4 py-3 active:opacity-90"
-        >
-          <Text
-            style={{ color: canCreate ? colors.background : colors.primary }}
-            className="text-lg font-bold"
-          >
-            +
+      <View
+        style={{ borderColor: colors.border, backgroundColor: colors.surface, ...shadows.sm }}
+        className="gap-3 rounded-2xl border p-3"
+      >
+        {chips.length > 0 ? (
+          <View className="flex-row flex-wrap gap-2">
+            {chips.map((chip) => (
+              <SelectableChip
+                key={chip.key}
+                label={chip.name}
+                selected={chip.selected}
+                disabled={disabled || (!chip.selected && atMaxTags)}
+                accessibilityLabel={`${strings.tags.selectA11yPrefix} ${chip.name}`}
+                onPress={() => toggle(chip)}
+              />
+            ))}
+          </View>
+        ) : (
+          <Text style={{ color: colors.textSecondary }} className="text-sm">
+            {strings.tags.noTagsHint}
           </Text>
-        </Pressable>
+        )}
+
+        <View className="flex-row items-center gap-2">
+          <TextInput
+            value={draft}
+            onChangeText={setDraft}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            placeholder={strings.tags.createPlaceholder}
+            placeholderTextColor={colors.textSecondary}
+            selectionColor={colors.primary}
+            selectionHandleColor={colors.primary}
+            cursorColor={colors.primary}
+            underlineColorAndroid="transparent"
+            editable={!disabled}
+            accessibilityLabel={strings.tags.createPlaceholder}
+            accessibilityState={{ disabled }}
+            autoCapitalize="none"
+            returnKeyType="done"
+            onSubmitEditing={handleCreate}
+            style={{
+              borderColor: inputBorderColor,
+              backgroundColor: colors.surface,
+              color: colors.textPrimary,
+              opacity: disabled ? 0.5 : 1,
+            }}
+            className="min-h-12 flex-1 rounded-2xl border px-4 py-3 text-base"
+          />
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={strings.tags.createA11y}
+            accessibilityState={{ disabled: !canCreate }}
+            disabled={!canCreate}
+            onPress={handleCreate}
+            style={{
+              borderColor: colors.primary,
+              backgroundColor: canCreate ? colors.primary : colors.surface,
+              opacity: canCreate ? 1 : 0.5,
+            }}
+            className="h-12 w-12 items-center justify-center rounded-2xl border active:opacity-90"
+          >
+            <Icon name="add" size={22} color={canCreate ? colors.background : colors.primary} />
+          </Pressable>
+        </View>
       </View>
 
       <FieldError message={error ?? createHint} />

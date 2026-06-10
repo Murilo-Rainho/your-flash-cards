@@ -1,5 +1,8 @@
 import { Image, Pressable, Text, View } from 'react-native';
 
+import { Icon } from '@/components/common/Icon';
+import { TtsPlaybackButton } from '@/components/common/TtsPlaybackButton';
+import type { TtsPlaybackSpeed } from '@/constants/tts';
 import { useTheme } from '@/theme/useTheme';
 
 import type { CardFaceViewModel } from './types';
@@ -9,6 +12,9 @@ type FlashcardFaceProps = {
   /** Texto exibido quando o lado não tem nenhum conteúdo (preview best-effort). */
   emptyHint?: string;
   imageAccessibilityLabel?: string;
+  ttsPlaybackSpeed: TtsPlaybackSpeed;
+  ttsSpeedLabels: Record<TtsPlaybackSpeed, string>;
+  onTtsPlaybackSpeedChange: (speed: TtsPlaybackSpeed) => void;
 };
 
 /** Renderiza UM lado do card (texto, imagem e/ou áudio). Reutilizado por frente e verso. */
@@ -16,6 +22,9 @@ export function FlashcardFace({
   face,
   emptyHint = 'No content',
   imageAccessibilityLabel = 'Card image',
+  ttsPlaybackSpeed,
+  ttsSpeedLabels,
+  onTtsPlaybackSpeedChange,
 }: FlashcardFaceProps) {
   const { colors } = useTheme();
   const isEmpty = !face.text && !face.imageUri && !face.audio;
@@ -38,7 +47,21 @@ export function FlashcardFace({
         </Text>
       ) : null}
 
-      {face.audio ? (
+      {face.audio?.type === 'tts' ? (
+        <TtsPlaybackButton
+          label={face.audio.label}
+          accessibilityLabel={face.audio.accessibilityLabel}
+          isPlaying={face.audio.isPlaying}
+          speed={ttsPlaybackSpeed}
+          speedLabels={ttsSpeedLabels}
+          onPlay={() => {
+            if (face.audio?.type === 'tts') {
+              face.audio.onPlay(ttsPlaybackSpeed);
+            }
+          }}
+          onChangeSpeed={onTtsPlaybackSpeedChange}
+        />
+      ) : face.audio ? (
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={face.audio.accessibilityLabel ?? face.audio.label}
@@ -47,7 +70,7 @@ export function FlashcardFace({
           style={{ borderColor: colors.border, backgroundColor: colors.surface }}
           className="flex-row items-center gap-2 rounded-xl border px-4 py-3 active:opacity-90"
         >
-          <Text className="text-base">▶</Text>
+          <Icon name="play" size={16} tone="textPrimary" />
           <Text style={{ color: colors.textPrimary }} className="text-base font-medium">
             {face.audio.label}
           </Text>

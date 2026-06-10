@@ -12,4 +12,11 @@ export const common = {
   backSide: 'Verso',
   recommended: 'Recomendado',
   none: 'Nenhum',
+  fast: 'Fast',
+  slow: 'Slow',
+  appName: 'Your Flash Cards',
+  menu: 'Menu',
+  openMenu: 'Abrir menu',
+  closeMenu: 'Fechar menu',
+  backToHome: 'Voltar para Home',
 } as const;

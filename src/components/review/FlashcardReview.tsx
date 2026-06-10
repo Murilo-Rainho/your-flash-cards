@@ -19,6 +19,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { Icon } from '@/components/common/Icon';
+import { IconButton } from '@/components/common/IconButton';
 import { PrimaryButton } from '@/components/common/PrimaryButton';
 import { useTheme } from '@/theme/useTheme';
 import { withAlpha } from '@/theme/createShadows';
@@ -35,7 +37,7 @@ const CARD_ENTER_DURATION_MS = 260;
 const CARD_ENTER_OFFSET = 32;
 
 /**
- * Card de revisão flutuante com animação de flip (§35).
+ * Card de revisão com animação de flip (§35), renderizado como modal ou container.
  *
  * QUESTION (frente + afordância de resposta) → vira → ANSWER (verso + avaliação).
  * É 100% agnóstico: a diferença entre "Testar" (criação) e revisão real está apenas no
@@ -43,12 +45,16 @@ const CARD_ENTER_OFFSET = 32;
  */
 export function FlashcardReview({
   visible,
+  presentation = 'modal',
   cardKey,
   card,
   strings,
+  ttsPlaybackSpeed,
+  ttsSpeedLabels,
   onRate,
   onClose,
   onFlip,
+  onTtsPlaybackSpeedChange,
   reduceMotion,
 }: FlashcardReviewProps) {
   const { colors, shadows } = useTheme();
@@ -123,9 +129,169 @@ export function FlashcardReview({
     !checked &&
     Boolean(answer.recordedUri);
   const effectiveCorrect = override ?? checked?.correct ?? false;
+  const showCloseButton = presentation === 'modal' && onClose;
+
+  if (!visible) {
+    return null;
+  }
+
+  const reviewCard = (
+    <Pressable onPress={() => undefined} className="w-full">
+      <Animated.View
+        style={[{ backgroundColor: colors.background, ...shadows.lg }, cardAnimatedStyle]}
+        className="w-full gap-4 rounded-2xl p-5"
+      >
+        <View className="flex-row items-center justify-between">
+          <Text style={{ color: colors.textSecondary }} className="text-sm font-semibold">
+            {isFlipped ? strings.howDidYouDo : strings.reviewCardTitle}
+          </Text>
+          {showCloseButton ? (
+            <IconButton
+              icon="close"
+              accessibilityLabel={strings.closeA11y}
+              onPress={showCloseButton}
+              tone="textSecondary"
+            />
+          ) : null}
+        </View>
+
+        <View style={styles.flipArea}>
+          {/* FRENTE / QUESTION */}
+          <Animated.View
+            style={[styles.face, frontAnimatedStyle]}
+            pointerEvents={isFlipped ? 'none' : 'auto'}
+          >
+            <ScrollView
+              style={styles.scroll}
+              contentContainerStyle={styles.scrollContent}
+              keyboardShouldPersistTaps="handled"
+            >
+              {answer.kind === 'reveal' ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={strings.flipCard}
+                  onPress={handleFlip}
+                >
+                  <FlashcardFace
+                    face={card.front}
+                    emptyHint={strings.face.frontEmpty}
+                    imageAccessibilityLabel={strings.face.imageA11y}
+                    ttsPlaybackSpeed={ttsPlaybackSpeed}
+                    ttsSpeedLabels={ttsSpeedLabels}
+                    onTtsPlaybackSpeedChange={onTtsPlaybackSpeedChange}
+                  />
+                </Pressable>
+              ) : (
+                <View className="gap-4">
+                  <FlashcardFace
+                    face={card.front}
+                    emptyHint={strings.face.frontEmpty}
+                    imageAccessibilityLabel={strings.face.imageA11y}
+                    ttsPlaybackSpeed={ttsPlaybackSpeed}
+                    ttsSpeedLabels={ttsSpeedLabels}
+                    onTtsPlaybackSpeedChange={onTtsPlaybackSpeedChange}
+                  />
+                  <AnswerInput
+                    answer={answer}
+                    strings={strings.answer}
+                    typed={typed}
+                    onChangeTyped={setTyped}
+                    disabled={isFlipped}
+                  />
+                </View>
+              )}
+            </ScrollView>
+            <View className="pt-3">
+              <PrimaryButton
+                label={flipLabel}
+                accessibilityLabel={flipLabel}
+                onPress={handleFlip}
+              />
+            </View>
+          </Animated.View>
+
+          {/* VERSO / ANSWER */}
+          <Animated.View
+            style={[styles.face, backAnimatedStyle]}
+            pointerEvents={isFlipped ? 'auto' : 'none'}
+          >
+            <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+              <View className="gap-4">
+                <FlashcardFace
+                  face={card.back}
+                  emptyHint={strings.face.backEmpty}
+                  imageAccessibilityLabel={strings.face.imageA11y}
+                  ttsPlaybackSpeed={ttsPlaybackSpeed}
+                  ttsSpeedLabels={ttsSpeedLabels}
+                  onTtsPlaybackSpeedChange={onTtsPlaybackSpeedChange}
+                />
+                {checked ? (
+                  <AnswerFeedback
+                    strings={strings}
+                    correct={effectiveCorrect}
+                    typed={typed}
+                    expected={checked.expected}
+                    onToggleOverride={
+                      allowOverride ? () => setOverride(!effectiveCorrect) : undefined
+                    }
+                  />
+                ) : null}
+                {showRecordedOnBack &&
+                (answer.kind === 'listening' || answer.kind === 'recording') ? (
+                  <View
+                    style={{ borderColor: colors.border, backgroundColor: colors.surface }}
+                    className="gap-2 rounded-xl border p-4"
+                  >
+                    <Text style={{ color: colors.textSecondary }} className="text-sm">
+                      {strings.answer.compareRecording}
+                    </Text>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={strings.answer.playMyRecording}
+                      onPress={answer.onPlayRecording}
+                      style={{
+                        borderColor: colors.border,
+                        backgroundColor: colors.background,
+                      }}
+                      className="flex-row items-center gap-2 self-start rounded-xl border px-4 py-3 active:opacity-90"
+                    >
+                      <Icon name="play" size={16} tone="textPrimary" />
+                      <Text style={{ color: colors.textPrimary }} className="text-base font-medium">
+                        {strings.answer.playMyRecording}
+                      </Text>
+                    </Pressable>
+                  </View>
+                ) : null}
+              </View>
+            </ScrollView>
+            <View className="pt-3">
+              <RatingButtons labels={strings.ratings} onRate={onRate} disabled={!isFlipped} />
+            </View>
+          </Animated.View>
+        </View>
+      </Animated.View>
+    </Pressable>
+  );
+
+  if (presentation === 'container') {
+    return (
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+      >
+        <Pressable
+          accessibilityLabel={strings.closeKeyboardA11y}
+          onPress={Keyboard.dismiss}
+          style={styles.containerDismissArea}
+        >
+          {reviewCard}
+        </Pressable>
+      </KeyboardAvoidingView>
+    );
+  }
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <Pressable
         accessibilityLabel={strings.closeKeyboardA11y}
         onPress={Keyboard.dismiss}
@@ -136,139 +302,7 @@ export function FlashcardReview({
           style={styles.centered}
         >
           {/* Pressable interno "vazio" evita que toques no card fechem o teclado/repassem. */}
-          <Pressable onPress={() => undefined} className="w-full">
-            <Animated.View
-              style={[{ backgroundColor: colors.background, ...shadows.lg }, cardAnimatedStyle]}
-              className="w-full gap-4 rounded-2xl p-5"
-            >
-              <View className="flex-row items-center justify-between">
-                <Text style={{ color: colors.textSecondary }} className="text-sm font-semibold">
-                  {isFlipped ? strings.howDidYouDo : strings.reviewCardTitle}
-                </Text>
-                {onClose ? (
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={strings.closeA11y}
-                    onPress={onClose}
-                    className="h-8 w-8 items-center justify-center rounded-full active:opacity-90"
-                  >
-                    <Text style={{ color: colors.textSecondary }} className="text-lg">
-                      ✕
-                    </Text>
-                  </Pressable>
-                ) : null}
-              </View>
-
-              <View style={styles.flipArea}>
-                {/* FRENTE / QUESTION */}
-                <Animated.View
-                  style={[styles.face, frontAnimatedStyle]}
-                  pointerEvents={isFlipped ? 'none' : 'auto'}
-                >
-                  <ScrollView
-                    style={styles.scroll}
-                    contentContainerStyle={styles.scrollContent}
-                    keyboardShouldPersistTaps="handled"
-                  >
-                    {answer.kind === 'reveal' ? (
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel={strings.flipCard}
-                        onPress={handleFlip}
-                      >
-                        <FlashcardFace
-                          face={card.front}
-                          emptyHint={strings.face.frontEmpty}
-                          imageAccessibilityLabel={strings.face.imageA11y}
-                        />
-                      </Pressable>
-                    ) : (
-                      <View className="gap-4">
-                        <FlashcardFace
-                          face={card.front}
-                          emptyHint={strings.face.frontEmpty}
-                          imageAccessibilityLabel={strings.face.imageA11y}
-                        />
-                        <AnswerInput
-                          answer={answer}
-                          strings={strings.answer}
-                          typed={typed}
-                          onChangeTyped={setTyped}
-                          disabled={isFlipped}
-                        />
-                      </View>
-                    )}
-                  </ScrollView>
-                  <View className="pt-3">
-                    <PrimaryButton
-                      label={flipLabel}
-                      accessibilityLabel={flipLabel}
-                      onPress={handleFlip}
-                    />
-                  </View>
-                </Animated.View>
-
-                {/* VERSO / ANSWER */}
-                <Animated.View
-                  style={[styles.face, backAnimatedStyle]}
-                  pointerEvents={isFlipped ? 'auto' : 'none'}
-                >
-                  <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
-                    <View className="gap-4">
-                      <FlashcardFace
-                        face={card.back}
-                        emptyHint={strings.face.backEmpty}
-                        imageAccessibilityLabel={strings.face.imageA11y}
-                      />
-                      {checked ? (
-                        <AnswerFeedback
-                          strings={strings}
-                          correct={effectiveCorrect}
-                          typed={typed}
-                          expected={checked.expected}
-                          onToggleOverride={
-                            allowOverride ? () => setOverride(!effectiveCorrect) : undefined
-                          }
-                        />
-                      ) : null}
-                      {showRecordedOnBack &&
-                      (answer.kind === 'listening' || answer.kind === 'recording') ? (
-                        <View
-                          style={{ borderColor: colors.border, backgroundColor: colors.surface }}
-                          className="gap-2 rounded-xl border p-4"
-                        >
-                          <Text style={{ color: colors.textSecondary }} className="text-sm">
-                            {strings.answer.compareRecording}
-                          </Text>
-                          <Pressable
-                            accessibilityRole="button"
-                            accessibilityLabel={strings.answer.playMyRecording}
-                            onPress={answer.onPlayRecording}
-                            style={{
-                              borderColor: colors.border,
-                              backgroundColor: colors.background,
-                            }}
-                            className="flex-row items-center gap-2 self-start rounded-xl border px-4 py-3 active:opacity-90"
-                          >
-                            <Text className="text-base">▶</Text>
-                            <Text
-                              style={{ color: colors.textPrimary }}
-                              className="text-base font-medium"
-                            >
-                              {strings.answer.playMyRecording}
-                            </Text>
-                          </Pressable>
-                        </View>
-                      ) : null}
-                    </View>
-                  </ScrollView>
-                  <View className="pt-3">
-                    <RatingButtons labels={strings.ratings} onRate={onRate} disabled={!isFlipped} />
-                  </View>
-                </Animated.View>
-              </View>
-            </Animated.View>
-          </Pressable>
+          {reviewCard}
         </KeyboardAvoidingView>
       </Pressable>
     </Modal>
@@ -283,6 +317,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 16,
+  },
+  container: {
+    flex: 1,
+  },
+  containerDismissArea: {
+    flex: 1,
+    justifyContent: 'center',
   },
   flipArea: {
     height: FLIP_HEIGHT,

@@ -25,6 +25,7 @@ export const decks = {
   saveEditA11y: 'Save deck changes',
   updateError: 'Could not update the deck.',
   detailCardsTitle: 'Cards',
+  detailTitle: 'Deck details',
   addCardLabel: 'New card',
   addCardA11y: 'Create card',
   noCards: 'No cards in this deck yet.',

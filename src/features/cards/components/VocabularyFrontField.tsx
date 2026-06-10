@@ -2,6 +2,7 @@ import { View } from 'react-native';
 
 import { SelectField } from '@/components/forms/SelectField';
 import { TextAreaField } from '@/components/forms/TextAreaField';
+import type { TtsPlaybackSpeed } from '@/constants/tts';
 import { MEDIA_TYPES } from '@/domain/entities/Media';
 import { useStrings } from '@/features/settings/providers/PreferencesProvider';
 
@@ -32,7 +33,7 @@ type VocabularyFrontFieldProps = {
   onStopRecording: () => void;
   onRemoveMedia: (type: CreateCardMediaInput['type']) => void;
   onPlayAudio: (uri: string) => void;
-  onTestAudio: () => void;
+  onTestAudio: (speed?: TtsPlaybackSpeed) => void;
 };
 
 /** Frente do card de Vocabulário: escolhe entre texto simples, imagem ou áudio. */
