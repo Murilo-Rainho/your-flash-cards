@@ -4,7 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { type Href, useRouter } from 'expo-router';
 
 import { FlashcardReview } from '@/components/review';
-import { ScreenHeader } from '@/components/common/ScreenHeader';
+import { Header } from '@/components/common/Header';
+import { ProgressBar } from '@/components/common/ProgressBar';
 import { StateCard } from '@/components/common/StateCard';
 import { ROUTES } from '@/constants/routes';
 import { useReviewSession } from '@/features/review/hooks/useReviewSession';
@@ -36,7 +37,7 @@ export function ReviewScreen() {
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.background }}>
       <View className="flex-1 gap-6 px-4 pt-2">
-        <ScreenHeader title={strings.review.session.title} onBack={() => router.back()} />
+        <Header variant="page" title={strings.review.session.title} />
 
         {session.isLoading ? (
           <Text style={{ color: colors.textSecondary }} className="text-sm">
@@ -53,36 +54,32 @@ export function ReviewScreen() {
             }}
           />
         ) : (
-          <View className="gap-2">
-            <View
-              accessibilityRole="progressbar"
-              accessibilityLabel={`${strings.review.session.progressA11y}: ${current}/${total}`}
-              style={{ backgroundColor: colors.surface }}
-              className="h-2 w-full overflow-hidden rounded-full"
-            >
-              <View
-                style={{ backgroundColor: colors.primary, width: `${percent}%` }}
-                className="h-full"
+          <View className="flex-1 gap-4">
+            <View className="gap-2">
+              <ProgressBar
+                value={percent}
+                tone="primary"
+                accessibilityLabel={`${strings.review.session.progressA11y}: ${current}/${total}`}
               />
+              <Text style={{ color: colors.textSecondary }} className="text-sm font-medium">
+                {`${current} / ${total}`}
+              </Text>
             </View>
-            <Text style={{ color: colors.textSecondary }} className="text-sm font-medium">
-              {`${current} / ${total}`}
-            </Text>
+
+            {session.viewModel ? (
+              <FlashcardReview
+                visible
+                presentation="container"
+                cardKey={session.cardKey}
+                card={session.viewModel}
+                strings={strings.review}
+                onRate={session.handleRate}
+                onFlip={session.handleFlip}
+              />
+            ) : null}
           </View>
         )}
       </View>
-
-      {session.viewModel ? (
-        <FlashcardReview
-          visible
-          cardKey={session.cardKey}
-          card={session.viewModel}
-          strings={strings.review}
-          onRate={session.handleRate}
-          onClose={() => router.back()}
-          onFlip={session.handleFlip}
-        />
-      ) : null}
     </SafeAreaView>
   );
 }

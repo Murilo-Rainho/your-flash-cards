@@ -84,9 +84,13 @@ export type FlashcardViewModel = {
   answer: ReviewAnswerBehavior;
 };
 
+export type FlashcardReviewPresentation = 'modal' | 'container';
+
 export type FlashcardReviewProps = {
-  /** Controla o Modal de overlay. */
+  /** Controla se o card está visível/renderizado. */
   visible: boolean;
+  /** `modal` preserva o preview flutuante; `container` embute o card na tela atual. */
+  presentation?: FlashcardReviewPresentation;
   /**
    * Identidade do card exibido. Quando muda (avanço de card na sessão), reseta o estado de
    * flip/resposta e dispara a animação de entrada. Opcional: o modo "Testar" não precisa.
@@ -99,7 +103,7 @@ export type FlashcardReviewProps = {
    * em "Testar" (criação) apenas fecha; na revisão real agenda + grava estatística.
    */
   onRate: (rating: ReviewRating) => void;
-  /** Fechar o overlay (botão fechar / back do Android). */
+  /** Fechar o preview/modal (botão fechar / back do Android). */
   onClose?: () => void;
   /** Notifica que o card foi virado (telemetria/áudio do verso). */
   onFlip?: () => void;

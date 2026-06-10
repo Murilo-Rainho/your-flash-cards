@@ -3,8 +3,8 @@ import { Controller, useForm } from 'react-hook-form';
 import { Text } from 'react-native';
 import { useRouter } from 'expo-router';
 
+import { Header } from '@/components/common/Header';
 import { PrimaryButton } from '@/components/common/PrimaryButton';
-import { ScreenHeader } from '@/components/common/ScreenHeader';
 import { FormScreen } from '@/components/forms/FormScreen';
 import { TextAreaField } from '@/components/forms/TextAreaField';
 import { TextField } from '@/components/forms/TextField';
@@ -64,7 +64,7 @@ export function NewCollectionScreen() {
 
   return (
     <FormScreen>
-      <ScreenHeader title={strings.collections.newTitle} onBack={goBack} />
+      <Header variant="page" title={strings.collections.newTitle} onBack={goBack} />
 
       <Controller
         control={control}

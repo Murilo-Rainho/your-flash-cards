@@ -2,7 +2,7 @@ import { FlatList, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
-import { ScreenHeader } from '@/components/common/ScreenHeader';
+import { Header } from '@/components/common/Header';
 import { StateCard } from '@/components/common/StateCard';
 import { REVIEW_RATINGS, type ReviewRating } from '@/constants/reviewRatings';
 import type { DailyReviewedCard } from '@/domain/repositories/ReviewRepository';
@@ -81,7 +81,8 @@ export function TodayReviewsScreen() {
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.background }}>
       <View className="flex-1 gap-6 px-4 pt-2">
-        <ScreenHeader
+        <Header
+          variant="page"
           title={strings.review.today.title}
           subtitle={strings.review.today.subtitle}
           onBack={() => router.back()}

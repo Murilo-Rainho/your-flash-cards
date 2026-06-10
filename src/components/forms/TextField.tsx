@@ -27,7 +27,7 @@ export function TextField({
   onChangeText,
   onBlur,
 }: TextFieldProps) {
-  const { colors } = useTheme();
+  const { colors, shadows } = useTheme();
   const [focused, setFocused] = useState(false);
   const borderColor = error ? colors.danger : focused ? colors.primary : colors.border;
   const backgroundColor = focused ? withAlpha(colors.primary, 0.06) : colors.surface;
@@ -56,6 +56,7 @@ export function TextField({
           backgroundColor,
           color: colors.textPrimary,
           opacity: disabled ? 0.5 : 1,
+          ...shadows.sm,
         }}
         className="rounded-2xl border px-4 py-3 text-base"
       />

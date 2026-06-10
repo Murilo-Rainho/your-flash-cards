@@ -20,7 +20,9 @@ export const icons = {
   settings: 'settings',
   menu: 'menu', // hamburger
   back: 'arrow-left',
+  close: 'x', // ✕ (fechar modal/folha)
   chevron: 'chevron-right',
+  play: 'play', // ▶ (ouvir áudio/gravação)
   greeting: 'smile',
   add: 'plus',
   edit: 'edit-2', // ✏️

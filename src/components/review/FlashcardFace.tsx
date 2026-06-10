@@ -1,5 +1,6 @@
 import { Image, Pressable, Text, View } from 'react-native';
 
+import { Icon } from '@/components/common/Icon';
 import { useTheme } from '@/theme/useTheme';
 
 import type { CardFaceViewModel } from './types';
@@ -47,7 +48,7 @@ export function FlashcardFace({
           style={{ borderColor: colors.border, backgroundColor: colors.surface }}
           className="flex-row items-center gap-2 rounded-xl border px-4 py-3 active:opacity-90"
         >
-          <Text className="text-base">▶</Text>
+          <Icon name="play" size={16} tone="textPrimary" />
           <Text style={{ color: colors.textPrimary }} className="text-base font-medium">
             {face.audio.label}
           </Text>

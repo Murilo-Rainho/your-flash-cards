@@ -3,6 +3,7 @@ export type {
   AudioAffordance,
   CardFaceViewModel,
   CheckedAnswer,
+  FlashcardReviewPresentation,
   FlashcardReviewProps,
   FlashcardViewModel,
   ReviewAnswerBehavior,
