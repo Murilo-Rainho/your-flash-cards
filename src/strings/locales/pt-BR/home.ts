@@ -1,8 +1,8 @@
 export const home = {
   greeting: {
-    morning: 'Bom dia 👋',
-    afternoon: 'Boa tarde 👋',
-    evening: 'Boa noite 👋',
+    morning: 'Bom dia',
+    afternoon: 'Boa tarde',
+    evening: 'Boa noite',
   },
   progressTitle: 'Progresso Hoje',
   collectionsTitle: 'Coleções',
@@ -55,7 +55,7 @@ export const home = {
     dueCardSingular: 'card vencido',
     dueCardPlural: 'cards vencidos',
     doneTitle: 'Tudo revisado por hoje',
-    doneSubtitle: 'Volte amanhã para manter o seu streak 🔥',
+    doneSubtitle: 'Volte amanhã para manter o seu streak',
     doneA11y: 'Tudo revisado por hoje',
   },
 } as const;

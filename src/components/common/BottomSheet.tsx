@@ -45,7 +45,7 @@ export function BottomSheet({
         {/* Folha: Pressable que não propaga o toque para não fechar ao tocar dentro. */}
         <Pressable onPress={() => undefined}>
           <View
-            style={{ backgroundColor: colors.background, ...shadows.lg }}
+            style={{ backgroundColor: colors.surface, ...shadows.lg }}
             className="rounded-2xl p-2 pt-3"
           >
             <View

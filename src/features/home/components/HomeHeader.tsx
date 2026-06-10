@@ -1,5 +1,6 @@
 import { Text, View } from 'react-native';
 
+import { Icon } from '@/components/common/Icon';
 import { useStrings } from '@/features/settings/providers/PreferencesProvider';
 import { useTheme } from '@/theme/useTheme';
 
@@ -22,9 +23,12 @@ export function HomeHeader({ greeting, dueCards }: HomeHeaderProps) {
 
   return (
     <View className="gap-1">
-      <Text style={{ color: colors.textPrimary }} className="text-3xl font-bold">
-        {greeting}
-      </Text>
+      <View className="flex-row items-center gap-2">
+        <Text style={{ color: colors.textPrimary, flexShrink: 1 }} className="text-3xl font-bold">
+          {greeting}
+        </Text>
+        <Icon name="greeting" size={28} tone="textPrimary" />
+      </View>
       <Text style={{ color: colors.textSecondary }} className="text-sm">
         {subtitle}
       </Text>

@@ -5,7 +5,6 @@ import { Badge } from '@/components/common/Badge';
 import { BottomSheet } from '@/components/common/BottomSheet';
 import { FieldError } from '@/components/common/FieldError';
 import { Icon } from '@/components/common/Icon';
-import { withAlpha } from '@/theme/createShadows';
 import { useTheme } from '@/theme/useTheme';
 
 export type SelectOption = {
@@ -41,7 +40,7 @@ export function SelectField({
 }: SelectFieldProps) {
   const [open, setOpen] = useState(false);
   const [focused, setFocused] = useState(false);
-  const { colors } = useTheme();
+  const { colors, shadows } = useTheme();
   const selectedOption = options.find((option) => option.value === value);
   const hasValue = Boolean(selectedOption);
   const borderColor = error ? colors.danger : focused || hasValue ? colors.primary : colors.border;
@@ -64,8 +63,9 @@ export function SelectField({
         onBlur={() => setFocused(false)}
         style={{
           borderColor,
-          backgroundColor: hasValue ? withAlpha(colors.primary, 0.08) : colors.surface,
+          backgroundColor: colors.surface,
           opacity: disabled ? 0.5 : 1,
+          ...shadows.sm,
         }}
         className="flex-row items-center gap-3 rounded-2xl border px-4 py-3 active:opacity-90"
       >
@@ -106,9 +106,10 @@ export function SelectField({
                 }}
                 style={{
                   borderColor: selected ? colors.primary : colors.border,
-                  backgroundColor: selected ? withAlpha(colors.primary, 0.12) : colors.surface,
+                  backgroundColor: colors.surface,
+                  ...shadows.sm,
                 }}
-                className="rounded-xl border p-3 active:opacity-90"
+                className="rounded-2xl border p-3 active:opacity-90"
               >
                 <View className="flex-row items-center gap-3">
                   <View className="min-w-0 flex-1">

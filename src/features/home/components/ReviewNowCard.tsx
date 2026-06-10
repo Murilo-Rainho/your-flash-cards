@@ -34,9 +34,17 @@ export function ReviewNowCard({ state, onPress }: ReviewNowCardProps) {
         <Text style={{ color: colors.background }} className="text-2xl font-bold">
           {state.title}
         </Text>
-        <Text style={{ color: colors.background }} className="mt-1 text-sm font-medium opacity-90">
-          {state.subtitle}
-        </Text>
+        <View className="mt-1 flex-row items-center gap-1">
+          <Text
+            style={{ color: colors.background, flexShrink: 1 }}
+            className="text-sm font-medium opacity-90"
+          >
+            {state.subtitle}
+          </Text>
+          {state.action === 'done' ? (
+            <Icon name="streak" size={14} color={colors.background} />
+          ) : null}
+        </View>
       </View>
       <Icon name="chevron" size={26} color={colors.background} />
     </Pressable>

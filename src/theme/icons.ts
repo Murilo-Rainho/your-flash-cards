@@ -21,6 +21,7 @@ export const icons = {
   menu: 'menu', // hamburger
   back: 'arrow-left',
   chevron: 'chevron-right',
+  greeting: 'smile',
   add: 'plus',
   edit: 'edit-2', // ✏️
   delete: 'trash-2', // 🗑️

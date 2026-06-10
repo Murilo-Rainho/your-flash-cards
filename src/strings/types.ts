@@ -390,6 +390,12 @@ export type StringCatalog = {
   tags: {
     title: string;
     createPlaceholder: string;
+    createA11y: string;
+    selectA11yPrefix: string;
+    noTagsHint: string;
+    duplicateHint: string;
+    tooLongHint: string;
+    limitHint: string;
     createError: string;
     newTitle: string;
     editTitle: string;

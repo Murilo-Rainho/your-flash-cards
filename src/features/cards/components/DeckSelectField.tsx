@@ -1,12 +1,16 @@
 import { useState } from 'react';
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
+import { Badge } from '@/components/common/Badge';
+import { BottomSheet } from '@/components/common/BottomSheet';
 import { FieldError } from '@/components/common/FieldError';
+import { Icon } from '@/components/common/Icon';
 import { PrimaryButton } from '@/components/common/PrimaryButton';
 import { SecondaryButton } from '@/components/common/SecondaryButton';
 import type { SelectOption } from '@/components/forms/SelectField';
 import { TextAreaField } from '@/components/forms/TextAreaField';
 import { TextField } from '@/components/forms/TextField';
+import { withAlpha } from '@/theme/createShadows';
 import { useTheme } from '@/theme/useTheme';
 
 type DeckSelectFieldProps = {
@@ -68,11 +72,15 @@ export function DeckSelectField({
   onCreateFormDismiss,
 }: DeckSelectFieldProps) {
   const [open, setOpen] = useState(false);
+  const [focused, setFocused] = useState(false);
   const [mode, setMode] = useState<'list' | 'create'>('list');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const { colors, shadows } = useTheme();
   const selectedOption = options.find((option) => option.value === value);
+  const hasValue = Boolean(selectedOption);
+  const borderColor = error ? colors.danger : focused || hasValue ? colors.primary : colors.border;
+  const valueColor = hasValue ? colors.textPrimary : colors.textSecondary;
 
   const resetCreateForm = () => {
     setMode('list');
@@ -101,177 +109,168 @@ export function DeckSelectField({
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={label}
-        accessibilityState={{ disabled }}
+        accessibilityState={{ disabled, expanded: open }}
         disabled={disabled}
         onPress={() => setOpen(true)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         style={{
-          borderColor: colors.border,
+          borderColor,
           backgroundColor: colors.surface,
           opacity: disabled ? 0.5 : 1,
+          ...shadows.sm,
         }}
-        className="rounded-xl border px-4 py-3 active:opacity-90"
+        className="flex-row items-center gap-3 rounded-2xl border px-4 py-3 active:opacity-90"
       >
-        <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
-          {selectedOption?.label ?? placeholder}
-        </Text>
-        {selectedOption?.description ? (
-          <Text style={{ color: colors.textSecondary }} className="mt-1 text-sm">
-            {selectedOption.description}
+        <View className="min-w-0 flex-1">
+          <Text style={{ color: valueColor }} className="text-base font-semibold" numberOfLines={1}>
+            {selectedOption?.label ?? placeholder}
           </Text>
-        ) : null}
+          {selectedOption?.description ? (
+            <Text style={{ color: colors.textSecondary }} className="mt-1 text-sm">
+              {selectedOption.description}
+            </Text>
+          ) : null}
+        </View>
+        <Icon name="chevron" size={22} tone={disabled ? 'textSecondary' : 'primary'} />
       </Pressable>
       <FieldError message={error} />
 
-      <Modal visible={open} transparent animationType="fade" onRequestClose={closeModal}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Fechar ${label}`}
-          onPress={closeModal}
-          style={{ backgroundColor: `${colors.textPrimary}66` }}
-          className="flex-1 justify-end p-4"
-        >
-          <Pressable onPress={() => undefined}>
-            <View
-              style={{ backgroundColor: colors.background, ...shadows.lg }}
-              className="rounded-xl p-2"
-            >
-              <Text style={{ color: colors.textPrimary }} className="px-3 py-2 text-base font-bold">
-                {label}
+      <BottomSheet
+        visible={open}
+        onClose={closeModal}
+        closeAccessibilityLabel={label}
+        title={label}
+        maxContentHeight={mode === 'create' ? 520 : 420}
+      >
+        {mode === 'list' ? (
+          <View className="gap-2">
+            {options.length === 0 && emptyHint ? (
+              <Text style={{ color: colors.textSecondary }} className="px-1 py-2 text-sm">
+                {emptyHint}
               </Text>
+            ) : null}
+            {options.map((option) => {
+              const selected = option.value === value;
 
-              {mode === 'list' ? (
-                <>
-                  <ScrollView style={{ maxHeight: 360 }} keyboardShouldPersistTaps="handled">
-                    {options.length === 0 && emptyHint ? (
-                      <Text style={{ color: colors.textSecondary }} className="px-3 py-2 text-sm">
-                        {emptyHint}
-                      </Text>
-                    ) : null}
-                    {options.map((option) => {
-                      const selected = option.value === value;
-
-                      return (
-                        <Pressable
-                          key={option.value}
-                          accessibilityRole="button"
-                          accessibilityLabel={option.label}
-                          accessibilityState={{ selected }}
-                          onPress={() => {
-                            onChange(option.value);
-                            closeModal();
-                          }}
-                          style={{ backgroundColor: selected ? colors.surface : colors.background }}
-                          className="rounded-xl p-3 active:opacity-90"
-                        >
-                          <View className="flex-row items-center gap-2">
-                            <Text
-                              style={{ color: colors.textPrimary }}
-                              className="flex-1 text-base font-semibold"
-                            >
-                              {option.label}
-                            </Text>
-                            {option.badge ? (
-                              <View
-                                style={{ backgroundColor: colors.secondary }}
-                                className="rounded-lg px-2 py-1"
-                              >
-                                <Text
-                                  style={{ color: colors.background }}
-                                  className="text-xs font-bold"
-                                >
-                                  {option.badge}
-                                </Text>
-                              </View>
-                            ) : null}
-                          </View>
-                          {option.description ? (
-                            <Text style={{ color: colors.textSecondary }} className="mt-1 text-sm">
-                              {option.description}
-                            </Text>
-                          ) : null}
-                        </Pressable>
-                      );
-                    })}
-                  </ScrollView>
-
-                  <View className="gap-2 px-2 pt-2">
-                    <PrimaryButton
-                      label={createDeckLabel}
-                      accessibilityLabel={createDeckA11y}
-                      disabled={isCreatingDeck}
-                      onPress={() => setMode('create')}
-                    />
-                  </View>
-                </>
-              ) : (
-                <ScrollView style={{ maxHeight: 480 }} keyboardShouldPersistTaps="handled">
-                  <View className="gap-4 px-2 pb-2">
-                    <View
-                      style={{ borderColor: colors.border, backgroundColor: colors.surface }}
-                      className="gap-1 rounded-xl border p-4"
-                    >
-                      <Text
-                        style={{ color: colors.textSecondary }}
-                        className="text-sm font-semibold"
-                      >
-                        {collectionLabel}
-                      </Text>
+              return (
+                <Pressable
+                  key={option.value}
+                  accessibilityRole="button"
+                  accessibilityLabel={option.label}
+                  accessibilityState={{ selected }}
+                  onPress={() => {
+                    onChange(option.value);
+                    closeModal();
+                  }}
+                  style={{
+                    borderColor: selected ? colors.primary : colors.border,
+                    backgroundColor: colors.surface,
+                    ...shadows.sm,
+                  }}
+                  className="rounded-2xl border p-3 active:opacity-90"
+                >
+                  <View className="flex-row items-center gap-3">
+                    <View className="min-w-0 flex-1">
                       <Text
                         style={{ color: colors.textPrimary }}
                         className="text-base font-semibold"
+                        numberOfLines={1}
                       >
-                        {collectionName}
+                        {option.label}
                       </Text>
+                      {option.description ? (
+                        <Text style={{ color: colors.textSecondary }} className="mt-1 text-sm">
+                          {option.description}
+                        </Text>
+                      ) : null}
                     </View>
-
-                    <TextField
-                      label={nameLabel}
-                      value={name}
-                      placeholder={namePlaceholder}
-                      error={createDeckErrors?.name}
-                      disabled={isCreatingDeck}
-                      onChangeText={setName}
-                    />
-
-                    <TextAreaField
-                      label={descriptionLabel}
-                      value={description}
-                      placeholder={descriptionPlaceholder}
-                      error={createDeckErrors?.description}
-                      disabled={isCreatingDeck}
-                      minHeight={96}
-                      onChangeText={setDescription}
-                    />
-
-                    {createDeckErrors?.form ? (
-                      <Text style={{ color: colors.danger }} className="text-sm font-medium">
-                        {createDeckErrors.form}
-                      </Text>
-                    ) : null}
-
-                    <View className="gap-2">
-                      <PrimaryButton
-                        label={saveDeckLabel}
-                        accessibilityLabel={saveDeckA11y}
-                        disabled={isCreatingDeck}
-                        onPress={() => {
-                          void handleCreateDeck();
-                        }}
-                      />
-                      <SecondaryButton
-                        label={backLabel}
-                        accessibilityLabel={backA11y}
-                        disabled={isCreatingDeck}
-                        onPress={resetCreateForm}
-                      />
-                    </View>
+                    {option.badge ? <Badge label={option.badge} tone="secondary" /> : null}
+                    {selected ? <Icon name="done" size={20} tone="primary" /> : null}
                   </View>
-                </ScrollView>
-              )}
+                </Pressable>
+              );
+            })}
+
+            <View className="pt-2">
+              <PrimaryButton
+                label={createDeckLabel}
+                accessibilityLabel={createDeckA11y}
+                disabled={isCreatingDeck}
+                onPress={() => setMode('create')}
+              />
             </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
+          </View>
+        ) : (
+          <View className="gap-4">
+            <View
+              style={{ borderColor: colors.border, backgroundColor: colors.surface, ...shadows.sm }}
+              className="flex-row items-center gap-3 rounded-2xl border p-4"
+            >
+              <View
+                style={{ backgroundColor: withAlpha(colors.primary, 0.16) }}
+                className="h-11 w-11 items-center justify-center rounded-2xl"
+              >
+                <Icon name="collection" size={22} tone="primary" />
+              </View>
+              <View className="min-w-0 flex-1">
+                <Text style={{ color: colors.textSecondary }} className="text-sm font-semibold">
+                  {collectionLabel}
+                </Text>
+                <Text
+                  style={{ color: colors.textPrimary }}
+                  className="text-base font-semibold"
+                  numberOfLines={1}
+                >
+                  {collectionName}
+                </Text>
+              </View>
+            </View>
+
+            <TextField
+              label={nameLabel}
+              value={name}
+              placeholder={namePlaceholder}
+              error={createDeckErrors?.name}
+              disabled={isCreatingDeck}
+              onChangeText={setName}
+            />
+
+            <TextAreaField
+              label={descriptionLabel}
+              value={description}
+              placeholder={descriptionPlaceholder}
+              error={createDeckErrors?.description}
+              disabled={isCreatingDeck}
+              minHeight={96}
+              onChangeText={setDescription}
+            />
+
+            {createDeckErrors?.form ? (
+              <Text style={{ color: colors.danger }} className="text-sm font-medium">
+                {createDeckErrors.form}
+              </Text>
+            ) : null}
+
+            <View className="gap-2">
+              <PrimaryButton
+                label={saveDeckLabel}
+                accessibilityLabel={saveDeckA11y}
+                disabled={isCreatingDeck}
+                onPress={() => {
+                  void handleCreateDeck();
+                }}
+              />
+              <SecondaryButton
+                label={backLabel}
+                accessibilityLabel={backA11y}
+                disabled={isCreatingDeck}
+                onPress={resetCreateForm}
+              />
+            </View>
+          </View>
+        )}
+      </BottomSheet>
     </View>
   );
 }

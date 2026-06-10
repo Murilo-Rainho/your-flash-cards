@@ -1,8 +1,9 @@
 import { Alert, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
+import { Header } from '@/components/common/Header';
+import { Icon } from '@/components/common/Icon';
 import { PrimaryButton } from '@/components/common/PrimaryButton';
-import { ScreenHeader } from '@/components/common/ScreenHeader';
 import { SecondaryButton } from '@/components/common/SecondaryButton';
 import { StateCard } from '@/components/common/StateCard';
 import { FormScreen } from '@/components/forms/FormScreen';
@@ -11,6 +12,7 @@ import { FlashcardReview } from '@/components/review';
 import type { CardAggregate } from '@/domain/repositories/CardRepository';
 import { useStrings } from '@/features/settings/providers/PreferencesProvider';
 import { useGoBack } from '@/hooks/useGoBack';
+import { withAlpha } from '@/theme/createShadows';
 import { useTheme } from '@/theme/useTheme';
 
 import { CardTypeFields } from '../components/CardTypeFields';
@@ -60,7 +62,7 @@ export function CardDetailScreen() {
 
   return (
     <FormScreen>
-      <ScreenHeader title={strings.cards.detailTitle} onBack={goBack} />
+      <Header variant="page" title={strings.cards.detailTitle} onBack={goBack} />
       {renderBody()}
     </FormScreen>
   );
@@ -69,7 +71,7 @@ export function CardDetailScreen() {
 function CardDetailForm({ aggregate }: { aggregate: CardAggregate }) {
   const router = useRouter();
   const strings = useStrings();
-  const { colors } = useTheme();
+  const { colors, shadows } = useTheme();
 
   const form = useEditCardForm({
     aggregate,
@@ -98,17 +100,27 @@ function CardDetailForm({ aggregate }: { aggregate: CardAggregate }) {
   return (
     <>
       <View
-        style={{ borderColor: colors.border, backgroundColor: colors.surface }}
-        className="flex-row items-center justify-between gap-3 rounded-xl border p-4"
+        style={{ borderColor: colors.border, backgroundColor: colors.surface, ...shadows.sm }}
+        className="flex-row items-center gap-3 rounded-2xl border p-4"
       >
-        <View className="flex-1">
+        <View
+          style={{ backgroundColor: withAlpha(colors.primary, 0.16) }}
+          className="h-11 w-11 items-center justify-center rounded-2xl"
+        >
+          <Icon name="card" size={22} tone="primary" />
+        </View>
+        <View className="min-w-0 flex-1 gap-1">
           <Text style={{ color: colors.textSecondary }} className="text-sm font-semibold">
             {strings.cards.typeLabel}
           </Text>
-          <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
+          <Text
+            style={{ color: colors.textPrimary }}
+            className="text-base font-bold"
+            numberOfLines={1}
+          >
             {form.selectedTypeLabel}
           </Text>
-          <Text style={{ color: colors.textSecondary }} className="mt-1 text-xs">
+          <Text style={{ color: colors.textSecondary }} className="text-xs">
             {strings.cards.typeLockedHint}
           </Text>
         </View>
@@ -120,6 +132,7 @@ function CardDetailForm({ aggregate }: { aggregate: CardAggregate }) {
         placeholder={form.decksLoading ? strings.cards.loadingDecks : strings.cards.deckPlaceholder}
         disabled={form.isSaveDisabled || form.decksLoading}
         options={form.deckOptions}
+        error={form.errors.deckId?.message}
         onChange={form.onDeckChange}
       />
 
@@ -163,13 +176,11 @@ function CardDetailForm({ aggregate }: { aggregate: CardAggregate }) {
 
       <OptionalCardFields
         collectionId={form.collectionId ?? ''}
-        expanded={form.showOptionalFields}
         tags={form.tags}
         notes={form.notes}
         disabled={form.isSaving}
         tagsError={form.errors.tags?.message}
         notesError={form.errors.notes?.message}
-        onToggle={form.onToggleOptional}
         onChangeTags={form.onChangeTags}
         onChangeNotes={form.onChangeNotes}
       />
@@ -180,26 +191,38 @@ function CardDetailForm({ aggregate }: { aggregate: CardAggregate }) {
         </Text>
       ) : null}
 
-      <SecondaryButton
-        label={strings.cards.testLabel}
-        accessibilityLabel={strings.cards.testA11y}
-        disabled={form.isSaving || form.isRecording}
-        onPress={form.testReview.open}
-      />
+      <View className="flex-row gap-2">
+        <SecondaryButton
+          label={strings.cards.testLabel}
+          accessibilityLabel={strings.cards.testA11y}
+          disabled={form.isSaving || form.isRecording}
+          icon="review"
+          compact
+          className="flex-1"
+          onPress={form.testReview.open}
+        />
 
-      <PrimaryButton
-        label={form.isSaving ? strings.common.saving : strings.cards.saveEditLabel}
-        accessibilityLabel={strings.cards.saveEditA11y}
-        disabled={form.isSaveDisabled}
-        onPress={form.onSubmit}
-      />
+        <SecondaryButton
+          label={form.isDeleting ? strings.common.saving : strings.cards.deleteLabel}
+          accessibilityLabel={strings.cards.deleteA11y}
+          disabled={form.isSaving || form.isDeleting || form.isRecording}
+          icon="delete"
+          tone="danger"
+          compact
+          className="flex-1"
+          onPress={confirmDelete}
+        />
 
-      <SecondaryButton
-        label={form.isDeleting ? strings.common.saving : strings.cards.deleteLabel}
-        accessibilityLabel={strings.cards.deleteA11y}
-        disabled={form.isSaving || form.isDeleting || form.isRecording}
-        onPress={confirmDelete}
-      />
+        <PrimaryButton
+          label={form.isSaving ? strings.common.saving : strings.cards.saveEditLabel}
+          accessibilityLabel={strings.cards.saveEditA11y}
+          disabled={form.isSaveDisabled}
+          icon="done"
+          compact
+          className="flex-1"
+          onPress={form.onSubmit}
+        />
+      </View>
 
       {form.testReview.isOpen && form.testReview.viewModel ? (
         <FlashcardReview

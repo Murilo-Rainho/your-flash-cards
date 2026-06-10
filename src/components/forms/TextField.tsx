@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Text, TextInput, type TextInputProps, View } from 'react-native';
 
 import { FieldError } from '@/components/common/FieldError';
+import { withAlpha } from '@/theme/createShadows';
 import { useTheme } from '@/theme/useTheme';
 
 type TextFieldProps = {
@@ -26,6 +28,9 @@ export function TextField({
   onBlur,
 }: TextFieldProps) {
   const { colors } = useTheme();
+  const [focused, setFocused] = useState(false);
+  const borderColor = error ? colors.danger : focused ? colors.primary : colors.border;
+  const backgroundColor = focused ? withAlpha(colors.primary, 0.06) : colors.surface;
 
   return (
     <View className="gap-2">
@@ -35,17 +40,24 @@ export function TextField({
       <TextInput
         value={value}
         onChangeText={onChangeText}
-        onBlur={onBlur}
+        onFocus={() => setFocused(true)}
+        onBlur={() => {
+          setFocused(false);
+          onBlur?.();
+        }}
         placeholder={placeholder}
         placeholderTextColor={colors.textSecondary}
         editable={!disabled}
+        accessibilityLabel={label}
+        accessibilityState={{ disabled }}
         autoCapitalize={autoCapitalize}
         style={{
-          borderColor: colors.border,
-          backgroundColor: colors.surface,
+          borderColor,
+          backgroundColor,
           color: colors.textPrimary,
+          opacity: disabled ? 0.5 : 1,
         }}
-        className="rounded-xl border px-4 py-3 text-base"
+        className="rounded-2xl border px-4 py-3 text-base"
       />
       <FieldError message={error} />
     </View>

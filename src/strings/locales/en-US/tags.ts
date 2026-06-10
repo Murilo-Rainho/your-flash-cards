@@ -1,6 +1,12 @@
 export const tags = {
   title: 'Tags',
   createPlaceholder: 'Create new tag',
+  createA11y: 'Create tag',
+  selectA11yPrefix: 'Tag',
+  noTagsHint: 'No tags yet. Create the first one below.',
+  duplicateHint: 'This tag is already in the list.',
+  tooLongHint: 'Use a shorter tag name.',
+  limitHint: 'Tag limit reached for this card.',
   createError: 'Could not create the tag. Try again.',
   newTitle: 'New tag',
   editTitle: 'Edit tag',

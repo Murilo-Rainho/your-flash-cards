@@ -17,12 +17,12 @@ type StateCardProps = {
 
 /** Card de estado (vazio/erro) com ação opcional (ex.: "Tentar novamente"/"Criar coleção"). */
 export function StateCard({ title, description, action }: StateCardProps) {
-  const { colors } = useTheme();
+  const { colors, shadows } = useTheme();
 
   return (
     <View
-      style={{ borderColor: colors.border, backgroundColor: colors.surface }}
-      className="gap-3 rounded-xl border p-4"
+      style={{ borderColor: colors.border, backgroundColor: colors.surface, ...shadows.sm }}
+      className="gap-3 rounded-2xl border p-4"
     >
       <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
         {title}
