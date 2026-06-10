@@ -419,6 +419,10 @@ export type StringCatalog = {
     paletteDefault: string;
     paletteOcean: string;
     paletteForest: string;
+    paletteSunset: string;
+    paletteSakura: string;
+    paletteEmerald: string;
+    paletteRoyal: string;
     paletteMidnight: string;
     paletteCarbon: string;
     saved: string;

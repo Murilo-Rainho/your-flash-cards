@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Modal, Pressable, ScrollView, Switch, Text, View } from 'react-native';
+import { Switch, Text, View } from 'react-native';
 
+import { BottomSheet } from '@/components/common/BottomSheet';
+import { Icon } from '@/components/common/Icon';
 import { PrimaryButton } from '@/components/common/PrimaryButton';
 import { SecondaryButton } from '@/components/common/SecondaryButton';
 import { TextAreaField } from '@/components/forms/TextAreaField';
 import { TextField } from '@/components/forms/TextField';
 import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+import { withAlpha } from '@/theme/createShadows';
 import { useTheme } from '@/theme/useTheme';
 
 export type DeckFormValues = {
@@ -54,7 +57,7 @@ export function DeckFormModal({
   onClose,
 }: DeckFormModalProps) {
   const strings = useStrings();
-  const { colors, shadows } = useTheme();
+  const { colors } = useTheme();
   const [values, setValues] = useState<DeckFormValues>(initialValues ?? emptyValues);
 
   useEffect(() => {
@@ -68,104 +71,99 @@ export function DeckFormModal({
   const saveA11y = mode === 'create' ? strings.decks.saveA11y : strings.decks.saveEditA11y;
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`${strings.common.cancel} ${title}`}
-        onPress={onClose}
-        style={{ backgroundColor: `${colors.textPrimary}66` }}
-        className="flex-1 justify-end p-4"
+    <BottomSheet
+      visible={visible}
+      onClose={onClose}
+      title={title}
+      maxContentHeight={520}
+      closeAccessibilityLabel={`${strings.common.cancel} ${title}`}
+    >
+      <View
+        style={{ borderColor: colors.border, backgroundColor: colors.surface }}
+        className="flex-row items-center gap-3 rounded-2xl border p-4"
       >
-        <Pressable onPress={() => undefined}>
-          <View
-            style={{ backgroundColor: colors.background, ...shadows.lg }}
-            className="rounded-xl p-2"
+        <View
+          style={{ backgroundColor: withAlpha(colors.primary, 0.16) }}
+          className="h-11 w-11 items-center justify-center rounded-2xl"
+        >
+          <Icon name="collection" size={22} tone="primary" />
+        </View>
+        <View className="min-w-0 flex-1">
+          <Text style={{ color: colors.textSecondary }} className="text-sm font-semibold">
+            {strings.decks.collectionLabel}
+          </Text>
+          <Text
+            style={{ color: colors.textPrimary }}
+            className="text-base font-semibold"
+            numberOfLines={1}
           >
-            <Text style={{ color: colors.textPrimary }} className="px-3 py-2 text-base font-bold">
-              {title}
-            </Text>
+            {collectionName}
+          </Text>
+        </View>
+      </View>
 
-            <ScrollView style={{ maxHeight: 520 }} keyboardShouldPersistTaps="handled">
-              <View className="gap-4 px-2 pb-2">
-                <View
-                  style={{ borderColor: colors.border, backgroundColor: colors.surface }}
-                  className="gap-1 rounded-xl border p-4"
-                >
-                  <Text style={{ color: colors.textSecondary }} className="text-sm font-semibold">
-                    {strings.decks.collectionLabel}
-                  </Text>
-                  <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
-                    {collectionName}
-                  </Text>
-                </View>
+      <TextField
+        label={strings.decks.nameLabel}
+        value={values.name}
+        placeholder={strings.decks.namePlaceholder}
+        error={fieldErrors?.name}
+        disabled={isSaving}
+        onChangeText={(name) => setValues((prev) => ({ ...prev, name }))}
+      />
 
-                <TextField
-                  label={strings.decks.nameLabel}
-                  value={values.name}
-                  placeholder={strings.decks.namePlaceholder}
-                  error={fieldErrors?.name}
-                  disabled={isSaving}
-                  onChangeText={(name) => setValues((prev) => ({ ...prev, name }))}
-                />
+      <TextAreaField
+        label={strings.decks.descriptionLabel}
+        value={values.description}
+        placeholder={strings.decks.descriptionPlaceholder}
+        error={fieldErrors?.description}
+        disabled={isSaving}
+        minHeight={96}
+        onChangeText={(description) => setValues((prev) => ({ ...prev, description }))}
+      />
 
-                <TextAreaField
-                  label={strings.decks.descriptionLabel}
-                  value={values.description}
-                  placeholder={strings.decks.descriptionPlaceholder}
-                  error={fieldErrors?.description}
-                  disabled={isSaving}
-                  minHeight={96}
-                  onChangeText={(description) => setValues((prev) => ({ ...prev, description }))}
-                />
+      <View
+        style={{ borderColor: colors.border, backgroundColor: colors.surface }}
+        className="flex-row items-center justify-between gap-4 rounded-2xl border p-4"
+      >
+        <View className="flex-1">
+          <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
+            {strings.decks.reverseCardsLabel}
+          </Text>
+          <Text style={{ color: colors.textSecondary }} className="mt-1 text-sm">
+            {strings.decks.reverseCardsHint}
+          </Text>
+        </View>
+        <Switch
+          value={values.autoGenerateReverseCards}
+          disabled={isSaving}
+          onValueChange={(autoGenerateReverseCards) =>
+            setValues((prev) => ({ ...prev, autoGenerateReverseCards }))
+          }
+          trackColor={{ false: colors.border, true: colors.secondary }}
+          thumbColor={colors.background}
+        />
+      </View>
 
-                <View
-                  style={{ borderColor: colors.border, backgroundColor: colors.surface }}
-                  className="flex-row items-center justify-between gap-4 rounded-xl border p-4"
-                >
-                  <View className="flex-1">
-                    <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
-                      {strings.decks.reverseCardsLabel}
-                    </Text>
-                    <Text style={{ color: colors.textSecondary }} className="mt-1 text-sm">
-                      {strings.decks.reverseCardsHint}
-                    </Text>
-                  </View>
-                  <Switch
-                    value={values.autoGenerateReverseCards}
-                    disabled={isSaving}
-                    onValueChange={(autoGenerateReverseCards) =>
-                      setValues((prev) => ({ ...prev, autoGenerateReverseCards }))
-                    }
-                    trackColor={{ false: colors.border, true: colors.secondary }}
-                    thumbColor={colors.background}
-                  />
-                </View>
+      {formError ? (
+        <Text style={{ color: colors.danger }} className="text-sm font-medium">
+          {formError}
+        </Text>
+      ) : null}
 
-                {formError ? (
-                  <Text style={{ color: colors.danger }} className="text-sm font-medium">
-                    {formError}
-                  </Text>
-                ) : null}
-
-                <View className="gap-2">
-                  <PrimaryButton
-                    label={isSaving ? strings.common.saving : saveLabel}
-                    accessibilityLabel={saveA11y}
-                    disabled={isSaving}
-                    onPress={() => onSubmit(values)}
-                  />
-                  <SecondaryButton
-                    label={strings.common.cancel}
-                    accessibilityLabel={strings.common.cancel}
-                    disabled={isSaving}
-                    onPress={onClose}
-                  />
-                </View>
-              </View>
-            </ScrollView>
-          </View>
-        </Pressable>
-      </Pressable>
-    </Modal>
+      <View className="gap-2">
+        <PrimaryButton
+          label={isSaving ? strings.common.saving : saveLabel}
+          accessibilityLabel={saveA11y}
+          disabled={isSaving}
+          onPress={() => onSubmit(values)}
+        />
+        <SecondaryButton
+          label={strings.common.cancel}
+          accessibilityLabel={strings.common.cancel}
+          disabled={isSaving}
+          onPress={onClose}
+        />
+      </View>
+    </BottomSheet>
   );
 }

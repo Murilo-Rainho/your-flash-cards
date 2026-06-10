@@ -1,7 +1,11 @@
 import { useState } from 'react';
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
+import { Badge } from '@/components/common/Badge';
+import { BottomSheet } from '@/components/common/BottomSheet';
 import { FieldError } from '@/components/common/FieldError';
+import { Icon } from '@/components/common/Icon';
+import { withAlpha } from '@/theme/createShadows';
 import { useTheme } from '@/theme/useTheme';
 
 export type SelectOption = {
@@ -18,6 +22,8 @@ type SelectFieldProps = {
   options: SelectOption[];
   disabled?: boolean;
   error?: string;
+  showLabel?: boolean;
+  closeAccessibilityLabel?: string;
   onChange: (value: string) => void;
 };
 
@@ -29,103 +35,104 @@ export function SelectField({
   options,
   disabled = false,
   error,
+  showLabel = true,
+  closeAccessibilityLabel,
   onChange,
 }: SelectFieldProps) {
   const [open, setOpen] = useState(false);
-  const { colors, shadows } = useTheme();
+  const [focused, setFocused] = useState(false);
+  const { colors } = useTheme();
   const selectedOption = options.find((option) => option.value === value);
+  const hasValue = Boolean(selectedOption);
+  const borderColor = error ? colors.danger : focused || hasValue ? colors.primary : colors.border;
+  const valueColor = hasValue ? colors.textPrimary : colors.textSecondary;
 
   return (
     <View className="gap-2">
-      <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-        {label}
-      </Text>
+      {showLabel ? (
+        <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+          {label}
+        </Text>
+      ) : null}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={label}
-        accessibilityState={{ disabled }}
+        accessibilityState={{ disabled, expanded: open }}
         disabled={disabled}
         onPress={() => setOpen(true)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         style={{
-          borderColor: colors.border,
-          backgroundColor: colors.surface,
+          borderColor,
+          backgroundColor: hasValue ? withAlpha(colors.primary, 0.08) : colors.surface,
           opacity: disabled ? 0.5 : 1,
         }}
-        className="rounded-xl border px-4 py-3 active:opacity-90"
+        className="flex-row items-center gap-3 rounded-2xl border px-4 py-3 active:opacity-90"
       >
-        <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
-          {selectedOption?.label ?? placeholder}
-        </Text>
-        {selectedOption?.description ? (
-          <Text style={{ color: colors.textSecondary }} className="mt-1 text-sm">
-            {selectedOption.description}
+        <View className="min-w-0 flex-1">
+          <Text style={{ color: valueColor }} className="text-base font-semibold" numberOfLines={1}>
+            {selectedOption?.label ?? placeholder}
           </Text>
-        ) : null}
+          {selectedOption?.description ? (
+            <Text style={{ color: colors.textSecondary }} className="mt-1 text-sm">
+              {selectedOption.description}
+            </Text>
+          ) : null}
+        </View>
+        <Icon name="chevron" size={22} tone={disabled ? 'textSecondary' : 'primary'} />
       </Pressable>
       <FieldError message={error} />
 
-      <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Fechar ${label}`}
-          onPress={() => setOpen(false)}
-          style={{ backgroundColor: `${colors.textPrimary}66` }}
-          className="flex-1 justify-end p-4"
-        >
-          <View
-            style={{ backgroundColor: colors.background, ...shadows.lg }}
-            className="rounded-xl p-2"
-          >
-            <Text style={{ color: colors.textPrimary }} className="px-3 py-2 text-base font-bold">
-              {label}
-            </Text>
-            <ScrollView style={{ maxHeight: 420 }} keyboardShouldPersistTaps="handled">
-              {options.map((option) => {
-                const selected = option.value === value;
+      <BottomSheet
+        visible={open}
+        onClose={() => setOpen(false)}
+        closeAccessibilityLabel={closeAccessibilityLabel ?? label}
+        title={label}
+        maxContentHeight={420}
+      >
+        <View className="gap-1">
+          {options.map((option) => {
+            const selected = option.value === value;
 
-                return (
-                  <Pressable
-                    key={option.value}
-                    accessibilityRole="button"
-                    accessibilityLabel={option.label}
-                    accessibilityState={{ selected }}
-                    onPress={() => {
-                      onChange(option.value);
-                      setOpen(false);
-                    }}
-                    style={{ backgroundColor: selected ? colors.surface : colors.background }}
-                    className="rounded-xl p-3 active:opacity-90"
-                  >
-                    <View className="flex-row items-center gap-2">
-                      <Text
-                        style={{ color: colors.textPrimary }}
-                        className="flex-1 text-base font-semibold"
-                      >
-                        {option.label}
-                      </Text>
-                      {option.badge ? (
-                        <View
-                          style={{ backgroundColor: colors.secondary }}
-                          className="rounded-lg px-2 py-1"
-                        >
-                          <Text style={{ color: colors.background }} className="text-xs font-bold">
-                            {option.badge}
-                          </Text>
-                        </View>
-                      ) : null}
-                    </View>
+            return (
+              <Pressable
+                key={option.value}
+                accessibilityRole="button"
+                accessibilityLabel={option.label}
+                accessibilityState={{ selected }}
+                onPress={() => {
+                  onChange(option.value);
+                  setOpen(false);
+                }}
+                style={{
+                  borderColor: selected ? colors.primary : colors.border,
+                  backgroundColor: selected ? withAlpha(colors.primary, 0.12) : colors.surface,
+                }}
+                className="rounded-xl border p-3 active:opacity-90"
+              >
+                <View className="flex-row items-center gap-3">
+                  <View className="min-w-0 flex-1">
+                    <Text
+                      style={{ color: colors.textPrimary }}
+                      className="text-base font-semibold"
+                      numberOfLines={1}
+                    >
+                      {option.label}
+                    </Text>
                     {option.description ? (
                       <Text style={{ color: colors.textSecondary }} className="mt-1 text-sm">
                         {option.description}
                       </Text>
                     ) : null}
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-          </View>
-        </Pressable>
-      </Modal>
+                  </View>
+                  {option.badge ? <Badge label={option.badge} tone="secondary" /> : null}
+                  {selected ? <Icon name="done" size={20} tone="primary" /> : null}
+                </View>
+              </Pressable>
+            );
+          })}
+        </View>
+      </BottomSheet>
     </View>
   );
 }

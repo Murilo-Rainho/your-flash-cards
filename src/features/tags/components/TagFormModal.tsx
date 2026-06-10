@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
+import { BottomSheet } from '@/components/common/BottomSheet';
+import { Icon } from '@/components/common/Icon';
 import { PrimaryButton } from '@/components/common/PrimaryButton';
 import { SecondaryButton } from '@/components/common/SecondaryButton';
 import { TextField } from '@/components/forms/TextField';
 import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+import { withAlpha } from '@/theme/createShadows';
 import { useTheme } from '@/theme/useTheme';
 
 export type TagFormValues = {
@@ -43,7 +46,7 @@ export function TagFormModal({
   onClose,
 }: TagFormModalProps) {
   const strings = useStrings();
-  const { colors, shadows } = useTheme();
+  const { colors } = useTheme();
   const [values, setValues] = useState<TagFormValues>(initialValues ?? emptyValues);
 
   useEffect(() => {
@@ -57,72 +60,67 @@ export function TagFormModal({
   const saveA11y = mode === 'create' ? strings.tags.saveA11y : strings.tags.saveEditA11y;
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`${strings.common.cancel} ${title}`}
-        onPress={onClose}
-        style={{ backgroundColor: `${colors.textPrimary}66` }}
-        className="flex-1 justify-end p-4"
+    <BottomSheet
+      visible={visible}
+      onClose={onClose}
+      title={title}
+      maxContentHeight={360}
+      closeAccessibilityLabel={`${strings.common.cancel} ${title}`}
+    >
+      <View
+        style={{ borderColor: colors.border, backgroundColor: colors.surface }}
+        className="flex-row items-center gap-3 rounded-2xl border p-4"
       >
-        <Pressable onPress={() => undefined}>
-          <View
-            style={{ backgroundColor: colors.background, ...shadows.lg }}
-            className="rounded-xl p-2"
+        <View
+          style={{ backgroundColor: withAlpha(colors.primary, 0.16) }}
+          className="h-11 w-11 items-center justify-center rounded-2xl"
+        >
+          <Icon name="collection" size={22} tone="primary" />
+        </View>
+        <View className="min-w-0 flex-1">
+          <Text style={{ color: colors.textSecondary }} className="text-sm font-semibold">
+            {strings.tags.collectionLabel}
+          </Text>
+          <Text
+            style={{ color: colors.textPrimary }}
+            className="text-base font-semibold"
+            numberOfLines={1}
           >
-            <Text style={{ color: colors.textPrimary }} className="px-3 py-2 text-base font-bold">
-              {title}
-            </Text>
+            {collectionName}
+          </Text>
+        </View>
+      </View>
 
-            <ScrollView style={{ maxHeight: 360 }} keyboardShouldPersistTaps="handled">
-              <View className="gap-4 px-2 pb-2">
-                <View
-                  style={{ borderColor: colors.border, backgroundColor: colors.surface }}
-                  className="gap-1 rounded-xl border p-4"
-                >
-                  <Text style={{ color: colors.textSecondary }} className="text-sm font-semibold">
-                    {strings.tags.collectionLabel}
-                  </Text>
-                  <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
-                    {collectionName}
-                  </Text>
-                </View>
+      <TextField
+        label={strings.tags.nameLabel}
+        value={values.name}
+        placeholder={strings.tags.createPlaceholder}
+        error={fieldErrors?.name}
+        disabled={isSaving}
+        autoCapitalize="none"
+        onChangeText={(name) => setValues((prev) => ({ ...prev, name }))}
+      />
 
-                <TextField
-                  label={strings.tags.nameLabel}
-                  value={values.name}
-                  placeholder={strings.tags.createPlaceholder}
-                  error={fieldErrors?.name}
-                  disabled={isSaving}
-                  autoCapitalize="none"
-                  onChangeText={(name) => setValues((prev) => ({ ...prev, name }))}
-                />
+      {formError ? (
+        <Text style={{ color: colors.danger }} className="text-sm font-medium">
+          {formError}
+        </Text>
+      ) : null}
 
-                {formError ? (
-                  <Text style={{ color: colors.danger }} className="text-sm font-medium">
-                    {formError}
-                  </Text>
-                ) : null}
-
-                <View className="gap-2">
-                  <PrimaryButton
-                    label={isSaving ? strings.common.saving : saveLabel}
-                    accessibilityLabel={saveA11y}
-                    disabled={isSaving}
-                    onPress={() => onSubmit(values)}
-                  />
-                  <SecondaryButton
-                    label={strings.common.cancel}
-                    accessibilityLabel={strings.common.cancel}
-                    disabled={isSaving}
-                    onPress={onClose}
-                  />
-                </View>
-              </View>
-            </ScrollView>
-          </View>
-        </Pressable>
-      </Pressable>
-    </Modal>
+      <View className="gap-2">
+        <PrimaryButton
+          label={isSaving ? strings.common.saving : saveLabel}
+          accessibilityLabel={saveA11y}
+          disabled={isSaving}
+          onPress={() => onSubmit(values)}
+        />
+        <SecondaryButton
+          label={strings.common.cancel}
+          accessibilityLabel={strings.common.cancel}
+          disabled={isSaving}
+          onPress={onClose}
+        />
+      </View>
+    </BottomSheet>
   );
 }

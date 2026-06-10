@@ -22,6 +22,9 @@ export const icons = {
   back: 'arrow-left',
   chevron: 'chevron-right',
   add: 'plus',
+  edit: 'edit-2', // ✏️
+  delete: 'trash-2', // 🗑️
+  tag: 'tag', // 🏷️
   review: 'zap', // ⚡
   done: 'check-circle', // ✅
   collection: 'book', // 📚
