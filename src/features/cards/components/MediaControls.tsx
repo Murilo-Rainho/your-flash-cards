@@ -186,7 +186,9 @@ export function MediaControls({
                     speed={ttsPlaybackSpeed}
                     speedLabels={speedLabels}
                     onPlay={() => onSpeakTts(ttsPlaybackSpeed)}
-                    onChangeSpeed={(speed) => void setTtsPlaybackSpeed(speed)}
+                    onChangeSpeed={(speed) => {
+                      void setTtsPlaybackSpeed(speed).catch(() => undefined);
+                    }}
                   />
                   <Pressable
                     accessibilityRole="button"
