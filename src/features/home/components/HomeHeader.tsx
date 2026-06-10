@@ -25,7 +25,7 @@ export function HomeHeader({ greeting, dueCards }: HomeHeaderProps) {
       <Text style={{ color: colors.textPrimary }} className="text-3xl font-bold">
         {greeting}
       </Text>
-      <Text style={{ color: colors.textSecondary }} className="text-base">
+      <Text style={{ color: colors.textSecondary }} className="text-sm">
         {subtitle}
       </Text>
     </View>

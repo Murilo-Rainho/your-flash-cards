@@ -1,11 +1,14 @@
 import { ROUTES, type Route } from '@/constants/routes';
 import type { CollectionSummary } from '@/features/home/types';
 import type { StringCatalog } from '@/strings/types';
+import type { IconName } from '@/theme/icons';
 
 type ReviewNowCardAction = 'create-collection' | 'create-deck' | 'create-card' | 'review' | 'done';
 
 export type ReviewNowCardState = {
   action: ReviewNowCardAction;
+  /** Ícone semântico do CTA (resolvido via `@/theme/icons`, não texto traduzível). */
+  icon: IconName;
   title: string;
   subtitle: string;
   accessibilityLabel: string;
@@ -31,6 +34,7 @@ export function getReviewNowCardState({
   if (collections && collections.length === 0) {
     return {
       action: 'create-collection',
+      icon: 'collection',
       title: strings.createCollectionTitle,
       subtitle: strings.createCollectionSubtitle,
       accessibilityLabel: strings.createCollectionA11y,
@@ -44,6 +48,7 @@ export function getReviewNowCardState({
     if (totalDecks === 0) {
       return {
         action: 'create-deck',
+        icon: 'deck',
         title: strings.createDeckTitle,
         subtitle: strings.createDeckSubtitle,
         accessibilityLabel: strings.createDeckA11y,
@@ -56,6 +61,7 @@ export function getReviewNowCardState({
     if (totalCards === 0) {
       return {
         action: 'create-card',
+        icon: 'card',
         title: strings.createCardTitle,
         subtitle: strings.createCardSubtitle,
         accessibilityLabel: strings.createCardA11y,
@@ -69,6 +75,7 @@ export function getReviewNowCardState({
 
     return {
       action: 'review',
+      icon: 'review',
       title: strings.reviewTitle,
       subtitle: dueCardsLabel,
       accessibilityLabel: `${strings.reviewA11yPrefix} ${dueCardsLabel}`,
@@ -78,6 +85,7 @@ export function getReviewNowCardState({
 
   return {
     action: 'done',
+    icon: 'done',
     title: strings.doneTitle,
     subtitle: strings.doneSubtitle,
     accessibilityLabel: strings.doneA11y,

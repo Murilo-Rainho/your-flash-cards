@@ -1,5 +1,6 @@
-import { Pressable, Text } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
+import { Icon } from '@/components/common/Icon';
 import type { ReviewNowCardState } from '@/features/home/services/getReviewNowCardState';
 import { useTheme } from '@/theme/useTheme';
 
@@ -21,14 +22,23 @@ export function ReviewNowCard({ state, onPress }: ReviewNowCardProps) {
       accessibilityLabel={state.accessibilityLabel}
       onPress={onPress}
       style={{ backgroundColor: colors.primary, ...shadows.lg }}
-      className="rounded-2xl p-6 active:opacity-90"
+      className="flex-row items-center gap-4 rounded-2xl p-6 active:opacity-90"
     >
-      <Text style={{ color: colors.background }} className="text-2xl font-bold">
-        {state.title}
-      </Text>
-      <Text style={{ color: colors.background }} className="mt-1 text-base font-medium opacity-90">
-        {state.subtitle}
-      </Text>
+      <View
+        style={{ backgroundColor: colors.surface }}
+        className="h-14 w-14 items-center justify-center rounded-2xl"
+      >
+        <Icon name={state.icon} size={28} tone="primary" />
+      </View>
+      <View className="flex-1">
+        <Text style={{ color: colors.background }} className="text-2xl font-bold">
+          {state.title}
+        </Text>
+        <Text style={{ color: colors.background }} className="mt-1 text-sm font-medium opacity-90">
+          {state.subtitle}
+        </Text>
+      </View>
+      <Icon name="chevron" size={26} color={colors.background} />
     </Pressable>
   );
 }

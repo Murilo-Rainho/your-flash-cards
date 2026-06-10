@@ -1,10 +1,14 @@
 import { type Href, useRouter } from 'expo-router';
-import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { RefreshControl, ScrollView, View } from 'react-native';
 
-import { ROUTES, routeHrefs } from '@/constants/routes';
+import { routeHrefs } from '@/constants/routes';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Header } from '@/components/common/Header';
+import { SectionTitle } from '@/components/common/SectionTitle';
+import { StateCard } from '@/components/common/StateCard';
 import type { QuickAction } from '@/domain/entities/QuickAction';
+import { CollectionListSkeleton } from '@/features/home/components/CollectionListSkeleton';
 import { CollectionSummaryCard } from '@/features/home/components/CollectionSummaryCard';
 import { HomeHeader } from '@/features/home/components/HomeHeader';
 import { ProgressStatsGrid } from '@/features/home/components/ProgressStatsGrid';
@@ -70,29 +74,14 @@ export function HomeScreen() {
         }
       >
         <View className="gap-6 px-4 pb-28 pt-2">
-          <View className="flex-row items-start justify-between gap-3">
-            <View className="flex-1">
-              <HomeHeader greeting={greeting} dueCards={summary.dueCards} />
-            </View>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={strings.common.settings}
-              onPress={() => router.push(ROUTES.SETTINGS as Href)}
-              style={{ borderColor: colors.border, backgroundColor: colors.surface }}
-              className="rounded-xl border px-3 py-2 active:opacity-90"
-            >
-              <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-                {strings.common.settings}
-              </Text>
-            </Pressable>
-          </View>
+          <Header variant="home" title={strings.common.appName} />
+
+          <HomeHeader greeting={greeting} dueCards={summary.dueCards} />
 
           <ReviewNowCard state={reviewNowCardState} onPress={handleReviewPress} />
 
           <View className="gap-3">
-            <Text style={{ color: colors.textPrimary }} className="text-lg font-semibold">
-              {strings.home.progressTitle}
-            </Text>
+            <SectionTitle title={strings.home.progressTitle} />
             <ProgressStatsGrid
               reviewedToday={summary.reviewedToday}
               retentionPercentage={summary.retentionPercentage}
@@ -102,32 +91,21 @@ export function HomeScreen() {
           </View>
 
           <View className="gap-3">
-            <Text style={{ color: colors.textPrimary }} className="text-lg font-semibold">
-              {strings.home.collectionsTitle}
-            </Text>
+            <SectionTitle title={strings.home.collectionsTitle} />
             {isLoading ? (
-              <Text style={{ color: colors.textSecondary }} className="text-sm">
-                {strings.home.loadingLocalData}
-              </Text>
+              <CollectionListSkeleton />
             ) : error ? (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={strings.home.loadErrorRetryA11y}
-                onPress={refetch}
-                style={{ borderColor: colors.border, backgroundColor: colors.surface }}
-                className="rounded-2xl border p-4 active:opacity-90"
-              >
-                <Text style={{ color: colors.textPrimary }} className="text-base font-semibold">
-                  {strings.home.loadErrorTitle}
-                </Text>
-                <Text style={{ color: colors.textSecondary }} className="mt-1 text-sm">
-                  {strings.common.retryHint}
-                </Text>
-              </Pressable>
+              <StateCard
+                title={strings.home.loadErrorTitle}
+                description={strings.common.retryHint}
+                action={{
+                  label: strings.common.retry,
+                  onPress: refetch,
+                  accessibilityLabel: strings.home.loadErrorRetryA11y,
+                }}
+              />
             ) : collections.length === 0 ? (
-              <Text style={{ color: colors.textSecondary }} className="text-sm">
-                {strings.home.noCollections}
-              </Text>
+              <StateCard title={strings.home.noCollections} />
             ) : (
               collections.map((item) => (
                 <CollectionSummaryCard

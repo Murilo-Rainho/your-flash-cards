@@ -25,15 +25,32 @@ export function ProgressStatsGrid({
   return (
     <View className="gap-3">
       <View className="flex-row gap-3">
-        <ProgressStatCard label={strings.home.stats.reviewedToday} value={String(reviewedToday)} />
-        <ProgressStatCard label={strings.home.stats.retention} value={`${retentionPercentage}%`} />
+        <ProgressStatCard
+          label={strings.home.stats.reviewedToday}
+          value={String(reviewedToday)}
+          icon="reviewedToday"
+          accentTone="primary"
+        />
+        <ProgressStatCard
+          label={strings.home.stats.retention}
+          value={`${retentionPercentage}%`}
+          icon="retention"
+          accentTone="success"
+        />
       </View>
       <View className="flex-row gap-3">
         <ProgressStatCard
           label={strings.home.stats.streak}
-          value={`🔥 ${streakDays} ${streakDayLabel}`}
+          value={`${streakDays} ${streakDayLabel}`}
+          icon="streak"
+          accentTone="warning"
         />
-        <ProgressStatCard label={strings.home.stats.mastered} value={String(masteredCards)} />
+        <ProgressStatCard
+          label={strings.home.stats.mastered}
+          value={String(masteredCards)}
+          icon="mastered"
+          accentTone="secondary"
+        />
       </View>
     </View>
   );

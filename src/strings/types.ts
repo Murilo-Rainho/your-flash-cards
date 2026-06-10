@@ -25,6 +25,11 @@ export type StringCatalog = {
     backSide: string;
     recommended: string;
     none: string;
+    appName: string;
+    menu: string;
+    openMenu: string;
+    closeMenu: string;
+    backToHome: string;
   };
   home: {
     greeting: {
