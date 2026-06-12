@@ -1,3 +1,4 @@
+import type { ClozeContent } from '@/domain/cloze/clozeContent';
 import type { CardAggregate, CardRepository } from '@/domain/repositories/CardRepository';
 import type { DeckRepository } from '@/domain/repositories/DeckRepository';
 import type { LocalMediaStorage } from '@/domain/services/LocalMediaStorage';
@@ -23,6 +24,8 @@ export type UpdateCardInput = {
   deckId: string;
   frontText?: string;
   backText?: string;
+  /** Conteúdo estruturado do cloze (§9): fonte de frente/verso para cards `cloze`. */
+  cloze?: ClozeContent;
   notes?: string;
   tags?: string[];
   media?: CreateCardMediaInput[];
@@ -99,6 +102,7 @@ export async function updateCard(
       type: existing.card.type,
       frontText: input.frontText,
       backText: input.backText,
+      cloze: input.cloze,
       notes: input.notes,
       tags: input.tags,
       media: input.media,
@@ -176,6 +180,7 @@ export async function updateCard(
         deckId,
         front: sanitized.data.frontText,
         back: sanitized.data.backText,
+        cloze: sanitized.data.cloze,
         notes: sanitized.data.notes,
         updatedAt: timestamp,
       },

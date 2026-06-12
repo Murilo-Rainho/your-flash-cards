@@ -1,6 +1,10 @@
 import { CARD_TYPES, type CardType } from '@/constants/cardTypes';
 import { toSpeechLanguage } from '@/constants/languages';
-import { extractExpectedClozeAnswer, parseClozeFront } from '@/domain/cloze/cloze';
+import {
+  composeClozeFront,
+  getClozeBlanks,
+  resolveClozeContent,
+} from '@/domain/cloze/clozeContent';
 import type { Collection } from '@/domain/entities/Collection';
 import { MEDIA_SIDES, MEDIA_TYPES, type MediaSide } from '@/domain/entities/Media';
 import type { CardAggregate } from '@/domain/repositories/CardRepository';
@@ -10,12 +14,13 @@ import { TYPING_FRONT_MODES, type TypingFrontMode } from '../config/typingFrontM
 import { VOCABULARY_FRONT_MODES, type VocabularyFrontMode } from '../config/vocabularyFrontMode';
 import type { CreateCardMediaInput } from './sanitizeCardInput';
 
-type ClozeParts = { before: string; gap: string; after: string };
+/** Estado de edição do cloze: a frase com `{dica}` e as respostas aceitas por lacuna (na ordem). */
+export type ClozeEditState = { sentence: string; answers: string[][] };
 
 export type EditCardPrefill = {
   frontText: string;
   backText: string;
-  cloze: { front: ClozeParts; back: ClozeParts };
+  cloze: ClozeEditState;
   tags: string[];
   notes: string;
   media: CreateCardMediaInput[];
@@ -24,8 +29,6 @@ export type EditCardPrefill = {
   typingFrontMode: TypingFrontMode;
   ttsLanguages: Record<MediaSide, string>;
 };
-
-const emptyCloze: ClozeParts = { before: '', gap: '', after: '' };
 
 function parseTtsLanguage(uri: string): string | null {
   const match = /^tts:\/\/local\/([^/]+)\//.exec(uri);
@@ -109,17 +112,16 @@ export function deriveEditCardPrefill(
   const type: CardType = card.type;
   const media = mapAggregateMedia(aggregate);
 
-  let front: ClozeParts = emptyCloze;
-  let back: ClozeParts = emptyCloze;
+  let cloze: ClozeEditState = { sentence: '', answers: [] };
 
   if (type === CARD_TYPES.CLOZE) {
-    const parsedFront = parseClozeFront(card.front);
-    const before = parsedFront?.before.trim() ?? '';
-    const after = parsedFront?.after.trim() ?? '';
-    const frontGap = parsedFront?.gap ?? '';
-    const backGap = extractExpectedClozeAnswer(card.front, card.back)?.trim() ?? '';
-    front = { before, gap: frontGap, after };
-    back = { before, gap: backGap, after };
+    // Funciona tanto para o novo formato (card.cloze) quanto para cards legados (1 lacuna,
+    // reconstruída de front/back pelo bridge dentro de resolveClozeContent).
+    const content = resolveClozeContent(card);
+    cloze = {
+      sentence: composeClozeFront(content),
+      answers: getClozeBlanks(content).map((blank) => [...blank.answers]),
+    };
   }
 
   const ttsLanguageFor = (side: MediaSide, fallback: string): string => {
@@ -139,7 +141,7 @@ export function deriveEditCardPrefill(
   return {
     frontText: card.front,
     backText: card.back,
-    cloze: { front, back },
+    cloze,
     tags: aggregate.tags.map((tag) => tag.name),
     notes: card.notes ?? '',
     media,

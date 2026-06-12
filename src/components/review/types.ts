@@ -62,11 +62,17 @@ export type ReviewAnswerBehavior =
       onStopRecording: () => void;
       onPlayRecording: () => void;
     }
-  /** Cloze (§9): digitação OPCIONAL comparada com a lacuna do verso. */
+  /**
+   * Cloze (§9): UMA OU MAIS lacunas, cada uma com digitação OPCIONAL comparada com as
+   * respostas aceitas daquela lacuna. Cada lacuna traz seu próprio rótulo e checagem
+   * (resolvidos pela feature); `expected` é a resposta primária da lacuna.
+   */
   | {
       kind: 'cloze';
-      promptLabel?: string;
-      checkAnswer: (typed: string) => CheckedAnswer;
+      blanks: Array<{
+        label: string;
+        checkAnswer: (typed: string) => CheckedAnswer;
+      }>;
     }
   /** Escrita (§11): digitação + "Verificar"; permite override manual no verso. */
   | {

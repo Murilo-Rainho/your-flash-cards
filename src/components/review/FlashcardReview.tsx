@@ -27,6 +27,7 @@ import { withAlpha } from '@/theme/createShadows';
 
 import { AnswerFeedback } from './AnswerFeedback';
 import { AnswerInput } from './AnswerInput';
+import { ClozeAnswerFeedback, type ClozeBlankResult } from './ClozeAnswerFeedback';
 import { FlashcardFace } from './FlashcardFace';
 import { RatingButtons } from './RatingButtons';
 import type { CheckedAnswer, FlashcardReviewProps } from './types';
@@ -61,6 +62,9 @@ export function FlashcardReview({
   const [typed, setTyped] = useState('');
   const [checked, setChecked] = useState<CheckedAnswer | null>(null);
   const [override, setOverride] = useState<boolean | null>(null);
+  // Cloze (§9): uma entrada e um resultado por lacuna (null = lacuna não respondida).
+  const [clozeTyped, setClozeTyped] = useState<string[]>([]);
+  const [clozeChecked, setClozeChecked] = useState<Array<CheckedAnswer | null> | null>(null);
 
   const systemReduceMotion = useReducedMotion();
   const prefersReducedMotion = reduceMotion ?? systemReduceMotion;
@@ -87,6 +91,8 @@ export function FlashcardReview({
     setTyped('');
     setChecked(null);
     setOverride(null);
+    setClozeTyped([]);
+    setClozeChecked(null);
     reset();
 
     const changed = prevCardKeyRef.current !== cardKey;
@@ -107,15 +113,31 @@ export function FlashcardReview({
   const { answer } = card;
   const hasTyped = typed.trim().length > 0;
 
+  const handleChangeClozeAnswer = useCallback((index: number, value: string) => {
+    setClozeTyped((current) => {
+      const next = [...current];
+      next[index] = value;
+      return next;
+    });
+  }, []);
+
   const handleFlip = useCallback(() => {
     if (answer.kind === 'typing') {
       setChecked(answer.checkAnswer(typed));
-    } else if (answer.kind === 'cloze' || answer.kind === 'listening') {
-      // Cloze/Escuta: comparação só faz sentido quando o usuário digitou algo.
+    } else if (answer.kind === 'listening') {
+      // Escuta: comparação só faz sentido quando o usuário digitou algo.
       setChecked(typed.trim() ? answer.checkAnswer(typed) : null);
+    } else if (answer.kind === 'cloze') {
+      // Cloze: checa cada lacuna que o usuário preencheu (vazia = não respondida).
+      setClozeChecked(
+        answer.blanks.map((blank, index) => {
+          const value = clozeTyped[index] ?? '';
+          return value.trim() ? blank.checkAnswer(value) : null;
+        }),
+      );
     }
     flip();
-  }, [answer, flip, typed]);
+  }, [answer, clozeTyped, flip, typed]);
 
   // Escuta digitada e Escrita verificam; nos demais casos é só virar.
   const flipLabel =
@@ -129,6 +151,16 @@ export function FlashcardReview({
     !checked &&
     Boolean(answer.recordedUri);
   const effectiveCorrect = override ?? checked?.correct ?? false;
+  const clozeFeedback: ClozeBlankResult[] =
+    answer.kind === 'cloze' && clozeChecked
+      ? answer.blanks
+          .map((blank, index) => ({
+            label: blank.label,
+            typed: clozeTyped[index] ?? '',
+            checked: clozeChecked[index],
+          }))
+          .filter((item): item is ClozeBlankResult => item.checked !== null)
+      : [];
   const showCloseButton = presentation === 'modal' && onClose;
 
   if (!visible) {
@@ -196,6 +228,8 @@ export function FlashcardReview({
                     strings={strings.answer}
                     typed={typed}
                     onChangeTyped={setTyped}
+                    clozeTyped={clozeTyped}
+                    onChangeClozeAnswer={handleChangeClozeAnswer}
                     disabled={isFlipped}
                   />
                 </View>
@@ -225,7 +259,9 @@ export function FlashcardReview({
                   ttsSpeedLabels={ttsSpeedLabels}
                   onTtsPlaybackSpeedChange={onTtsPlaybackSpeedChange}
                 />
-                {checked ? (
+                {answer.kind === 'cloze' ? (
+                  <ClozeAnswerFeedback strings={strings} blanks={clozeFeedback} />
+                ) : checked ? (
                   <AnswerFeedback
                     strings={strings}
                     correct={effectiveCorrect}

@@ -6,33 +6,10 @@ export type ParsedClozeFront = {
 
 const CLOZE_GAP_PATTERN = /\{([^{}]*)\}/g;
 
-// Junta os trechos da frase com um único espaço, descartando partes vazias.
-// Assim o usuário não precisa controlar os espaços manualmente: "I'm" + "tired"
-// + "now" vira "I'm tired now" em vez de "I'm tirednow".
-function joinClozeParts(parts: string[]): string {
-  return parts.filter((part) => part.length > 0).join(' ');
-}
-
-export function composeClozeFront(before: string, gap: string, after: string): string | null {
-  const trimmedGap = gap.trim();
-
-  if (!trimmedGap) {
-    return null;
-  }
-
-  return joinClozeParts([before.trim(), `{${trimmedGap}}`, after.trim()]);
-}
-
-export function composeClozeBack(before: string, gap: string, after: string): string | null {
-  const trimmedGap = gap.trim();
-
-  if (!trimmedGap) {
-    return null;
-  }
-
-  return joinClozeParts([before.trim(), trimmedGap, after.trim()]);
-}
-
+/**
+ * Lê uma frase legada de cloze (1 lacuna no formato `{texto}`) e separa os trechos.
+ * Mantido como base do "bridge" de cards antigos — ver `clozeContentFromLegacy`.
+ */
 export function parseClozeFront(front: string): ParsedClozeFront | null {
   const matches = [...front.matchAll(CLOZE_GAP_PATTERN)];
 
@@ -53,18 +30,10 @@ export function parseClozeFront(front: string): ParsedClozeFront | null {
   return { before, gap, after };
 }
 
-export function toClozeDisplayFront(front: string): string | null {
-  const parsed = parseClozeFront(front);
-
-  if (!parsed) {
-    return null;
-  }
-
-  // Mantém a dica na língua base entre chaves (ex.: "{portanto}") para indicar
-  // qual trecho preencher, em vez de esconder tudo atrás de "____".
-  return `${parsed.before}{${parsed.gap}}${parsed.after}`;
-}
-
+/**
+ * Extrai a resposta de uma frase legada comparando frente (`{dica}`) e verso completo.
+ * Usado apenas para reconstruir o `ClozeContent` de cards antigos.
+ */
 export function extractExpectedClozeAnswer(front: string, back: string): string | null {
   const parsed = parseClozeFront(front);
 
@@ -87,6 +56,11 @@ export function extractExpectedClozeAnswer(front: string, back: string): string 
   return expected;
 }
 
+/**
+ * Normalização canônica de respostas digitadas (cloze/escrita/escuta): remove espaços nas
+ * pontas, baixa caixa, descarta pontuação (preserva letras acentuadas e números) e colapsa
+ * espaços internos. É a referência de comparação de respostas em todo o app.
+ */
 export function normalizeStudyAnswer(value: string): string {
   return value
     .trim()
@@ -94,14 +68,4 @@ export function normalizeStudyAnswer(value: string): string {
     .replace(/[^\p{L}\p{N}\s]/gu, '')
     .replace(/\s+/g, ' ')
     .trim();
-}
-
-export function isClozeAnswerCorrect(user: string, front: string, back: string): boolean {
-  const expected = extractExpectedClozeAnswer(front, back);
-
-  if (expected === null) {
-    return false;
-  }
-
-  return normalizeStudyAnswer(user) === normalizeStudyAnswer(expected);
 }

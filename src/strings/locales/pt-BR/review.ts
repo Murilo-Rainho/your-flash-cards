@@ -26,6 +26,7 @@ export const review = {
   },
   answer: {
     clozePrompt: 'Preencha a lacuna (opcional)',
+    clozeBlankLabel: 'Lacuna',
     typingPrompt: 'Digite sua resposta',
     listeningPrompt: 'Escreva o que você ouviu',
     placeholder: 'Sua resposta',

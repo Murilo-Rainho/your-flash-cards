@@ -8,9 +8,12 @@ import type { ReviewAnswerBehavior } from './types';
 type AnswerInputProps = {
   answer: ReviewAnswerBehavior;
   strings: StringCatalog['review']['answer'];
-  /** Valor digitado (controlado pelo FlashcardReview) — usado em cloze/typing. */
+  /** Valor digitado único (typing/listening), controlado pelo FlashcardReview. */
   typed: string;
   onChangeTyped: (value: string) => void;
+  /** Valores digitados por lacuna (cloze), alinhados a `answer.blanks`. */
+  clozeTyped: string[];
+  onChangeClozeAnswer: (index: number, value: string) => void;
   disabled?: boolean;
 };
 
@@ -20,6 +23,8 @@ export function AnswerInput({
   strings,
   typed,
   onChangeTyped,
+  clozeTyped,
+  onChangeClozeAnswer,
   disabled = false,
 }: AnswerInputProps) {
   const { colors } = useTheme();
@@ -28,13 +33,45 @@ export function AnswerInput({
     return null;
   }
 
-  if (answer.kind === 'cloze' || answer.kind === 'typing') {
-    const defaultLabel = answer.kind === 'cloze' ? strings.clozePrompt : strings.typingPrompt;
+  if (answer.kind === 'cloze') {
+    // Uma entrada por lacuna; com 1 lacuna fica igual ao comportamento anterior.
+    return (
+      <View className="gap-3">
+        {answer.blanks.map((blank, index) => (
+          <View key={index} className="gap-2">
+            <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
+              {blank.label}
+            </Text>
+            <TextInput
+              value={clozeTyped[index] ?? ''}
+              onChangeText={(value) => onChangeClozeAnswer(index, value)}
+              editable={!disabled}
+              placeholder={strings.placeholder}
+              placeholderTextColor={colors.textSecondary}
+              selectionColor={colors.primary}
+              selectionHandleColor={colors.primary}
+              cursorColor={colors.primary}
+              underlineColorAndroid="transparent"
+              autoCapitalize="none"
+              autoCorrect={false}
+              style={{
+                borderColor: colors.border,
+                backgroundColor: colors.surface,
+                color: colors.textPrimary,
+              }}
+              className="rounded-xl border px-4 py-3 text-base"
+            />
+          </View>
+        ))}
+      </View>
+    );
+  }
 
+  if (answer.kind === 'typing') {
     return (
       <View className="gap-2">
         <Text style={{ color: colors.textPrimary }} className="text-sm font-semibold">
-          {answer.promptLabel ?? defaultLabel}
+          {answer.promptLabel ?? strings.typingPrompt}
         </Text>
         <TextInput
           value={typed}

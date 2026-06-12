@@ -146,6 +146,7 @@ describe('SQLiteCardRepository', () => {
       $type: CARD_TYPES.VOCABULARY,
       $front: 'house',
       $back: 'casa',
+      $clozeData: null,
       $notes: 'basic',
       $createdAt: '2026-06-03T12:00:00.000Z',
       $updatedAt: '2026-06-03T12:00:00.000Z',

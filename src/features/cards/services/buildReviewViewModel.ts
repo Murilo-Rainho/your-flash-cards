@@ -5,20 +5,18 @@ import type {
 } from '@/components/review';
 import { CARD_TYPES, type CardType } from '@/constants/cardTypes';
 import type { TtsPlaybackSpeed } from '@/constants/tts';
+import { normalizeStudyAnswer } from '@/domain/cloze/cloze';
 import {
+  checkClozeBlank,
   composeClozeBack,
   composeClozeFront,
-  extractExpectedClozeAnswer,
-  isClozeAnswerCorrect,
-  normalizeStudyAnswer,
-  toClozeDisplayFront,
-} from '@/domain/cloze/cloze';
+  getClozeBlanks,
+  type ClozeContent,
+} from '@/domain/cloze/clozeContent';
 import { MEDIA_SIDES, MEDIA_TYPES, type MediaSide } from '@/domain/entities/Media';
 import type { StringCatalog } from '@/strings/types';
 
 import type { CreateCardMediaInput } from './createCard';
-
-type ClozeParts = { before: string; gap: string; after: string };
 
 /** Estado/handlers da gravação de teste (pronúncia), injetados pela feature. */
 export type ReviewRecordingControls = {
@@ -34,7 +32,7 @@ export type ReviewSource = {
   type: CardType;
   frontText: string;
   backText: string;
-  cloze: { front: ClozeParts; back: ClozeParts };
+  cloze: ClozeContent;
   frontMedia: readonly CreateCardMediaInput[];
   backMedia: readonly CreateCardMediaInput[];
   reviewStrings: StringCatalog['review'];
@@ -92,6 +90,15 @@ function toUndefined(value: string): string | undefined {
   return value.trim() ? value : undefined;
 }
 
+/** Rótulo do campo de cada lacuna: 1 lacuna mantém o prompt atual; N usam "Lacuna i". */
+function clozeBlankLabel(
+  answerStrings: StringCatalog['review']['answer'],
+  total: number,
+  index: number,
+): string {
+  return total <= 1 ? answerStrings.clozePrompt : `${answerStrings.clozeBlankLabel} ${index + 1}`;
+}
+
 /**
  * Constrói o `FlashcardViewModel` (agnóstico de domínio) a partir do estado do formulário.
  * É a mesma função conceitual que o futuro fluxo de revisão usará a partir de um
@@ -101,36 +108,26 @@ export function buildReviewViewModel(source: ReviewSource): FlashcardViewModel {
   const { type, frontText, backText, frontMedia } = source;
 
   if (type === CARD_TYPES.CLOZE) {
-    const composedFront = composeClozeFront(
-      source.cloze.front.before,
-      source.cloze.front.gap,
-      source.cloze.front.after,
-    );
-    const composedBack = composeClozeBack(
-      source.cloze.back.before,
-      source.cloze.back.gap,
-      source.cloze.back.after,
-    );
-    const display = composedFront ? (toClozeDisplayFront(composedFront) ?? composedFront) : '';
+    const content = source.cloze;
+    const blanks = getClozeBlanks(content);
+    const display = composeClozeFront(content);
+    const back = composeClozeBack(content);
 
     const answer: ReviewAnswerBehavior = {
       kind: 'cloze',
-      promptLabel: source.reviewStrings.answer.clozePrompt,
-      checkAnswer: (typed: string) => {
-        if (!composedFront || !composedBack) {
-          return { correct: false, expected: '' };
-        }
-        return {
-          correct: isClozeAnswerCorrect(typed, composedFront, composedBack),
-          expected: extractExpectedClozeAnswer(composedFront, composedBack) ?? '',
-        };
-      },
+      blanks: blanks.map((blank, index) => ({
+        label: clozeBlankLabel(source.reviewStrings.answer, blanks.length, index),
+        checkAnswer: (typed: string) => ({
+          correct: checkClozeBlank(blank.answers, typed),
+          expected: blank.answers[0] ?? '',
+        }),
+      })),
     };
 
     return {
       cardType: type,
       front: { text: toUndefined(display) },
-      back: { text: composedBack ? toUndefined(composedBack) : undefined },
+      back: { text: toUndefined(back) },
       answer,
     };
   }

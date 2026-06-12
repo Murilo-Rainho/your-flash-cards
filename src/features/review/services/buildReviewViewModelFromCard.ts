@@ -5,12 +5,13 @@ import type {
 } from '@/components/review';
 import { CARD_TYPES } from '@/constants/cardTypes';
 import type { TtsPlaybackSpeed } from '@/constants/tts';
+import { normalizeStudyAnswer } from '@/domain/cloze/cloze';
 import {
-  extractExpectedClozeAnswer,
-  isClozeAnswerCorrect,
-  normalizeStudyAnswer,
-  toClozeDisplayFront,
-} from '@/domain/cloze/cloze';
+  checkClozeBlank,
+  composeClozeFront,
+  getClozeBlanks,
+  resolveClozeContent,
+} from '@/domain/cloze/clozeContent';
 import { VARIANT_TYPES } from '@/domain/entities/CardVariant';
 import { MEDIA_SIDES, MEDIA_TYPES, type Media, type MediaSide } from '@/domain/entities/Media';
 import type { DueReviewCard } from '@/domain/repositories/ReviewRepository';
@@ -54,6 +55,15 @@ function parseTtsLanguage(uri: string): string {
 
 function toUndefined(value: string): string | undefined {
   return value.trim() ? value : undefined;
+}
+
+/** Rótulo do campo de cada lacuna: 1 lacuna mantém o prompt atual; N usam "Lacuna i". */
+function clozeBlankLabel(
+  answerStrings: StringCatalog['review']['answer'],
+  total: number,
+  index: number,
+): string {
+  return total <= 1 ? answerStrings.clozePrompt : `${answerStrings.clozeBlankLabel} ${index + 1}`;
 }
 
 function findImageUri(media: readonly Media[], side: MediaSide): string | undefined {
@@ -145,18 +155,23 @@ export function buildReviewViewModelFromCard(
   }
 
   if (card.cardType === CARD_TYPES.CLOZE) {
-    const display = toClozeDisplayFront(card.front) ?? card.front;
+    // Funciona para o novo formato (card.cloze) e para cards legados (bridge front/back).
+    const content = resolveClozeContent(card);
+    const blanks = getClozeBlanks(content);
+    const display = composeClozeFront(content);
     return {
       cardType: card.cardType,
-      front: { text: toUndefined(display) },
+      front: { text: toUndefined(display || card.front) },
       back: { text: toUndefined(card.back) },
       answer: {
         kind: 'cloze',
-        promptLabel: source.reviewStrings.answer.clozePrompt,
-        checkAnswer: (typed: string) => ({
-          correct: isClozeAnswerCorrect(typed, card.front, card.back),
-          expected: extractExpectedClozeAnswer(card.front, card.back) ?? '',
-        }),
+        blanks: blanks.map((blank, index) => ({
+          label: clozeBlankLabel(source.reviewStrings.answer, blanks.length, index),
+          checkAnswer: (typed: string) => ({
+            correct: checkClozeBlank(blank.answers, typed),
+            expected: blank.answers[0] ?? '',
+          }),
+        })),
       },
     };
   }

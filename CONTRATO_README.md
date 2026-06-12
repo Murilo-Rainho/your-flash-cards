@@ -263,27 +263,42 @@ Também pode conter:
 
 Este deve ser o modelo mais recomendado pelo app.
 
-Exemplo de entrada:
+Uma frase pode ter **uma ou mais lacunas**, e **cada lacuna pode ter uma ou mais respostas
+aceitas**. O usuário define as lacunas e as respostas manualmente.
+
+Exemplo de entrada (autoria — o trecho-dica fica entre `{}`):
 
 ```txt
-I'm {cansado} now
+It was raining. {Mesmo assim}, we went hiking.
 ```
 
-Exemplo de card:
+Respostas aceitas para a lacuna: `Still`, `Even so`, `Nevertheless`.
+
+Exemplo com várias lacunas:
 
 ```txt
-Frente:
-I'm ____ now
-
-Verso:
-I'm tired now
+I'd like {ambos} water {e} juice.
 ```
 
-O app deve permitir que o usuário defina manualmente a lacuna e a resposta.
+Respostas: lacuna 1 → `both`; lacuna 2 → `and`.
 
-Persistência: `Card.front` guarda a frase com exatamente uma lacuna no formato `{texto}`
-(ex.: `I'm {cansado} now`). Na revisão, a UI exibe `____` no lugar da lacuna; a resposta
-digitada é comparada com o trecho correspondente do verso completo (`Card.back`).
+Autoria: o usuário escreve a frase, **seleciona um trecho e o transforma em lacuna**
+(o trecho selecionado vira a dica, entre `{}`). Para cada lacuna ele adiciona/remove as
+respostas aceitas (a primeira é a principal) e pode editar a dica/texto. Há uma **prévia**
+da frase e a possibilidade de **testar** o card antes de salvar. Sem drag-and-drop, sem IA.
+
+Revisão: a frente exibe a frase com a dica de cada lacuna entre `{chaves}` e um campo de
+resposta por lacuna (com 1 lacuna o comportamento é idêntico ao modelo anterior). Uma
+resposta é considerada correta se, **após a normalização padrão do projeto** (trim, caixa
+baixa, remoção de pontuação, colapso de espaços; acentos preservados), bater com **qualquer
+uma** das respostas aceitas daquela lacuna.
+
+Persistência: o conteúdo cloze estruturado (lacunas + respostas aceitas) é a fonte da verdade,
+guardado em `Card.cloze` (coluna `cloze_data`, JSON). `Card.front` (frase com `{dica}` por
+lacuna) e `Card.back` (frase com a resposta primária de cada lacuna) são **derivados** desse
+conteúdo, para exibição e compatibilidade. Cards cloze antigos (criados com exatamente uma
+lacuna, sem `cloze_data`) continuam funcionando: o conteúdo é reconstruído a partir de
+`front`/`back` (1 lacuna / 1 resposta) na leitura — sem migração de dados.
 
 Na V1, o app não deve usar IA para traduzir automaticamente o conteúdo.
 

@@ -162,7 +162,6 @@ function CardDetailForm({ aggregate }: { aggregate: CardAggregate }) {
         onVocabularyFrontModeChange={form.onVocabularyFrontModeChange}
         onTypingFrontModeChange={form.onTypingFrontModeChange}
         onTestListeningAudio={form.onTestListeningAudio}
-        onChangeCloze={form.onChangeCloze}
         onPickImage={form.onPickImage}
         onPickAudio={form.onPickAudio}
         onStartRecording={form.onStartRecording}

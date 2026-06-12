@@ -1,15 +1,13 @@
 import type { AudioAffordance } from '@/components/review';
 import { CARD_TYPES } from '@/constants/cardTypes';
 import { TTS_PLAYBACK_SPEEDS, type TtsPlaybackSpeed } from '@/constants/tts';
+import { buildClozeContent } from '@/domain/cloze/clozeContent';
 import { enUS } from '@/strings/locales/en-US';
 
 import { buildReviewViewModel, type ReviewSource } from './buildReviewViewModel';
 import type { CreateCardMediaInput } from './createCard';
 
-const emptyCloze = {
-  front: { before: '', gap: '', after: '' },
-  back: { before: '', gap: '', after: '' },
-};
+const emptyCloze = buildClozeContent('', []);
 
 function createSource(
   overrides: Partial<Omit<ReviewSource, 'recording'>> = {},
@@ -103,23 +101,44 @@ describe('buildReviewViewModel', () => {
   it('cloze: frente mostra a dica entre chaves, verso completo e checagem por normalização', () => {
     const { source } = createSource({
       type: CARD_TYPES.CLOZE,
-      cloze: {
-        front: { before: "I'm ", gap: 'tired', after: ' now' },
-        back: { before: "I'm ", gap: 'tired', after: ' now' },
-      },
+      cloze: buildClozeContent("I'm {cansado} now", [['tired']]),
     });
 
     const vm = buildReviewViewModel(source);
 
-    expect(vm.front.text).toBe("I'm {tired} now");
+    expect(vm.front.text).toBe("I'm {cansado} now");
     expect(vm.back.text).toBe("I'm tired now");
-    expect(vm.answer.kind).toBe('cloze');
 
     if (vm.answer.kind !== 'cloze') {
       throw new Error('esperado cloze');
     }
-    expect(vm.answer.checkAnswer('TIRED')).toEqual({ correct: true, expected: 'tired' });
-    expect(vm.answer.checkAnswer('happy')).toEqual({ correct: false, expected: 'tired' });
+    expect(vm.answer.blanks).toHaveLength(1);
+    expect(vm.answer.blanks[0].label).toBe(enUS.review.answer.clozePrompt);
+    expect(vm.answer.blanks[0].checkAnswer('TIRED')).toEqual({ correct: true, expected: 'tired' });
+    expect(vm.answer.blanks[0].checkAnswer('happy')).toEqual({ correct: false, expected: 'tired' });
+  });
+
+  it('cloze: múltiplas lacunas, cada uma com sua checagem e respostas aceitas', () => {
+    const { source } = createSource({
+      type: CARD_TYPES.CLOZE,
+      cloze: buildClozeContent('I would like {ambos} water {e} juice.', [
+        ['both', 'the two'],
+        ['and'],
+      ]),
+    });
+
+    const vm = buildReviewViewModel(source);
+
+    expect(vm.front.text).toBe('I would like {ambos} water {e} juice.');
+    expect(vm.back.text).toBe('I would like both water and juice.');
+    if (vm.answer.kind !== 'cloze') {
+      throw new Error('esperado cloze');
+    }
+    expect(vm.answer.blanks).toHaveLength(2);
+    expect(vm.answer.blanks[0].label).toBe(`${enUS.review.answer.clozeBlankLabel} 1`);
+    expect(vm.answer.blanks[0].checkAnswer('the two')).toEqual({ correct: true, expected: 'both' });
+    expect(vm.answer.blanks[1].checkAnswer('and')).toEqual({ correct: true, expected: 'and' });
+    expect(vm.answer.blanks[1].checkAnswer('or')).toEqual({ correct: false, expected: 'and' });
   });
 
   it('cloze incompleto: não quebra (best-effort)', () => {
@@ -132,7 +151,7 @@ describe('buildReviewViewModel', () => {
     if (vm.answer.kind !== 'cloze') {
       throw new Error('esperado cloze');
     }
-    expect(vm.answer.checkAnswer('qualquer')).toEqual({ correct: false, expected: '' });
+    expect(vm.answer.blanks).toEqual([]);
   });
 
   it('escrita (typing): a frente mostra a mídia (sem texto) e compara a resposta com o verso', () => {
