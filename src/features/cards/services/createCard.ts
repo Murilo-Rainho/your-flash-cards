@@ -1,4 +1,5 @@
 import { type CardType } from '@/constants/cardTypes';
+import type { ClozeContent } from '@/domain/cloze/clozeContent';
 import type { CollectionRepository } from '@/domain/repositories/CollectionRepository';
 import type { DeckRepository } from '@/domain/repositories/DeckRepository';
 import type { CardAggregate, CardRepository } from '@/domain/repositories/CardRepository';
@@ -31,6 +32,8 @@ export type CreateCardInput = {
   type: CardType;
   frontText?: string;
   backText?: string;
+  /** Conteúdo estruturado do cloze (§9): fonte de frente/verso para `type === 'cloze'`. */
+  cloze?: ClozeContent;
   notes?: string;
   tags?: string[];
   media?: CreateCardMediaInput[];
@@ -193,6 +196,7 @@ export async function createCard(
         type: sanitized.data.type,
         front: sanitized.data.frontText,
         back: sanitized.data.backText,
+        ...(sanitized.data.cloze ? { cloze: sanitized.data.cloze } : {}),
         notes: sanitized.data.notes,
         createdAt: timestamp,
         updatedAt: timestamp,

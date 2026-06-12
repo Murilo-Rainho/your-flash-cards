@@ -1,5 +1,6 @@
 import type { Card } from '@/domain/entities/Card';
 import type { CardType } from '@/constants/cardTypes';
+import { deserializeClozeContent, serializeClozeContent } from '@/domain/cloze/clozeContent';
 import type { CardVariant, VariantType } from '@/domain/entities/CardVariant';
 import type { Media, MediaSide, MediaType } from '@/domain/entities/Media';
 import type { ReviewItem } from '@/domain/entities/ReviewItem';
@@ -20,6 +21,7 @@ type CardRow = {
   type: CardType;
   front: string;
   back: string;
+  clozeData: string | null;
   notes: string | null;
   createdAt: string;
   updatedAt: string;
@@ -72,12 +74,15 @@ type ReviewItemRow = {
 };
 
 function mapCard(row: CardRow): Card {
+  const cloze = deserializeClozeContent(row.clozeData);
+
   return {
     id: row.id,
     deckId: row.deckId,
     type: row.type,
     front: row.front,
     back: row.back,
+    ...(cloze ? { cloze } : {}),
     notes: row.notes ?? undefined,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
@@ -153,6 +158,7 @@ INSERT INTO cards (
   type,
   front,
   back,
+  cloze_data,
   notes,
   created_at,
   updated_at,
@@ -163,6 +169,7 @@ INSERT INTO cards (
   $type,
   $front,
   $back,
+  $clozeData,
   $notes,
   $createdAt,
   $updatedAt,
@@ -174,6 +181,7 @@ INSERT INTO cards (
           $type: aggregate.card.type,
           $front: aggregate.card.front,
           $back: aggregate.card.back,
+          $clozeData: aggregate.card.cloze ? serializeClozeContent(aggregate.card.cloze) : null,
           $notes: aggregate.card.notes ?? null,
           $createdAt: aggregate.card.createdAt,
           $updatedAt: aggregate.card.updatedAt,
@@ -415,6 +423,7 @@ UPDATE cards
 SET deck_id = $deckId,
     front = $front,
     back = $back,
+    cloze_data = $clozeData,
     notes = $notes,
     updated_at = $updatedAt
 WHERE id = $id
@@ -425,6 +434,7 @@ WHERE id = $id
           $deckId: aggregate.card.deckId,
           $front: aggregate.card.front,
           $back: aggregate.card.back,
+          $clozeData: aggregate.card.cloze ? serializeClozeContent(aggregate.card.cloze) : null,
           $notes: aggregate.card.notes ?? null,
           $updatedAt: aggregate.card.updatedAt,
         },
@@ -654,6 +664,7 @@ SELECT
   type,
   front,
   back,
+  cloze_data AS clozeData,
   notes,
   created_at AS createdAt,
   updated_at AS updatedAt,
@@ -680,6 +691,7 @@ SELECT
   type,
   front,
   back,
+  cloze_data AS clozeData,
   notes,
   created_at AS createdAt,
   updated_at AS updatedAt,

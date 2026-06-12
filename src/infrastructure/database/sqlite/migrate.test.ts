@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { migrateSqliteDatabase } from './migrate';
 import type { SqliteDatabaseConnection } from './types';
 
@@ -47,17 +49,19 @@ describe('migrateSqliteDatabase', () => {
       expect.arrayContaining([
         expect.stringContaining('CREATE TABLE IF NOT EXISTS collections'),
         expect.stringContaining('CREATE INDEX IF NOT EXISTS idx_review_items_due'),
+        expect.stringContaining('ALTER TABLE cards ADD COLUMN cloze_data'),
       ]),
     );
     expect(
       db.execStatements.filter((statement) => statement === 'PRAGMA foreign_keys = ON'),
     ).toHaveLength(1);
-    expect(db.transactionCount).toBe(2);
+    expect(db.transactionCount).toBe(3);
     expect(db.runCalls[0]?.source).toBe(
       'INSERT INTO schema_migrations (version, applied_at) VALUES (?, ?)',
     );
     expect(db.runCalls[0]?.params[0]).toEqual(['001_initial_schema', expect.any(String)]);
     expect(db.runCalls[1]?.params[0]).toEqual(['002_tags_collection_scope', expect.any(String)]);
+    expect(db.runCalls[2]?.params[0]).toEqual(['003_cloze_multi', expect.any(String)]);
   });
 
   it('skips already applied migrations', async () => {

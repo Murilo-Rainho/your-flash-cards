@@ -8,7 +8,8 @@ Espelha `.claude/context/tech-stack.md`. Fonte: `package.json`.
 - expo-router ~6 (rotas em `src/app/`), NativeWind 4 + Tailwind 3 (tema TS; `src/theme/colors.ts` = fonte única, lida pelo `tailwind.config.ts`).
 - @tanstack/react-query 5 (dados async), zustand 5 (estado UI), react-hook-form 7 + zod 4.
 - expo-secure-store, expo-speech (a usar atrás de `TtsProvider`).
-- jest + jest-expo (alias `@/`→`src/`), ESLint + Prettier + Husky + lint-staged.
+- jest + jest-expo (alias `@/`→`src/`), coverage >=80% nas áreas críticas, ESLint +
+  Prettier + Husky + lint-staged.
 
 ## A adicionar quando a camada for construída (respeitando Expo Go)
 
@@ -31,4 +32,4 @@ explícitos para compatibilidade com o Expo Go publicado. Não atualizar/remover
 ## Scripts
 
 `npm start` · `npm run android` · `npm run lint` · `npm run typecheck` · `npm run test` ·
-`npm run validate`.
+`npm run test:coverage` · `npm run validate`.

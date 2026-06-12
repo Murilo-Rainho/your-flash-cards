@@ -1,7 +1,11 @@
-import { ClozeBackField, ClozeFrontField } from '@/components/forms/ClozeFrontField';
+import { ClozeBlankEditor } from '@/components/forms/ClozeBlankEditor';
+import { ClozePreview } from '@/components/forms/ClozePreview';
+import { ClozeSentenceField } from '@/components/forms/ClozeSentenceField';
+import { FieldError } from '@/components/common/FieldError';
 import { TextAreaField } from '@/components/forms/TextAreaField';
 import type { CardType } from '@/constants/cardTypes';
 import type { TtsPlaybackSpeed } from '@/constants/tts';
+import { getClozeBlanks } from '@/domain/cloze/clozeContent';
 import { MEDIA_SIDES, MEDIA_TYPES, type MediaSide } from '@/domain/entities/Media';
 
 import { useStrings } from '@/features/settings/providers/PreferencesProvider';
@@ -10,6 +14,7 @@ import { getCardTypeFormConfig } from '../config/cardTypeForm';
 import { LISTENING_INPUT_MODES, type ListeningInputMode } from '../config/listeningInputMode';
 import { TYPING_FRONT_MODES, type TypingFrontMode } from '../config/typingFrontMode';
 import type { VocabularyFrontMode } from '../config/vocabularyFrontMode';
+import type { ClozeEditor } from '../hooks/useClozeEditor';
 import type { CreateCardMediaInput } from '../services/createCard';
 import { ListeningSideField } from './ListeningSideField';
 import { MediaControls } from './MediaControls';
@@ -27,10 +32,7 @@ type CardTypeFieldsProps = {
   type: CardType;
   frontText: string;
   backText: string;
-  cloze: {
-    front: { before: string; gap: string; after: string };
-    back: { before: string; gap: string; after: string };
-  };
+  cloze: ClozeEditor;
   frontMedia: CreateCardMediaInput[];
   backMedia: CreateCardMediaInput[];
   errors: CardTypeFieldsErrors;
@@ -47,7 +49,6 @@ type CardTypeFieldsProps = {
   onVocabularyFrontModeChange: (mode: VocabularyFrontMode) => void;
   onTypingFrontModeChange: (mode: TypingFrontMode) => void;
   onTestListeningAudio: (side: MediaSide, speed?: TtsPlaybackSpeed) => void;
-  onChangeCloze: (side: 'front' | 'back', part: 'before' | 'gap' | 'after', value: string) => void;
   onPickImage: (side: MediaSide, source: 'library' | 'camera') => void;
   onPickAudio: (side: MediaSide) => void;
   onStartRecording: (side: MediaSide) => void;
@@ -82,7 +83,6 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
     onVocabularyFrontModeChange,
     onTypingFrontModeChange,
     onTestListeningAudio,
-    onChangeCloze,
     onPickImage,
     onPickAudio,
     onStartRecording,
@@ -158,41 +158,44 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
   };
 
   if (config.layout === 'cloze') {
+    const clozeStrings = strings.cards.clozeFields;
+    const blanks = getClozeBlanks(cloze.content);
+
     return (
       <>
-        <ClozeFrontField
-          label={strings.common.front}
-          description={strings.cards.clozeFields.frontDescription}
-          placeholders={{
-            before: strings.cards.clozeFields.frontBeforePlaceholder,
-            gap: strings.cards.clozeFields.frontGapPlaceholder,
-            after: strings.cards.clozeFields.frontAfterPlaceholder,
-          }}
-          before={cloze.front.before}
-          gap={cloze.front.gap}
-          after={cloze.front.after}
+        <ClozeSentenceField
+          label={clozeStrings.sentenceLabel}
+          description={clozeStrings.sentenceDescription}
+          placeholder={clozeStrings.sentencePlaceholder}
+          markBlankLabel={clozeStrings.markBlank}
+          markBlankHint={clozeStrings.markBlankHint}
+          value={cloze.sentence}
           error={frontError}
           disabled={isSaving}
-          onChangeBefore={(value) => onChangeCloze('front', 'before', value)}
-          onChangeGap={(value) => onChangeCloze('front', 'gap', value)}
-          onChangeAfter={(value) => onChangeCloze('front', 'after', value)}
+          onChangeText={cloze.setSentence}
+          onMarkBlank={cloze.markBlank}
         />
-        <ClozeBackField
-          label={strings.common.backSide}
-          placeholders={{
-            before: strings.cards.clozeFields.backBeforePlaceholder,
-            gap: strings.cards.clozeFields.backGapPlaceholder,
-            after: strings.cards.clozeFields.backAfterPlaceholder,
-          }}
-          before={cloze.back.before}
-          gap={cloze.back.gap}
-          after={cloze.back.after}
-          error={backError}
-          disabled={isSaving}
-          onChangeBefore={(value) => onChangeCloze('back', 'before', value)}
-          onChangeGap={(value) => onChangeCloze('back', 'gap', value)}
-          onChangeAfter={(value) => onChangeCloze('back', 'after', value)}
+        <ClozePreview
+          label={clozeStrings.previewLabel}
+          segments={cloze.content.segments}
+          emptyText={clozeStrings.emptyBlanks}
         />
+        {blanks.map((blank, index) => (
+          <ClozeBlankEditor
+            key={index}
+            index={index}
+            hint={blank.hint ?? ''}
+            answers={cloze.answers[index] ?? []}
+            strings={clozeStrings}
+            disabled={isSaving}
+            onChangeHint={(value) => cloze.changeBlankHint(index, value)}
+            onRemoveBlank={() => cloze.removeBlank(index)}
+            onAddAnswer={() => cloze.addAnswer(index)}
+            onChangeAnswer={(answerIndex, value) => cloze.changeAnswer(index, answerIndex, value)}
+            onRemoveAnswer={(answerIndex) => cloze.removeAnswer(index, answerIndex)}
+          />
+        ))}
+        <FieldError message={backError} />
       </>
     );
   }

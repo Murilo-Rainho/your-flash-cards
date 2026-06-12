@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import type { Tag } from '@/domain/entities/Tag';
 
 import { SQLiteTagRepository } from './SQLiteTagRepository';

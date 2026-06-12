@@ -33,10 +33,12 @@ para Premium/Sync futuros. Stack detalhada: [`.claude/context/tech-stack.md`](./
 npm run typecheck   # tsc --noEmit (strict)
 npm run lint        # eslint
 npm run test        # jest (jest-expo)
+npm run test:coverage # jest + cobertura >=80% nas áreas críticas
 npm run validate    # typecheck + lint + format:check
 ```
 
-Não conclua uma tarefa sem rodar typecheck + testes. Não relaxe `strict`/ESLint para passar.
+Não conclua uma tarefa sem rodar `npm run validate && npm run test:coverage`. Não relaxe
+`strict`/ESLint/cobertura para passar.
 
 ## Regra de Expo Go (não quebrar)
 

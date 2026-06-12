@@ -18,8 +18,8 @@
 | Formulários    | **react-hook-form 7** + **zod 4**               | Validação de inputs nas telas                              |
 | Storage seguro | **expo-secure-store**                           | Tokens de auth (Premium futuro)                            |
 | TTS            | **expo-speech** (a usar atrás de `TtsProvider`) | §14.2                                                      |
-| Testes         | **jest + jest-expo**, alias `@/`→`src/`         | ver `package.json#jest`                                    |
-| Qualidade      | ESLint + Prettier + Husky + lint-staged         | `npm run validate`                                         |
+| Testes         | **jest + jest-expo**, alias `@/`→`src/`         | `npm run test:coverage` exige >=80% nas áreas críticas     |
+| Qualidade      | ESLint + Prettier + Husky + lint-staged         | `npm run validate` + coverage no pre-commit                |
 
 ## Dependências recomendadas a adicionar (quando a camada for construída)
 
@@ -52,6 +52,7 @@ npm run android      # abre no Android
 npm run lint         # eslint
 npm run typecheck    # tsc --noEmit
 npm run test         # jest
+npm run test:coverage # jest + cobertura >=80% nas áreas críticas
 npm run validate     # typecheck + lint + format:check
 ```
 

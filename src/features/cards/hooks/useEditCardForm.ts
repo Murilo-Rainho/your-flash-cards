@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import type { SelectOption } from '@/components/forms/SelectField';
 import { CARD_TYPES, type CardType } from '@/constants/cardTypes';
 import { DEFAULT_TTS_PLAYBACK_SPEED, type TtsPlaybackSpeed } from '@/constants/tts';
-import { composeClozeBack, composeClozeFront } from '@/domain/cloze/cloze';
 import type { Deck } from '@/domain/entities/Deck';
 import { MEDIA_SIDES, MEDIA_TYPES, type MediaSide } from '@/domain/entities/Media';
 import type { CardAggregate } from '@/domain/repositories/CardRepository';
@@ -24,12 +23,14 @@ import {
 import { VOCABULARY_FRONT_MODES, type VocabularyFrontMode } from '../config/vocabularyFrontMode';
 import { sanitizeMediaForType } from '../services/cardMedia';
 import { deriveEditCardPrefill } from '../services/deriveEditCardPrefill';
+import { localizeCardFieldErrors } from '../services/localizeCardFieldErrors';
 import type { CreateCardFileMediaInput, CreateCardMediaInput } from '../services/sanitizeCardInput';
 import { isUpdateCardInputError } from '../services/updateCard';
 import { useAudioRecording } from './useAudioRecording';
 import { useCardMedia } from './useCardMedia';
 import { useCardTestReview } from './useCardTestReview';
 import { useCardTts } from './useCardTts';
+import { useClozeEditor } from './useClozeEditor';
 import { useDeleteCard } from './useDeleteCard';
 import { useUpdateCard } from './useUpdateCard';
 
@@ -39,12 +40,6 @@ type EditCardFormValues = {
   deckId: string;
   frontText: string;
   backText: string;
-  clozeBefore: string;
-  clozeGap: string;
-  clozeAfter: string;
-  clozeBackBefore: string;
-  clozeBackGap: string;
-  clozeBackAfter: string;
   frontMedia: string;
   backMedia: string;
   notes: string;
@@ -107,12 +102,6 @@ export function useEditCardForm({ aggregate, onSaved, onDeleted }: UseEditCardFo
       deckId: card.deckId,
       frontText: prefill.frontText,
       backText: prefill.backText,
-      clozeBefore: prefill.cloze.front.before,
-      clozeGap: prefill.cloze.front.gap,
-      clozeAfter: prefill.cloze.front.after,
-      clozeBackBefore: prefill.cloze.back.before,
-      clozeBackGap: prefill.cloze.back.gap,
-      clozeBackAfter: prefill.cloze.back.after,
       frontMedia: '',
       backMedia: '',
       notes: prefill.notes,
@@ -123,14 +112,18 @@ export function useEditCardForm({ aggregate, onSaved, onDeleted }: UseEditCardFo
   const selectedDeckId = watch('deckId');
   const frontText = watch('frontText');
   const backText = watch('backText');
-  const clozeBefore = watch('clozeBefore');
-  const clozeGap = watch('clozeGap');
-  const clozeAfter = watch('clozeAfter');
-  const clozeBackBefore = watch('clozeBackBefore');
-  const clozeBackGap = watch('clozeBackGap');
-  const clozeBackAfter = watch('clozeBackAfter');
   const tags = watch('tags');
   const notes = watch('notes');
+
+  const clozeEditor = useClozeEditor(prefill.cloze);
+
+  useEffect(() => {
+    if (type !== CARD_TYPES.CLOZE) {
+      return;
+    }
+
+    clearErrors(['frontText', 'backText']);
+  }, [clearErrors, clozeEditor.content, type]);
 
   const media = useCardMedia({
     selectedType: type,
@@ -210,62 +203,6 @@ export function useEditCardForm({ aggregate, onSaved, onDeleted }: UseEditCardFo
       }
     },
     [listeningModes.back, listeningModes.front, type, setValue],
-  );
-
-  const syncClozeFrontText = useCallback(
-    (before: string, gap: string, after: string) => {
-      setValue('frontText', composeClozeFront(before, gap, after) ?? '', { shouldDirty: true });
-    },
-    [setValue],
-  );
-
-  const syncClozeBackText = useCallback(
-    (before: string, gap: string, after: string) => {
-      setValue('backText', composeClozeBack(before, gap, after) ?? '', { shouldDirty: true });
-    },
-    [setValue],
-  );
-
-  const handleChangeCloze = useCallback(
-    (side: 'front' | 'back', part: 'before' | 'gap' | 'after', value: string) => {
-      if (side === 'front') {
-        if (part === 'before') {
-          setValue('clozeBefore', value, { shouldDirty: true });
-          setValue('clozeBackBefore', value, { shouldDirty: true });
-          syncClozeFrontText(value, getValues('clozeGap'), getValues('clozeAfter'));
-          syncClozeBackText(value, getValues('clozeBackGap'), getValues('clozeBackAfter'));
-          return;
-        }
-
-        if (part === 'gap') {
-          setValue('clozeGap', value, { shouldDirty: true });
-          syncClozeFrontText(getValues('clozeBefore'), value, getValues('clozeAfter'));
-          return;
-        }
-
-        setValue('clozeAfter', value, { shouldDirty: true });
-        setValue('clozeBackAfter', value, { shouldDirty: true });
-        syncClozeFrontText(getValues('clozeBefore'), getValues('clozeGap'), value);
-        syncClozeBackText(getValues('clozeBackBefore'), getValues('clozeBackGap'), value);
-        return;
-      }
-
-      if (part === 'before') {
-        setValue('clozeBackBefore', value, { shouldDirty: true });
-        syncClozeBackText(value, getValues('clozeBackGap'), getValues('clozeBackAfter'));
-        return;
-      }
-
-      if (part === 'gap') {
-        setValue('clozeBackGap', value, { shouldDirty: true });
-        syncClozeBackText(getValues('clozeBackBefore'), value, getValues('clozeBackAfter'));
-        return;
-      }
-
-      setValue('clozeBackAfter', value, { shouldDirty: true });
-      syncClozeBackText(getValues('clozeBackBefore'), getValues('clozeBackGap'), value);
-    },
-    [getValues, setValue, syncClozeBackText, syncClozeFrontText],
   );
 
   const handleVocabularyFrontModeChange = useCallback(
@@ -465,22 +402,16 @@ export function useEditCardForm({ aggregate, onSaved, onDeleted }: UseEditCardFo
       return;
     }
 
-    const frontTextToSave =
-      type === CARD_TYPES.CLOZE
-        ? (composeClozeFront(values.clozeBefore, values.clozeGap, values.clozeAfter) ?? '')
-        : values.frontText;
-    const backTextToSave =
-      type === CARD_TYPES.CLOZE
-        ? (composeClozeBack(values.clozeBackBefore, values.clozeBackGap, values.clozeBackAfter) ??
-          '')
-        : values.backText;
+    const isCloze = type === CARD_TYPES.CLOZE;
 
     try {
       await updateCardMutation.mutateAsync({
         id: card.id,
         deckId: values.deckId,
-        frontText: frontTextToSave,
-        backText: backTextToSave,
+        // Cloze: frente/verso são derivadas do conteúdo estruturado no serviço.
+        frontText: isCloze ? undefined : values.frontText,
+        backText: isCloze ? undefined : values.backText,
+        cloze: isCloze ? clozeEditor.content : undefined,
         notes: values.notes,
         tags: values.tags,
         media: submitMedia,
@@ -488,7 +419,7 @@ export function useEditCardForm({ aggregate, onSaved, onDeleted }: UseEditCardFo
       onSaved();
     } catch (error) {
       if (isUpdateCardInputError(error)) {
-        applyFieldErrors(setError, error.fieldErrors);
+        applyFieldErrors(setError, localizeCardFieldErrors(error.fieldErrors, strings.cards));
         return;
       }
       setFormError(strings.cards.updateError);
@@ -509,10 +440,7 @@ export function useEditCardForm({ aggregate, onSaved, onDeleted }: UseEditCardFo
     type,
     frontText,
     backText,
-    cloze: {
-      front: { before: clozeBefore, gap: clozeGap, after: clozeAfter },
-      back: { before: clozeBackBefore, gap: clozeBackGap, after: clozeBackAfter },
-    },
+    cloze: clozeEditor.content,
     frontMedia,
     backMedia,
     reviewStrings: strings.review,
@@ -538,10 +466,7 @@ export function useEditCardForm({ aggregate, onSaved, onDeleted }: UseEditCardFo
     isSaveDisabled,
     frontText,
     backText,
-    cloze: {
-      front: { before: clozeBefore, gap: clozeGap, after: clozeAfter },
-      back: { before: clozeBackBefore, gap: clozeBackGap, after: clozeBackAfter },
-    },
+    cloze: clozeEditor,
     frontMedia,
     backMedia,
     ttsLanguages,
@@ -560,7 +485,6 @@ export function useEditCardForm({ aggregate, onSaved, onDeleted }: UseEditCardFo
     onSubmit,
     onDelete: handleDelete,
     onChangeText: handleChangeText,
-    onChangeCloze: handleChangeCloze,
     onPickImage: (side: MediaSide, source: 'library' | 'camera') => {
       void media.pickImage(side, source);
     },

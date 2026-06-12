@@ -1,4 +1,5 @@
 import type { CardType } from '@/constants/cardTypes';
+import type { ClozeContent } from '@/domain/cloze/clozeContent';
 import type { ReviewRating } from '@/constants/reviewRatings';
 import type { VariantType } from '@/domain/entities/CardVariant';
 import type { Media } from '@/domain/entities/Media';
@@ -18,6 +19,8 @@ export type DueReviewCard = {
   cardType: CardType;
   front: string;
   back: string;
+  /** Conteúdo cloze estruturado (quando o card é cloze e foi salvo no novo formato). */
+  cloze?: ClozeContent;
   notes?: string;
   variantType: VariantType;
   media: Media[];

@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { initialSchemaMigration } from './001_initial_schema';
 
 const migrationSql = initialSchemaMigration.statements.join('\n');

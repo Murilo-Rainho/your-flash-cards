@@ -26,6 +26,7 @@ export const review = {
   },
   answer: {
     clozePrompt: 'Preencha a lacuna (opcional)',
+    clozeBlankLabel: 'Lacuna',
     typingPrompt: 'Digite sua resposta',
     listeningPrompt: 'Escreva o que você ouviu',
     placeholder: 'Sua resposta',
@@ -40,6 +41,8 @@ export const review = {
     typedAnswer: 'Você escreveu:',
     markWrong: 'Marcar como errei',
     markCorrect: 'Marcar como acertei',
+    previousAcceptedAnswerA11y: 'Mostrar resposta aceita anterior',
+    nextAcceptedAnswerA11y: 'Mostrar próxima resposta aceita',
   },
   session: {
     title: 'Sessão de estudo',

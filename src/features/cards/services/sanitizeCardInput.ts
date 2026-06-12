@@ -1,10 +1,17 @@
 import { CARD_TYPES, type CardType } from '@/constants/cardTypes';
 import { LIMITS } from '@/constants/limits';
-import { extractExpectedClozeAnswer, parseClozeFront } from '@/domain/cloze/cloze';
+import {
+  composeClozeBack,
+  composeClozeFront,
+  validateClozeContent,
+  type ClozeContent,
+} from '@/domain/cloze/clozeContent';
 import { MEDIA_SIDES, MEDIA_TYPES, type MediaSide, type MediaType } from '@/domain/entities/Media';
 import type { Tag } from '@/domain/entities/Tag';
 import { normalizeTagKey, normalizeTagName } from '@/utils/normalizeText';
 import type { FieldErrors } from '@/utils/validation';
+
+import { CARD_FIELD_ERROR_CODES } from './cardValidationErrorCodes';
 
 const MAX_TEXT_LENGTH = 2000;
 const MAX_NOTES_LENGTH = 1000;
@@ -36,6 +43,8 @@ export type CardContentInput = {
   type: CardType;
   frontText?: string;
   backText?: string;
+  /** Conteúdo estruturado do cloze (§9). Para `type === 'cloze'`, é a fonte de frente/verso. */
+  cloze?: ClozeContent;
   notes?: string;
   tags?: string[];
   media?: CreateCardMediaInput[];
@@ -54,6 +63,7 @@ export type SanitizedCardContent = {
   type: CardType;
   frontText: string;
   backText: string;
+  cloze?: ClozeContent;
   notes?: string;
   tags: Tag[];
   media: CreateCardMediaInput[];
@@ -107,8 +117,12 @@ export function sanitizeCardContent(
 ): { data?: SanitizedCardContent; fieldErrors: FieldErrors<CardContentField> } {
   const fieldErrors: FieldErrors<CardContentField> = {};
   const type = trimText(input.type);
-  const frontText = trimText(input.frontText);
-  const backText = trimText(input.backText);
+  const isCloze = type === CARD_TYPES.CLOZE;
+  // Para cloze, a frente/verso são DERIVADAS do conteúdo estruturado (a frente com `{dica}`
+  // por lacuna; o verso com a resposta primária por lacuna). Demais tipos usam o texto cru.
+  const clozeContent = isCloze ? input.cloze : undefined;
+  const frontText = clozeContent ? composeClozeFront(clozeContent) : trimText(input.frontText);
+  const backText = clozeContent ? composeClozeBack(clozeContent) : trimText(input.backText);
   const notes = trimText(input.notes);
   const media = input.media ?? [];
 
@@ -179,39 +193,31 @@ export function sanitizeCardContent(
   }
 
   // Escuta e Pronúncia validam os dois lados em blocos próprios (transcrição / áudio modelo).
+  // Cloze valida o conteúdo estruturado no bloco dedicado abaixo (frente/verso são derivadas).
   const backIsUsed = type !== CARD_TYPES.LISTENING && type !== CARD_TYPES.PRONUNCIATION;
   const hasFrontContent = hasText(frontText) || hasSideMedia(media, MEDIA_SIDES.FRONT);
   const hasBackContent = hasText(backText) || hasSideMedia(media, MEDIA_SIDES.BACK);
 
-  if (!hasFrontContent) {
+  if (!isCloze && !hasFrontContent) {
     fieldErrors.frontText = 'Informe texto ou midia para a frente.';
   }
 
-  if (backIsUsed && !hasBackContent) {
+  if (!isCloze && backIsUsed && !hasBackContent) {
     fieldErrors.backText = 'Informe texto ou midia para o verso.';
   }
 
   if (type === CARD_TYPES.CLOZE) {
     if (media.length > 0) {
-      fieldErrors.frontMedia = 'Preencher lacuna aceita apenas texto.';
-      fieldErrors.backMedia = 'Preencher lacuna aceita apenas texto.';
+      fieldErrors.frontMedia = CARD_FIELD_ERROR_CODES.clozeTextOnly;
+      fieldErrors.backMedia = CARD_FIELD_ERROR_CODES.clozeTextOnly;
     }
 
-    if (!hasText(frontText)) {
-      fieldErrors.frontText = 'Informe a frase com lacuna.';
-    } else if (!parseClozeFront(frontText)) {
-      fieldErrors.frontText = 'Use {lacuna} para marcar a lacuna na frase.';
-    }
+    const clozeError = clozeContent ? validateClozeContent(clozeContent) : 'no-blanks';
 
-    if (!hasText(backText)) {
-      fieldErrors.backText = 'Informe a frase completa no verso.';
-    } else if (
-      hasText(frontText) &&
-      parseClozeFront(frontText) &&
-      !extractExpectedClozeAnswer(frontText, backText)
-    ) {
-      fieldErrors.backText =
-        'O verso deve ter a mesma estrutura da frente, com a resposta no lugar da lacuna.';
+    if (clozeError === 'no-blanks') {
+      fieldErrors.frontText = CARD_FIELD_ERROR_CODES.clozeNoBlanks;
+    } else if (clozeError === 'blank-without-answer') {
+      fieldErrors.backText = CARD_FIELD_ERROR_CODES.clozeBlankWithoutAnswer;
     }
   }
 
@@ -284,6 +290,7 @@ export function sanitizeCardContent(
       type,
       frontText,
       backText,
+      cloze: clozeContent,
       notes: notes || undefined,
       tags,
       media,

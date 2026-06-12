@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { SQLiteAppSettingsRepository } from './SQLiteAppSettingsRepository';
 import type { SqliteDatabaseConnection } from '../types';
 

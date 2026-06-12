@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { countConsecutiveReviewDays, startOfLocalDay, toLocalDateKey } from './date';
 
 describe('date utils', () => {

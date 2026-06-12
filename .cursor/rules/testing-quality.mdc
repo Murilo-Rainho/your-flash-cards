@@ -1,0 +1,22 @@
+---
+description: Testes, cobertura e fechamento de qualidade.
+globs: src/domain/**/*.ts,src/features/review/services/**/*.ts,src/features/import-export/services/**/*.ts,src/infrastructure/importers/**/*.ts,src/infrastructure/exporters/**/*.ts,src/**/*.test.ts,src/**/*.test.tsx
+alwaysApply: true
+---
+
+# Testes & Qualidade
+
+Base: contrato §18, §20, §23, §25, §29, §31, §32 e §36.
+
+- Testes são obrigatórios para domínio, scheduler SM-2 e import/export.
+- `npm run test:coverage` coleta cobertura das áreas críticas configuradas no Jest:
+  `src/domain`, `src/features/review/services`, `src/features/import-export/services`,
+  `src/infrastructure/importers` e `src/infrastructure/exporters`.
+- O gate mínimo é **80%** para statements, branches, functions e lines.
+- Testes devem ser offline, determinísticos e sem rede.
+- Lógica pura deve ser testada sem mocks de Expo; infraestrutura deve ser testada contra
+  interfaces/fakes que respeitam o domínio.
+- Antes de concluir: `npm run validate && npm run test:coverage`.
+
+Proibido: aprovar domínio/scheduler/import-export sem testes; relaxar `strict`, ESLint ou
+cobertura para passar; marcar tarefa como concluída sem validate + coverage.

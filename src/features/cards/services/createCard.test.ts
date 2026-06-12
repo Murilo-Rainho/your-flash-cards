@@ -1,4 +1,7 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { CARD_TYPES } from '@/constants/cardTypes';
+import { buildClozeContent } from '@/domain/cloze/clozeContent';
 import type { Collection } from '@/domain/entities/Collection';
 import type { Deck } from '@/domain/entities/Deck';
 import { MEDIA_SIDES, MEDIA_TYPES } from '@/domain/entities/Media';
@@ -10,6 +13,7 @@ import type {
   PersistLocalMediaInput,
 } from '@/domain/services/LocalMediaStorage';
 
+import { CARD_FIELD_ERROR_CODES } from './cardValidationErrorCodes';
 import { createCard } from './createCard';
 
 class FakeCollectionRepository implements CollectionRepository {
@@ -233,8 +237,7 @@ describe('createCard', () => {
         collectionId: 'collection-pt-en',
         deckId: 'deck-reverse',
         type: CARD_TYPES.CLOZE,
-        frontText: "I'm {cansado} now",
-        backText: "I'm tired now",
+        cloze: buildClozeContent("I'm {cansado} now", [['tired']]),
       },
       createOptions({ decks: [reverseDeck] }),
     );
@@ -329,53 +332,78 @@ describe('createCard', () => {
     });
   });
 
-  it('persists cloze front with braces and rejects invalid cloze structure', async () => {
+  it('derives front/back and persists structured cloze (single blank)', async () => {
     const aggregate = await createCard(
       {
         collectionId: 'collection-pt-en',
         deckId: 'deck-travel',
         type: CARD_TYPES.CLOZE,
-        frontText: "I'm {cansado} now",
-        backText: "I'm tired now",
+        cloze: buildClozeContent("I'm {cansado} now", [['tired']]),
       },
       createOptions(),
     );
 
     expect(aggregate.card.front).toBe("I'm {cansado} now");
     expect(aggregate.card.back).toBe("I'm tired now");
+    expect(aggregate.card.cloze).toEqual(buildClozeContent("I'm {cansado} now", [['tired']]));
+  });
 
+  it('supports multiple blanks and multiple accepted answers per blank', async () => {
+    const aggregate = await createCard(
+      {
+        collectionId: 'collection-pt-en',
+        deckId: 'deck-travel',
+        type: CARD_TYPES.CLOZE,
+        cloze: buildClozeContent('I would like {ambos} water {e} juice.', [
+          ['both', 'the two'],
+          ['and'],
+        ]),
+      },
+      createOptions(),
+    );
+
+    expect(aggregate.card.front).toBe('I would like {ambos} water {e} juice.');
+    // O verso usa a resposta primária (a primeira) de cada lacuna.
+    expect(aggregate.card.back).toBe('I would like both water and juice.');
+    expect(aggregate.card.cloze?.segments).toContainEqual({
+      kind: 'blank',
+      hint: 'ambos',
+      answers: ['both', 'the two'],
+    });
+  });
+
+  it('rejects a sentence without blanks', async () => {
     await expect(
       createCard(
         {
           collectionId: 'collection-pt-en',
           deckId: 'deck-travel',
           type: CARD_TYPES.CLOZE,
-          frontText: "I'm ____ now",
-          backText: "I'm tired now",
+          cloze: buildClozeContent("I'm tired now", []),
         },
         createOptions(),
       ),
     ).rejects.toMatchObject({
       fieldErrors: {
-        frontText: 'Use {lacuna} para marcar a lacuna na frase.',
+        frontText: CARD_FIELD_ERROR_CODES.clozeNoBlanks,
       },
     });
+  });
 
+  it('rejects a blank without any accepted answer', async () => {
     await expect(
       createCard(
         {
           collectionId: 'collection-pt-en',
           deckId: 'deck-travel',
           type: CARD_TYPES.CLOZE,
-          frontText: "I'm {cansado} now",
-          backText: 'I am tired now',
+          cloze: buildClozeContent("I'm {cansado} now", [[]]),
         },
         createOptions(),
       ),
     ).rejects.toMatchObject({
       fieldErrors: {
-        backText:
-          'O verso deve ter a mesma estrutura da frente, com a resposta no lugar da lacuna.',
+        backText: CARD_FIELD_ERROR_CODES.clozeBlankWithoutAnswer,
       },
     });
   });
@@ -387,8 +415,7 @@ describe('createCard', () => {
           collectionId: 'collection-pt-en',
           deckId: 'deck-travel',
           type: CARD_TYPES.CLOZE,
-          frontText: "I'm {cansado} now",
-          backText: "I'm tired now",
+          cloze: buildClozeContent("I'm {cansado} now", [['tired']]),
           media: [
             {
               side: MEDIA_SIDES.FRONT,
@@ -402,8 +429,8 @@ describe('createCard', () => {
       ),
     ).rejects.toMatchObject({
       fieldErrors: {
-        frontMedia: 'Preencher lacuna aceita apenas texto.',
-        backMedia: 'Preencher lacuna aceita apenas texto.',
+        frontMedia: CARD_FIELD_ERROR_CODES.clozeTextOnly,
+        backMedia: CARD_FIELD_ERROR_CODES.clozeTextOnly,
       },
     });
   });

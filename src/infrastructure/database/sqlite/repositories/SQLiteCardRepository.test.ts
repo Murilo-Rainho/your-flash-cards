@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { CARD_TYPES } from '@/constants/cardTypes';
 import { MEDIA_SIDES, MEDIA_TYPES } from '@/domain/entities/Media';
 import type { CardAggregate } from '@/domain/repositories/CardRepository';
@@ -146,6 +148,7 @@ describe('SQLiteCardRepository', () => {
       $type: CARD_TYPES.VOCABULARY,
       $front: 'house',
       $back: 'casa',
+      $clozeData: null,
       $notes: 'basic',
       $createdAt: '2026-06-03T12:00:00.000Z',
       $updatedAt: '2026-06-03T12:00:00.000Z',

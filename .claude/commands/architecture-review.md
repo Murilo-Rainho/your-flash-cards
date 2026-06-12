@@ -23,7 +23,8 @@ Avalie contra `CONTRATO_README.md` e `.claude/rules/`:
 4. **Scheduler** (`spaced-repetition-scheduler`): cálculo só atrás de `ReviewScheduler`?
 5. **Import/Export** (`import-export-connectors`): atrás de interface? APKG é melhor esforço?
 6. **Premium** (`premium-gate-billing`): features de rede atrás de `PremiumGate`? Free intacto?
-7. **Qualidade** (`testing-quality`): áreas críticas testadas? `npm run validate` passaria?
+7. **Qualidade** (`testing-quality`): áreas críticas testadas? `npm run validate &&
+npm run test:coverage` passariam?
 
 Saída: lista de achados priorizada (❌ bloqueante / ⚠️ atenção / ✅ ok), cada um com
 arquivo:linha e a seção do contrato/regra violada. Não altere código — apenas relate.

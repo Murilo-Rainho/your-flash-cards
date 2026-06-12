@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import {
   DEFAULT_TTS_PLAYBACK_SPEED,
   resolveTtsPlaybackSpeedPreference,

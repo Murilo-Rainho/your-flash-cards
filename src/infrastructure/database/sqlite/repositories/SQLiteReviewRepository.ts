@@ -1,4 +1,5 @@
 import type { CardType } from '@/constants/cardTypes';
+import { deserializeClozeContent } from '@/domain/cloze/clozeContent';
 import type { ReviewRating } from '@/constants/reviewRatings';
 import type { VariantType } from '@/domain/entities/CardVariant';
 import type { Media, MediaSide, MediaType } from '@/domain/entities/Media';
@@ -36,6 +37,7 @@ type DueReviewRow = {
   cardType: CardType;
   front: string;
   back: string;
+  clozeData: string | null;
   notes: string | null;
 };
 
@@ -80,6 +82,7 @@ SELECT
   card.type AS cardType,
   card.front,
   card.back,
+  card.cloze_data AS clozeData,
   card.notes
 FROM review_items ri
 INNER JOIN card_variants cv ON cv.id = ri.card_variant_id
@@ -157,16 +160,21 @@ LIMIT $limit
       rows.map((row) => row.cardId),
     );
 
-    return rows.map((row) => ({
-      reviewItem: mapReviewItem(row),
-      cardId: row.cardId,
-      cardType: row.cardType,
-      front: row.front,
-      back: row.back,
-      notes: row.notes ?? undefined,
-      variantType: row.variantType,
-      media: mediaByCard.get(row.cardId) ?? [],
-    }));
+    return rows.map((row) => {
+      const cloze = deserializeClozeContent(row.clozeData);
+
+      return {
+        reviewItem: mapReviewItem(row),
+        cardId: row.cardId,
+        cardType: row.cardType,
+        front: row.front,
+        back: row.back,
+        ...(cloze ? { cloze } : {}),
+        notes: row.notes ?? undefined,
+        variantType: row.variantType,
+        media: mediaByCard.get(row.cardId) ?? [],
+      };
+    });
   }
 
   async listReviewsForDay(now: Date): Promise<DailyReviewedCard[]> {

@@ -19,6 +19,10 @@ Testes são **exigidos** para:
 - Lógica de domínio/scheduler é TS puro → testes **rápidos e sem mocks de Expo**.
 - Para infraestrutura, teste contra a interface do domínio (fakes/in-memory repos).
 - Testes de UI focam comportamento, não pixels.
+- `npm run test:coverage` coleta cobertura apenas das áreas críticas configuradas no Jest:
+  `src/domain`, `src/features/review/services`, `src/features/import-export/services`,
+  `src/infrastructure/importers` e `src/infrastructure/exporters`.
+- O gate mínimo é **80%** para statements, branches, functions e lines.
 
 ## Validação arquitetural
 
@@ -28,21 +32,24 @@ Antes de concluir uma mudança:
 npm run typecheck   # tsc --noEmit (strict)
 npm run lint        # eslint
 npm run test        # jest
-npm run validate    # os três (typecheck + lint + format:check)
+npm run test:coverage # jest + gate >=80% nas áreas críticas
+npm run validate    # typecheck + lint + format:check
 ```
 
 - Falha de tipos/lint **bloqueia** a entrega.
 - Não relaxar `strict`, regras de ESLint ou cobertura para "passar".
+- Fechamento obrigatório: `npm run validate && npm run test:coverage`.
 
 ## Proibições
 
 - ❌ Entregar domínio/scheduler/import-export sem teste.
 - ❌ Testes que dependem de rede (offline-first vale também para testes).
-- ❌ Marcar tarefa como concluída sem rodar typecheck + testes.
+- ❌ Marcar tarefa como concluída sem rodar validate + coverage.
 
 ## Checklist
 
 - [ ] Domínio, scheduler e import/export têm testes.
 - [ ] `npm run validate` passa.
+- [ ] `npm run test:coverage` passa com cobertura >=80% nas áreas críticas.
 - [ ] Casos de borda do SM-2 cobertos (lapse, ease mínimo, primeira revisão).
 - [ ] APKG: teste de card inválido não derruba a importação inteira.

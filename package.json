@@ -14,6 +14,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "jest",
+    "test:coverage": "jest --coverage --runInBand",
     "test:watch": "jest --watch",
     "validate": "npm run typecheck && npm run lint && npm run format:check",
     "prepare": "husky",
@@ -25,6 +26,25 @@
     "testEnvironment": "node",
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/src/$1"
+    },
+    "collectCoverageFrom": [
+      "src/domain/**/*.{ts,tsx}",
+      "src/features/review/services/**/*.{ts,tsx}",
+      "src/features/import-export/services/**/*.{ts,tsx}",
+      "src/infrastructure/importers/**/*.{ts,tsx}",
+      "src/infrastructure/exporters/**/*.{ts,tsx}",
+      "!**/*.test.{ts,tsx}",
+      "!**/*.spec.{ts,tsx}",
+      "!**/*.d.ts"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 80,
+        "lines": 80,
+        "statements": 80
+      }
     },
     "transformIgnorePatterns": [
       "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|react-navigation|@react-navigation/.*)"

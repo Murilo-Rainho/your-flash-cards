@@ -8,7 +8,6 @@ import { CARD_TYPES, type CardType } from '@/constants/cardTypes';
 import { toSpeechLanguage } from '@/constants/languages';
 import { ROUTES } from '@/constants/routes';
 import { DEFAULT_TTS_PLAYBACK_SPEED, type TtsPlaybackSpeed } from '@/constants/tts';
-import { composeClozeBack, composeClozeFront } from '@/domain/cloze/cloze';
 import type { Collection } from '@/domain/entities/Collection';
 import type { Deck } from '@/domain/entities/Deck';
 import { MEDIA_SIDES, MEDIA_TYPES, type MediaSide } from '@/domain/entities/Media';
@@ -36,6 +35,7 @@ import {
   type CreateCardInput,
   type CreateCardMediaInput,
 } from '../services/createCard';
+import { localizeCardFieldErrors } from '../services/localizeCardFieldErrors';
 import {
   resolveCollectionSelection,
   resolveDeckSelection,
@@ -44,6 +44,7 @@ import { useAudioRecording } from './useAudioRecording';
 import { useCardMedia } from './useCardMedia';
 import { useCardTestReview } from './useCardTestReview';
 import { useCardTts } from './useCardTts';
+import { useClozeEditor } from './useClozeEditor';
 import { useCreateCard } from './useCreateCard';
 
 const MAX_RECORDING_MS = 30_000;
@@ -61,12 +62,6 @@ export type CardFormValues = {
   type: CardType;
   frontText: string;
   backText: string;
-  clozeBefore: string;
-  clozeGap: string;
-  clozeAfter: string;
-  clozeBackBefore: string;
-  clozeBackGap: string;
-  clozeBackAfter: string;
   frontMedia: string;
   backMedia: string;
   notes: string;
@@ -79,12 +74,6 @@ const defaultValues: CardFormValues = {
   type: CARD_TYPES.CLOZE,
   frontText: '',
   backText: '',
-  clozeBefore: '',
-  clozeGap: '',
-  clozeAfter: '',
-  clozeBackBefore: '',
-  clozeBackGap: '',
-  clozeBackAfter: '',
   frontMedia: '',
   backMedia: '',
   notes: '',
@@ -155,15 +144,19 @@ export function useNewCardForm() {
   const selectedDeckId = watch('deckId');
   const selectedType = watch('type');
   const frontText = watch('frontText');
-  const clozeBefore = watch('clozeBefore');
-  const clozeGap = watch('clozeGap');
-  const clozeAfter = watch('clozeAfter');
-  const clozeBackBefore = watch('clozeBackBefore');
-  const clozeBackGap = watch('clozeBackGap');
-  const clozeBackAfter = watch('clozeBackAfter');
   const backText = watch('backText');
   const tags = watch('tags');
   const notes = watch('notes');
+
+  const clozeEditor = useClozeEditor({ sentence: '', answers: [] });
+
+  useEffect(() => {
+    if (selectedType !== CARD_TYPES.CLOZE) {
+      return;
+    }
+
+    clearErrors(['frontText', 'backText']);
+  }, [clearErrors, clozeEditor.content, selectedType]);
 
   const media = useCardMedia({ selectedType, onError: setFormError, onChange: clearSuccess });
   const recording = useAudioRecording({
@@ -231,16 +224,11 @@ export function useNewCardForm() {
     setShowOptionalFields(false);
     clearErrors(['frontText', 'backText', 'frontMedia', 'backMedia', 'tags', 'notes']);
     setValue('frontText', '', { shouldDirty: false, shouldValidate: false });
-    setValue('clozeBefore', '', { shouldDirty: false, shouldValidate: false });
-    setValue('clozeGap', '', { shouldDirty: false, shouldValidate: false });
-    setValue('clozeAfter', '', { shouldDirty: false, shouldValidate: false });
-    setValue('clozeBackBefore', '', { shouldDirty: false, shouldValidate: false });
-    setValue('clozeBackGap', '', { shouldDirty: false, shouldValidate: false });
-    setValue('clozeBackAfter', '', { shouldDirty: false, shouldValidate: false });
     setValue('backText', '', { shouldDirty: false, shouldValidate: false });
     setValue('tags', [], { shouldDirty: false, shouldValidate: false });
     setValue('notes', '', { shouldDirty: false, shouldValidate: false });
-  }, [clearErrors, media, setValue]);
+    clozeEditor.reset({ sentence: '', answers: [] });
+  }, [clearErrors, clozeEditor, media, setValue]);
 
   useEffect(() => {
     if (collections.length === 0) {
@@ -460,62 +448,6 @@ export function useNewCardForm() {
     [listeningModes.back, listeningModes.front, selectedType, setValue],
   );
 
-  const syncClozeFrontText = useCallback(
-    (before: string, gap: string, after: string) => {
-      setValue('frontText', composeClozeFront(before, gap, after) ?? '', { shouldDirty: true });
-    },
-    [setValue],
-  );
-
-  const syncClozeBackText = useCallback(
-    (before: string, gap: string, after: string) => {
-      setValue('backText', composeClozeBack(before, gap, after) ?? '', { shouldDirty: true });
-    },
-    [setValue],
-  );
-
-  const handleChangeCloze = useCallback(
-    (side: 'front' | 'back', part: 'before' | 'gap' | 'after', value: string) => {
-      if (side === 'front') {
-        if (part === 'before') {
-          setValue('clozeBefore', value, { shouldDirty: true });
-          setValue('clozeBackBefore', value, { shouldDirty: true });
-          syncClozeFrontText(value, getValues('clozeGap'), getValues('clozeAfter'));
-          syncClozeBackText(value, getValues('clozeBackGap'), getValues('clozeBackAfter'));
-          return;
-        }
-
-        if (part === 'gap') {
-          setValue('clozeGap', value, { shouldDirty: true });
-          syncClozeFrontText(getValues('clozeBefore'), value, getValues('clozeAfter'));
-          return;
-        }
-
-        setValue('clozeAfter', value, { shouldDirty: true });
-        setValue('clozeBackAfter', value, { shouldDirty: true });
-        syncClozeFrontText(getValues('clozeBefore'), getValues('clozeGap'), value);
-        syncClozeBackText(getValues('clozeBackBefore'), getValues('clozeBackGap'), value);
-        return;
-      }
-
-      if (part === 'before') {
-        setValue('clozeBackBefore', value, { shouldDirty: true });
-        syncClozeBackText(value, getValues('clozeBackGap'), getValues('clozeBackAfter'));
-        return;
-      }
-
-      if (part === 'gap') {
-        setValue('clozeBackGap', value, { shouldDirty: true });
-        syncClozeBackText(getValues('clozeBackBefore'), value, getValues('clozeBackAfter'));
-        return;
-      }
-
-      setValue('clozeBackAfter', value, { shouldDirty: true });
-      syncClozeBackText(getValues('clozeBackBefore'), getValues('clozeBackGap'), value);
-    },
-    [getValues, setValue, syncClozeBackText, syncClozeFrontText],
-  );
-
   const toggleTts = useCallback(
     async (side: MediaSide) => {
       setFormError(null);
@@ -699,24 +631,16 @@ export function useNewCardForm() {
       return;
     }
 
-    const clozeFrontText =
-      values.type === CARD_TYPES.CLOZE
-        ? (composeClozeFront(values.clozeBefore, values.clozeGap, values.clozeAfter) ?? '')
-        : values.frontText;
-    const clozeBackText =
-      values.type === CARD_TYPES.CLOZE
-        ? (composeClozeBack(values.clozeBackBefore, values.clozeBackGap, values.clozeBackAfter) ??
-          '')
-        : values.backText;
+    const isCloze = values.type === CARD_TYPES.CLOZE;
 
     const input: CreateCardInput = {
       collectionId: values.collectionId,
       deckId: values.deckId,
       type: values.type,
-      frontText: values.type === CARD_TYPES.CLOZE ? clozeFrontText : values.frontText,
-      // Pronúncia em modo TTS espelha o texto da frente no verso (frase falada); nos modos de
-      // áudio o verso fica sem texto (só mídia). A Escuta usa a transcrição no verso.
-      backText: values.type === CARD_TYPES.CLOZE ? clozeBackText : values.backText,
+      // Cloze: frente/verso são derivadas do conteúdo estruturado no serviço.
+      frontText: isCloze ? undefined : values.frontText,
+      backText: isCloze ? undefined : values.backText,
+      cloze: isCloze ? clozeEditor.content : undefined,
       notes: values.notes,
       tags: values.tags,
       media: submitMedia,
@@ -735,7 +659,7 @@ export function useNewCardForm() {
       setSuccessMessage(strings.cards.savedNextReady);
     } catch (error) {
       if (isCreateCardInputError(error)) {
-        applyFieldErrors(setError, error.fieldErrors);
+        applyFieldErrors(setError, localizeCardFieldErrors(error.fieldErrors, strings.cards));
         return;
       }
 
@@ -752,10 +676,7 @@ export function useNewCardForm() {
     type: selectedType,
     frontText,
     backText,
-    cloze: {
-      front: { before: clozeBefore, gap: clozeGap, after: clozeAfter },
-      back: { before: clozeBackBefore, gap: clozeBackGap, after: clozeBackAfter },
-    },
+    cloze: clozeEditor.content,
     frontMedia,
     backMedia,
     reviewStrings: strings.review,
@@ -795,10 +716,7 @@ export function useNewCardForm() {
     isSaveDisabled,
     frontText,
     backText,
-    cloze: {
-      front: { before: clozeBefore, gap: clozeGap, after: clozeAfter },
-      back: { before: clozeBackBefore, gap: clozeBackGap, after: clozeBackAfter },
-    },
+    cloze: clozeEditor,
     frontMedia,
     backMedia,
     ttsLanguages,
@@ -824,7 +742,6 @@ export function useNewCardForm() {
     goToCreateCollection: () => router.replace(ROUTES.COLLECTION_NEW),
     goToCreateDeck: () => router.replace(ROUTES.DECK_NEW),
     onChangeText: handleChangeText,
-    onChangeCloze: handleChangeCloze,
     onPickImage: (side: MediaSide, source: 'library' | 'camera') => {
       void media.pickImage(side, source);
     },

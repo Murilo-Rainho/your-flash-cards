@@ -26,6 +26,7 @@ export const review = {
   },
   answer: {
     clozePrompt: 'Fill in the blank (optional)',
+    clozeBlankLabel: 'Blank',
     typingPrompt: 'Type your answer',
     listeningPrompt: 'Write what you heard',
     placeholder: 'Your answer',
@@ -40,6 +41,8 @@ export const review = {
     typedAnswer: 'You wrote:',
     markWrong: 'Mark as missed',
     markCorrect: 'Mark as correct',
+    previousAcceptedAnswerA11y: 'Show previous accepted answer',
+    nextAcceptedAnswerA11y: 'Show next accepted answer',
   },
   session: {
     title: 'Study session',

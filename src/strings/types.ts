@@ -222,14 +222,28 @@ export type StringCatalog = {
     ttsPlaybackError: string;
     audioRequiredToTest: string;
     audioPlaybackError: string;
+    validation: {
+      clozeNoBlanks: string;
+      clozeBlankWithoutAnswer: string;
+      clozeTextOnly: string;
+    };
     clozeFields: {
-      frontDescription: string;
-      frontBeforePlaceholder: string;
-      frontGapPlaceholder: string;
-      frontAfterPlaceholder: string;
-      backBeforePlaceholder: string;
-      backGapPlaceholder: string;
-      backAfterPlaceholder: string;
+      sentenceLabel: string;
+      sentenceDescription: string;
+      sentencePlaceholder: string;
+      markBlank: string;
+      markBlankHint: string;
+      removeBlankA11y: string;
+      blankLabel: string;
+      hintLabel: string;
+      hintPlaceholder: string;
+      answersLabel: string;
+      answerPlaceholder: string;
+      addAnswer: string;
+      removeAnswerA11y: string;
+      primaryAnswerHint: string;
+      previewLabel: string;
+      emptyBlanks: string;
     };
     optionalFields: {
       accessibilityLabel: string;
@@ -344,6 +358,7 @@ export type StringCatalog = {
     };
     answer: {
       clozePrompt: string;
+      clozeBlankLabel: string;
       typingPrompt: string;
       listeningPrompt: string;
       placeholder: string;
@@ -358,6 +373,8 @@ export type StringCatalog = {
       typedAnswer: string;
       markWrong: string;
       markCorrect: string;
+      previousAcceptedAnswerA11y: string;
+      nextAcceptedAnswerA11y: string;
     };
     session: {
       title: string;

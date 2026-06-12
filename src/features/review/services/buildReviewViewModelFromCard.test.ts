@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import type { AudioAffordance } from '@/components/review';
 import { CARD_TYPES } from '@/constants/cardTypes';
 import { TTS_PLAYBACK_SPEEDS, type TtsPlaybackSpeed } from '@/constants/tts';
@@ -157,7 +159,7 @@ describe('buildReviewViewModelFromCard', () => {
     expect(vm.front.audio?.isPlaying).toBe(true);
   });
 
-  it('cloze: frente exibe a lacuna entre chaves e checa por normalização', () => {
+  it('cloze legado: deriva 1 lacuna/1 resposta de front/back (sem cloze_data)', () => {
     const card = makeCard({
       cardType: CARD_TYPES.CLOZE,
       front: "I'm {tired} now",
@@ -172,8 +174,66 @@ describe('buildReviewViewModelFromCard', () => {
     if (vm.answer.kind !== 'cloze') {
       throw new Error('esperado cloze');
     }
-    expect(vm.answer.checkAnswer('TIRED')).toEqual({ correct: true, expected: 'tired' });
-    expect(vm.answer.checkAnswer('happy')).toEqual({ correct: false, expected: 'tired' });
+    expect(vm.answer.blanks).toHaveLength(1);
+    expect(vm.answer.blanks[0].label).toBe(enUS.review.answer.clozePrompt);
+    expect(vm.answer.blanks[0].acceptedAnswers).toEqual(['tired']);
+    expect(vm.answer.blanks[0].checkAnswer('TIRED')).toEqual({
+      correct: true,
+      expected: 'tired',
+      acceptedAnswers: ['tired'],
+      expectedIndex: 0,
+    });
+    expect(vm.answer.blanks[0].checkAnswer('happy')).toEqual({
+      correct: false,
+      expected: 'tired',
+      acceptedAnswers: ['tired'],
+      expectedIndex: 0,
+    });
+  });
+
+  it('cloze estruturado: múltiplas lacunas e múltiplas respostas aceitas', () => {
+    const card = makeCard({
+      cardType: CARD_TYPES.CLOZE,
+      front: 'It was raining. {Mesmo assim}, we went hiking.',
+      back: 'It was raining. Still, we went hiking.',
+      cloze: {
+        segments: [
+          { kind: 'text', text: 'It was raining. ' },
+          { kind: 'blank', hint: 'Mesmo assim', answers: ['Still', 'Even so', 'Nevertheless'] },
+          { kind: 'text', text: ', we went hiking.' },
+        ],
+      },
+    });
+    const { source } = createSource(card);
+
+    const vm = buildReviewViewModelFromCard(source);
+
+    expect(vm.front.text).toBe('It was raining. {Mesmo assim}, we went hiking.');
+    if (vm.answer.kind !== 'cloze') {
+      throw new Error('esperado cloze');
+    }
+    expect(vm.answer.blanks).toHaveLength(1);
+    expect(vm.answer.blanks[0].checkAnswer('even so')).toEqual({
+      correct: true,
+      expected: 'Even so',
+      acceptedAnswers: ['Still', 'Even so', 'Nevertheless'],
+      expectedIndex: 1,
+    });
+    expect(vm.answer.blanks[0].checkAnswer('Nevertheless')).toEqual({
+      correct: true,
+      expected: 'Nevertheless',
+      acceptedAnswers: ['Still', 'Even so', 'Nevertheless'],
+      expectedIndex: 2,
+    });
+    expect(vm.answer.blanks[0].checkAnswer('however')).toEqual({
+      correct: false,
+      expected: 'Still',
+      acceptedAnswers: ['Still', 'Even so', 'Nevertheless'],
+      expectedIndex: 0,
+    });
+    expect(vm.answer.composeBackText?.(['Even so'])).toBe(
+      'It was raining. Even so, we went hiking.',
+    );
   });
 
   it('escrita (typing): frente é mídia, verso é a resposta comparada por normalização', () => {

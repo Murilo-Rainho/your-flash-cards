@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { resolveStrings } from '@/strings';
 
 import { REVIEW_RATING_ORDER, REVIEW_RATINGS } from './reviewRatings';

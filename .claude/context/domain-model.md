@@ -39,8 +39,10 @@ Existe mesmo **sem conta** (Free é local-first).
 
 ### Card (§30.4) — **card físico/original**
 
-`id, deckId, type, front, back, notes?, createdAt, updatedAt, archivedAt?`
+`id, deckId, type, front, back, cloze?, notes?, createdAt, updatedAt, archivedAt?`
 `type ∈ { vocabulary, cloze, listening, typing, pronunciation }` (§7).
+`cloze?` (apenas `type = cloze`): conteúdo estruturado `{ segments }` com N lacunas e N
+respostas aceitas por lacuna (§9). Fonte da verdade; `front`/`back` são derivados dele.
 
 ### CardVariant (§30.5) — reversos/variações derivadas
 
@@ -96,13 +98,13 @@ Existe mesmo **sem conta** (Free é local-first).
 
 ## Tipos de Card da V1 (§7–§12)
 
-| `type`          | Rótulo na UI (§7) | Regras-chave                                                                          |
-| --------------- | ----------------- | ------------------------------------------------------------------------------------- |
-| `vocabulary`    | Vocabulário       | frente/verso simples; mídia, tags, notas, exemplo opcionais (§8)                      |
-| `cloze`         | Preencher lacuna  | **modelo mais recomendado**; lacuna/resposta definidas manualmente; sem IA na V1 (§9) |
-| `listening`     | Escuta            | áudio local ou TTS local manual; áudio na frente ou verso (§10)                       |
-| `typing`        | Escrita           | usuário digita; comparação simples + normalização; correção manual possível (§11)     |
-| `pronunciation` | Pronúncia         | grava voz local; avaliação manual; sem comparação automática na V1 (§12)              |
+| `type`          | Rótulo na UI (§7) | Regras-chave                                                                                                                                                                                          |
+| --------------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `vocabulary`    | Vocabulário       | frente/verso simples; mídia, tags, notas, exemplo opcionais (§8)                                                                                                                                      |
+| `cloze`         | Preencher lacuna  | **modelo mais recomendado**; N lacunas e N respostas aceitas por lacuna (definidas manualmente); conteúdo estruturado em `Card.cloze` (`cloze_data`), com `front`/`back` derivados; sem IA na V1 (§9) |
+| `listening`     | Escuta            | áudio local ou TTS local manual; áudio na frente ou verso (§10)                                                                                                                                       |
+| `typing`        | Escrita           | usuário digita; comparação simples + normalização; correção manual possível (§11)                                                                                                                     |
+| `pronunciation` | Pronúncia         | grava voz local; avaliação manual; sem comparação automática na V1 (§12)                                                                                                                              |
 
 ## Invariantes de domínio (devem ser garantidas)
 

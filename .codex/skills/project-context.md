@@ -52,5 +52,5 @@ a arquitetura, o offline-first e a separação Free/Premium do projeto.
 1. Ler o contrato e mapear seções relevantes.
 2. Carregar a skill específica da área (ex.: `spaced-repetition-scheduler`).
 3. Planejar por camada; identificar interfaces e pontos de extensão.
-4. Implementar; rodar `npm run typecheck && npm run lint && npm run test`.
+4. Implementar; rodar `npm run validate && npm run test:coverage`.
 5. Garantir que o app continua funcionando offline e que o Free não quebrou.

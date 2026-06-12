@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 import type { FlashcardViewModel } from '@/components/review';
 import type { CardType } from '@/constants/cardTypes';
 import type { TtsPlaybackSpeed } from '@/constants/tts';
+import type { ClozeContent } from '@/domain/cloze/clozeContent';
 import { MEDIA_SIDES, type MediaSide } from '@/domain/entities/Media';
 import type { StringCatalog } from '@/strings/types';
 
@@ -12,13 +13,11 @@ import { useAudioRecording } from './useAudioRecording';
 
 const MAX_TEST_RECORDING_MS = 30_000;
 
-type ClozeParts = { before: string; gap: string; after: string };
-
 type UseCardTestReviewParams = {
   type: CardType;
   frontText: string;
   backText: string;
-  cloze: { front: ClozeParts; back: ClozeParts };
+  cloze: ClozeContent;
   frontMedia: CreateCardMediaInput[];
   backMedia: CreateCardMediaInput[];
   reviewStrings: StringCatalog['review'];

@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { ROUTES } from '@/constants/routes';
 import { ptBR } from '@/strings/locales/pt-BR';
 
