@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { CARD_TYPES } from '@/constants/cardTypes';
 import { MEDIA_SIDES, MEDIA_TYPES } from '@/domain/entities/Media';
 

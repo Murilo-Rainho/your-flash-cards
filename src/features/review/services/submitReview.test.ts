@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { REVIEW_RATINGS } from '@/constants/reviewRatings';
 import type { ReviewItem } from '@/domain/entities/ReviewItem';
 import type { ReviewLog } from '@/domain/entities/ReviewLog';

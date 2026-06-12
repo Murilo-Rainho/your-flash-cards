@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import * as Speech from 'expo-speech';
 
 import { TTS_PLAYBACK_SPEEDS } from '@/constants/tts';

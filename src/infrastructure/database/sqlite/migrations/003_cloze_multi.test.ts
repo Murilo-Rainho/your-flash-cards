@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { clozeMultiMigration } from './003_cloze_multi';
 
 describe('clozeMultiMigration', () => {

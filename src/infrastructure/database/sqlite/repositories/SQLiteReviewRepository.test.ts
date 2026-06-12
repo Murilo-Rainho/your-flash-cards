@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { REVIEW_RATINGS } from '@/constants/reviewRatings';
 
 import { SQLiteReviewRepository } from './SQLiteReviewRepository';

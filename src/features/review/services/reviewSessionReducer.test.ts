@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { CARD_TYPES } from '@/constants/cardTypes';
 import { REVIEW_RATINGS } from '@/constants/reviewRatings';
 import { VARIANT_TYPES } from '@/domain/entities/CardVariant';

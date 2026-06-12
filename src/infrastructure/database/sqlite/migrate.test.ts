@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { migrateSqliteDatabase } from './migrate';
 import type { SqliteDatabaseConnection } from './types';
 

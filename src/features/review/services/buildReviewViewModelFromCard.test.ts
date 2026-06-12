@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import type { AudioAffordance } from '@/components/review';
 import { CARD_TYPES } from '@/constants/cardTypes';
 import { TTS_PLAYBACK_SPEEDS, type TtsPlaybackSpeed } from '@/constants/tts';

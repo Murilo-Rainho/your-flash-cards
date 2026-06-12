@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import type { Collection } from '@/domain/entities/Collection';
 import type { Deck } from '@/domain/entities/Deck';
 import type { CollectionRepository } from '@/domain/repositories/CollectionRepository';

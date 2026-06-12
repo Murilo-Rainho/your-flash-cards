@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { CARD_TYPES } from '@/constants/cardTypes';
 import { buildClozeContent } from '@/domain/cloze/clozeContent';
 import type { Collection } from '@/domain/entities/Collection';

@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { REVIEW_RATINGS, type ReviewRating } from '@/constants/reviewRatings';
 
 import type { ReviewScheduleInput } from './ReviewScheduler';

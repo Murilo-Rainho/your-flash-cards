@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { enUS } from '@/strings/locales/en-US';
 import { ptBR } from '@/strings/locales/pt-BR';
 

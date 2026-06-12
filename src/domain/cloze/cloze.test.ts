@@ -1,3 +1,5 @@
+import { describe, expect, it } from '@jest/globals';
+
 import { extractExpectedClozeAnswer, normalizeStudyAnswer, parseClozeFront } from './cloze';
 
 describe('parseClozeFront (legado)', () => {
