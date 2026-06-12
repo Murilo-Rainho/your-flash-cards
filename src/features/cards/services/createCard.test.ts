@@ -11,6 +11,7 @@ import type {
   PersistLocalMediaInput,
 } from '@/domain/services/LocalMediaStorage';
 
+import { CARD_FIELD_ERROR_CODES } from './cardValidationErrorCodes';
 import { createCard } from './createCard';
 
 class FakeCollectionRepository implements CollectionRepository {
@@ -382,7 +383,7 @@ describe('createCard', () => {
       ),
     ).rejects.toMatchObject({
       fieldErrors: {
-        frontText: 'Marque ao menos uma lacuna na frase.',
+        frontText: CARD_FIELD_ERROR_CODES.clozeNoBlanks,
       },
     });
   });
@@ -400,7 +401,7 @@ describe('createCard', () => {
       ),
     ).rejects.toMatchObject({
       fieldErrors: {
-        backText: 'Cada lacuna precisa de ao menos uma resposta aceita.',
+        backText: CARD_FIELD_ERROR_CODES.clozeBlankWithoutAnswer,
       },
     });
   });
@@ -426,8 +427,8 @@ describe('createCard', () => {
       ),
     ).rejects.toMatchObject({
       fieldErrors: {
-        frontMedia: 'Preencher lacuna aceita apenas texto.',
-        backMedia: 'Preencher lacuna aceita apenas texto.',
+        frontMedia: CARD_FIELD_ERROR_CODES.clozeTextOnly,
+        backMedia: CARD_FIELD_ERROR_CODES.clozeTextOnly,
       },
     });
   });

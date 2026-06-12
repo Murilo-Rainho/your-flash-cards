@@ -1,11 +1,23 @@
 import type { StringCatalog } from '@/strings/types';
 import type { FieldErrors } from '@/utils/validation';
 
+import { CARD_FIELD_ERROR_CODES, type CardFieldErrorCode } from './cardValidationErrorCodes';
+
 const cardFieldErrorKeys = {
-  'Marque ao menos uma lacuna na frase.': 'clozeNoBlanks',
-  'Cada lacuna precisa de ao menos uma resposta aceita.': 'clozeBlankWithoutAnswer',
-  'Preencher lacuna aceita apenas texto.': 'clozeTextOnly',
-} as const satisfies Record<string, keyof StringCatalog['cards']['validation']>;
+  [CARD_FIELD_ERROR_CODES.clozeNoBlanks]: 'clozeNoBlanks',
+  [CARD_FIELD_ERROR_CODES.clozeBlankWithoutAnswer]: 'clozeBlankWithoutAnswer',
+  [CARD_FIELD_ERROR_CODES.clozeTextOnly]: 'clozeTextOnly',
+} as const satisfies Record<CardFieldErrorCode, keyof StringCatalog['cards']['validation']>;
+
+function getCardFieldErrorKey(
+  errorCode: string,
+): keyof StringCatalog['cards']['validation'] | undefined {
+  if (!Object.prototype.hasOwnProperty.call(cardFieldErrorKeys, errorCode)) {
+    return undefined;
+  }
+
+  return cardFieldErrorKeys[errorCode as CardFieldErrorCode];
+}
 
 export function localizeCardFieldErrors<Field extends string>(
   fieldErrors: FieldErrors<Field>,
@@ -19,7 +31,7 @@ export function localizeCardFieldErrors<Field extends string>(
       continue;
     }
 
-    const key = cardFieldErrorKeys[message as keyof typeof cardFieldErrorKeys];
+    const key = getCardFieldErrorKey(message);
     localized[field] = key ? cardStrings.validation[key] : message;
   }
 

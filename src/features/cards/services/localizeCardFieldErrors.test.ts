@@ -1,6 +1,7 @@
 import { enUS } from '@/strings/locales/en-US';
 import { ptBR } from '@/strings/locales/pt-BR';
 
+import { CARD_FIELD_ERROR_CODES } from './cardValidationErrorCodes';
 import { localizeCardFieldErrors } from './localizeCardFieldErrors';
 
 describe('localizeCardFieldErrors', () => {
@@ -8,9 +9,9 @@ describe('localizeCardFieldErrors', () => {
     expect(
       localizeCardFieldErrors(
         {
-          frontText: 'Marque ao menos uma lacuna na frase.',
-          backText: 'Cada lacuna precisa de ao menos uma resposta aceita.',
-          frontMedia: 'Preencher lacuna aceita apenas texto.',
+          frontText: CARD_FIELD_ERROR_CODES.clozeNoBlanks,
+          backText: CARD_FIELD_ERROR_CODES.clozeBlankWithoutAnswer,
+          frontMedia: CARD_FIELD_ERROR_CODES.clozeTextOnly,
         },
         enUS.cards,
       ),
@@ -23,7 +24,13 @@ describe('localizeCardFieldErrors', () => {
 
   it('keeps Portuguese strings when Portuguese is selected', () => {
     expect(
-      localizeCardFieldErrors({ frontText: 'Marque ao menos uma lacuna na frase.' }, ptBR.cards),
+      localizeCardFieldErrors({ frontText: CARD_FIELD_ERROR_CODES.clozeNoBlanks }, ptBR.cards),
+    ).toEqual({ frontText: 'Marque ao menos uma lacuna na frase.' });
+  });
+
+  it('does not localize legacy prose by matching backend sentences', () => {
+    expect(
+      localizeCardFieldErrors({ frontText: 'Marque ao menos uma lacuna na frase.' }, enUS.cards),
     ).toEqual({ frontText: 'Marque ao menos uma lacuna na frase.' });
   });
 

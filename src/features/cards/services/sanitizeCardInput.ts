@@ -11,6 +11,8 @@ import type { Tag } from '@/domain/entities/Tag';
 import { normalizeTagKey, normalizeTagName } from '@/utils/normalizeText';
 import type { FieldErrors } from '@/utils/validation';
 
+import { CARD_FIELD_ERROR_CODES } from './cardValidationErrorCodes';
+
 const MAX_TEXT_LENGTH = 2000;
 const MAX_NOTES_LENGTH = 1000;
 const { MAX_TAGS, MAX_TAG_LENGTH } = LIMITS;
@@ -206,16 +208,16 @@ export function sanitizeCardContent(
 
   if (type === CARD_TYPES.CLOZE) {
     if (media.length > 0) {
-      fieldErrors.frontMedia = 'Preencher lacuna aceita apenas texto.';
-      fieldErrors.backMedia = 'Preencher lacuna aceita apenas texto.';
+      fieldErrors.frontMedia = CARD_FIELD_ERROR_CODES.clozeTextOnly;
+      fieldErrors.backMedia = CARD_FIELD_ERROR_CODES.clozeTextOnly;
     }
 
     const clozeError = clozeContent ? validateClozeContent(clozeContent) : 'no-blanks';
 
     if (clozeError === 'no-blanks') {
-      fieldErrors.frontText = 'Marque ao menos uma lacuna na frase.';
+      fieldErrors.frontText = CARD_FIELD_ERROR_CODES.clozeNoBlanks;
     } else if (clozeError === 'blank-without-answer') {
-      fieldErrors.backText = 'Cada lacuna precisa de ao menos uma resposta aceita.';
+      fieldErrors.backText = CARD_FIELD_ERROR_CODES.clozeBlankWithoutAnswer;
     }
   }
 
