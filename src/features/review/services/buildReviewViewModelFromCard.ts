@@ -7,8 +7,10 @@ import { CARD_TYPES } from '@/constants/cardTypes';
 import type { TtsPlaybackSpeed } from '@/constants/tts';
 import { normalizeStudyAnswer } from '@/domain/cloze/cloze';
 import {
-  checkClozeBlank,
+  checkClozeBlankAnswer,
+  composeClozeBackWithAnswers,
   composeClozeFront,
+  getAcceptedClozeAnswers,
   getClozeBlanks,
   resolveClozeContent,
 } from '@/domain/cloze/clozeContent';
@@ -167,11 +169,10 @@ export function buildReviewViewModelFromCard(
         kind: 'cloze',
         blanks: blanks.map((blank, index) => ({
           label: clozeBlankLabel(source.reviewStrings.answer, blanks.length, index),
-          checkAnswer: (typed: string) => ({
-            correct: checkClozeBlank(blank.answers, typed),
-            expected: blank.answers[0] ?? '',
-          }),
+          acceptedAnswers: getAcceptedClozeAnswers(blank.answers),
+          checkAnswer: (typed: string) => checkClozeBlankAnswer(blank.answers, typed),
         })),
+        composeBackText: (answersByBlank) => composeClozeBackWithAnswers(content, answersByBlank),
       },
     };
   }

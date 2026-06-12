@@ -15,6 +15,13 @@ export type ClozeSegment = ClozeTextSegment | ClozeBlankSegment;
 export type ClozeContent = { segments: ClozeSegment[] };
 
 export type ClozeValidationError = 'no-blanks' | 'blank-without-answer';
+export type ClozeBlankAnswerCheck = {
+  correct: boolean;
+  /** Alternativa que deve aparecer primeiro no feedback: match quando acertou, primária quando errou. */
+  expected: string;
+  acceptedAnswers: string[];
+  expectedIndex: number;
+};
 
 // Regex local (a cada chamada via matchAll, sem estado compartilhado de lastIndex).
 const CLOZE_GAP_PATTERN = /\{([^{}]*)\}/g;
@@ -107,20 +114,58 @@ export function composeClozeBack(content: ClozeContent): string {
 }
 
 /**
+ * Frase completa usando uma alternativa selecionada por lacuna. Se uma lacuna não tiver
+ * seleção, cai na resposta primária — o mesmo fallback de `composeClozeBack`.
+ */
+export function composeClozeBackWithAnswers(
+  content: ClozeContent,
+  answersByBlank: readonly string[],
+): string {
+  let blankIndex = 0;
+
+  return content.segments
+    .map((segment) => {
+      if (segment.kind === 'text') {
+        return segment.text;
+      }
+
+      const selected = answersByBlank[blankIndex]?.trim();
+      blankIndex += 1;
+      return selected || segment.answers[0] || '';
+    })
+    .join('');
+}
+
+/** Respostas aceitas prontas para exibição/checagem: aparadas e sem vazios. */
+export function getAcceptedClozeAnswers(answers: readonly string[]): string[] {
+  return answers.map((answer) => answer.trim()).filter(Boolean);
+}
+
+export function checkClozeBlankAnswer(
+  answers: readonly string[],
+  typed: string,
+): ClozeBlankAnswerCheck {
+  const acceptedAnswers = getAcceptedClozeAnswers(answers);
+  const normalizedTyped = normalizeStudyAnswer(typed);
+  const matchedIndex = normalizedTyped
+    ? acceptedAnswers.findIndex((answer) => normalizeStudyAnswer(answer) === normalizedTyped)
+    : -1;
+  const expectedIndex = matchedIndex >= 0 ? matchedIndex : 0;
+
+  return {
+    correct: matchedIndex >= 0,
+    expected: acceptedAnswers[expectedIndex] ?? '',
+    acceptedAnswers,
+    expectedIndex,
+  };
+}
+
+/**
  * Resposta correta para uma lacuna: a digitação normalizada bate com ALGUMA das respostas
  * aceitas (também normalizadas). Reusa a normalização canônica do projeto.
  */
 export function checkClozeBlank(answers: readonly string[], typed: string): boolean {
-  const normalizedTyped = normalizeStudyAnswer(typed);
-
-  if (!normalizedTyped) {
-    return false;
-  }
-
-  return answers.some((answer) => {
-    const normalizedAnswer = normalizeStudyAnswer(answer);
-    return normalizedAnswer.length > 0 && normalizedAnswer === normalizedTyped;
-  });
+  return checkClozeBlankAnswer(answers, typed).correct;
 }
 
 /** Valida o conteúdo cloze: ≥ 1 lacuna e cada lacuna com ≥ 1 resposta aceita. */

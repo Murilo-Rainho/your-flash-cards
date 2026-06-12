@@ -35,6 +35,7 @@ import {
   type CreateCardInput,
   type CreateCardMediaInput,
 } from '../services/createCard';
+import { localizeCardFieldErrors } from '../services/localizeCardFieldErrors';
 import {
   resolveCollectionSelection,
   resolveDeckSelection,
@@ -148,6 +149,14 @@ export function useNewCardForm() {
   const notes = watch('notes');
 
   const clozeEditor = useClozeEditor({ sentence: '', answers: [] });
+
+  useEffect(() => {
+    if (selectedType !== CARD_TYPES.CLOZE) {
+      return;
+    }
+
+    clearErrors(['frontText', 'backText']);
+  }, [clearErrors, clozeEditor.content, selectedType]);
 
   const media = useCardMedia({ selectedType, onError: setFormError, onChange: clearSuccess });
   const recording = useAudioRecording({
@@ -650,7 +659,7 @@ export function useNewCardForm() {
       setSuccessMessage(strings.cards.savedNextReady);
     } catch (error) {
       if (isCreateCardInputError(error)) {
-        applyFieldErrors(setError, error.fieldErrors);
+        applyFieldErrors(setError, localizeCardFieldErrors(error.fieldErrors, strings.cards));
         return;
       }
 

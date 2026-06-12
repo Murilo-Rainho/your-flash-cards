@@ -22,6 +22,8 @@ export const icons = {
   back: 'arrow-left',
   close: 'x', // ✕ (fechar modal/folha)
   chevron: 'chevron-right',
+  previous: 'chevron-left',
+  next: 'chevron-right',
   play: 'play', // ▶ (ouvir áudio/gravação)
   greeting: 'smile',
   add: 'plus',

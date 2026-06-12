@@ -52,6 +52,11 @@ export const cards = {
   ttsPlaybackError: 'Não foi possível reproduzir TTS local para este idioma.',
   audioRequiredToTest: 'Adicione áudio antes de testar.',
   audioPlaybackError: 'Não foi possível reproduzir o áudio.',
+  validation: {
+    clozeNoBlanks: 'Marque ao menos uma lacuna na frase.',
+    clozeBlankWithoutAnswer: 'Cada lacuna precisa de ao menos uma resposta aceita.',
+    clozeTextOnly: 'Preencher lacuna aceita apenas texto.',
+  },
   clozeFields: {
     sentenceLabel: 'Frase',
     sentenceDescription:

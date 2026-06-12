@@ -1,8 +1,10 @@
 import {
   buildClozeContent,
   checkClozeBlank,
+  checkClozeBlankAnswer,
   clozeContentFromLegacy,
   composeClozeBack,
+  composeClozeBackWithAnswers,
   composeClozeFront,
   deserializeClozeContent,
   getClozeBlanks,
@@ -75,6 +77,13 @@ describe('composeClozeFront / composeClozeBack', () => {
   it('back fills the primary answer of each blank', () => {
     expect(composeClozeBack(content)).toBe('I would like both water and juice.');
   });
+
+  it('back can fill a selected accepted answer per blank', () => {
+    expect(composeClozeBackWithAnswers(content, ['the two', 'and'])).toBe(
+      'I would like the two water and juice.',
+    );
+    expect(composeClozeBackWithAnswers(content, [])).toBe('I would like both water and juice.');
+  });
 });
 
 describe('checkClozeBlank', () => {
@@ -89,6 +98,28 @@ describe('checkClozeBlank', () => {
   it('rejects a non-matching or empty answer', () => {
     expect(checkClozeBlank(answers, 'however')).toBe(false);
     expect(checkClozeBlank(answers, '   ')).toBe(false);
+  });
+});
+
+describe('checkClozeBlankAnswer', () => {
+  const answers = ['Can I have', "I'd like"];
+
+  it('uses the matching accepted answer as the first answer shown when correct', () => {
+    expect(checkClozeBlankAnswer(answers, " i'd like! ")).toEqual({
+      correct: true,
+      expected: "I'd like",
+      acceptedAnswers: ['Can I have', "I'd like"],
+      expectedIndex: 1,
+    });
+  });
+
+  it('uses the primary accepted answer as the first answer shown when wrong', () => {
+    expect(checkClozeBlankAnswer(answers, 'may I get')).toEqual({
+      correct: false,
+      expected: 'Can I have',
+      acceptedAnswers: ['Can I have', "I'd like"],
+      expectedIndex: 0,
+    });
   });
 });
 

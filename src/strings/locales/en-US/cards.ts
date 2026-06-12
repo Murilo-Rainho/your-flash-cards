@@ -52,6 +52,11 @@ export const cards = {
   ttsPlaybackError: 'Could not play local TTS for this language.',
   audioRequiredToTest: 'Add audio before testing.',
   audioPlaybackError: 'Could not play the audio.',
+  validation: {
+    clozeNoBlanks: 'Mark at least one blank in the sentence.',
+    clozeBlankWithoutAnswer: 'Each blank needs at least one accepted answer.',
+    clozeTextOnly: 'Fill-in-the-blank cards accept text only.',
+  },
   clozeFields: {
     sentenceLabel: 'Sentence',
     sentenceDescription:

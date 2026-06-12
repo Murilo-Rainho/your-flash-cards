@@ -174,8 +174,19 @@ describe('buildReviewViewModelFromCard', () => {
     }
     expect(vm.answer.blanks).toHaveLength(1);
     expect(vm.answer.blanks[0].label).toBe(enUS.review.answer.clozePrompt);
-    expect(vm.answer.blanks[0].checkAnswer('TIRED')).toEqual({ correct: true, expected: 'tired' });
-    expect(vm.answer.blanks[0].checkAnswer('happy')).toEqual({ correct: false, expected: 'tired' });
+    expect(vm.answer.blanks[0].acceptedAnswers).toEqual(['tired']);
+    expect(vm.answer.blanks[0].checkAnswer('TIRED')).toEqual({
+      correct: true,
+      expected: 'tired',
+      acceptedAnswers: ['tired'],
+      expectedIndex: 0,
+    });
+    expect(vm.answer.blanks[0].checkAnswer('happy')).toEqual({
+      correct: false,
+      expected: 'tired',
+      acceptedAnswers: ['tired'],
+      expectedIndex: 0,
+    });
   });
 
   it('cloze estruturado: múltiplas lacunas e múltiplas respostas aceitas', () => {
@@ -202,16 +213,25 @@ describe('buildReviewViewModelFromCard', () => {
     expect(vm.answer.blanks).toHaveLength(1);
     expect(vm.answer.blanks[0].checkAnswer('even so')).toEqual({
       correct: true,
-      expected: 'Still',
+      expected: 'Even so',
+      acceptedAnswers: ['Still', 'Even so', 'Nevertheless'],
+      expectedIndex: 1,
     });
     expect(vm.answer.blanks[0].checkAnswer('Nevertheless')).toEqual({
       correct: true,
-      expected: 'Still',
+      expected: 'Nevertheless',
+      acceptedAnswers: ['Still', 'Even so', 'Nevertheless'],
+      expectedIndex: 2,
     });
     expect(vm.answer.blanks[0].checkAnswer('however')).toEqual({
       correct: false,
       expected: 'Still',
+      acceptedAnswers: ['Still', 'Even so', 'Nevertheless'],
+      expectedIndex: 0,
     });
+    expect(vm.answer.composeBackText?.(['Even so'])).toBe(
+      'It was raining. Even so, we went hiking.',
+    );
   });
 
   it('escrita (typing): frente é mídia, verso é a resposta comparada por normalização', () => {

@@ -39,6 +39,10 @@ export type CardFaceViewModel = {
 export type CheckedAnswer = {
   correct: boolean;
   expected: string;
+  /** Todas as alternativas aceitas para uma lacuna/resposta, na ordem definida pelo usuário. */
+  acceptedAnswers?: readonly string[];
+  /** Índice da alternativa que deve aparecer primeiro no verso. */
+  expectedIndex?: number;
 };
 
 /**
@@ -65,14 +69,16 @@ export type ReviewAnswerBehavior =
   /**
    * Cloze (§9): UMA OU MAIS lacunas, cada uma com digitação OPCIONAL comparada com as
    * respostas aceitas daquela lacuna. Cada lacuna traz seu próprio rótulo e checagem
-   * (resolvidos pela feature); `expected` é a resposta primária da lacuna.
+   * (resolvidos pela feature); a UI só alterna entre alternativas já resolvidas.
    */
   | {
       kind: 'cloze';
       blanks: Array<{
         label: string;
+        acceptedAnswers: readonly string[];
         checkAnswer: (typed: string) => CheckedAnswer;
       }>;
+      composeBackText?: (answersByBlank: readonly string[]) => string;
     }
   /** Escrita (§11): digitação + "Verificar"; permite override manual no verso. */
   | {

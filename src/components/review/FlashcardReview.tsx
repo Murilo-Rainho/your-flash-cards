@@ -37,6 +37,10 @@ const FLIP_HEIGHT = 360;
 const CARD_ENTER_DURATION_MS = 260;
 const CARD_ENTER_OFFSET = 32;
 
+function toOptionalText(value: string | undefined): string | undefined {
+  return value?.trim() ? value : undefined;
+}
+
 /**
  * Card de revisão com animação de flip (§35), renderizado como modal ou container.
  *
@@ -65,6 +69,7 @@ export function FlashcardReview({
   // Cloze (§9): uma entrada e um resultado por lacuna (null = lacuna não respondida).
   const [clozeTyped, setClozeTyped] = useState<string[]>([]);
   const [clozeChecked, setClozeChecked] = useState<Array<CheckedAnswer | null> | null>(null);
+  const [clozeSelectedAnswerIndexes, setClozeSelectedAnswerIndexes] = useState<number[]>([]);
 
   const systemReduceMotion = useReducedMotion();
   const prefersReducedMotion = reduceMotion ?? systemReduceMotion;
@@ -93,6 +98,7 @@ export function FlashcardReview({
     setOverride(null);
     setClozeTyped([]);
     setClozeChecked(null);
+    setClozeSelectedAnswerIndexes([]);
     reset();
 
     const changed = prevCardKeyRef.current !== cardKey;
@@ -129,15 +135,25 @@ export function FlashcardReview({
       setChecked(typed.trim() ? answer.checkAnswer(typed) : null);
     } else if (answer.kind === 'cloze') {
       // Cloze: checa cada lacuna que o usuário preencheu (vazia = não respondida).
-      setClozeChecked(
-        answer.blanks.map((blank, index) => {
-          const value = clozeTyped[index] ?? '';
-          return value.trim() ? blank.checkAnswer(value) : null;
-        }),
+      const checkedAnswers = answer.blanks.map((blank, index) => {
+        const value = clozeTyped[index] ?? '';
+        return value.trim() ? blank.checkAnswer(value) : null;
+      });
+      setClozeChecked(checkedAnswers);
+      setClozeSelectedAnswerIndexes(
+        answer.blanks.map((_, index) => checkedAnswers[index]?.expectedIndex ?? 0),
       );
     }
     flip();
   }, [answer, clozeTyped, flip, typed]);
+
+  const handleSelectClozeAnswer = useCallback((blankIndex: number, answerIndex: number) => {
+    setClozeSelectedAnswerIndexes((current) => {
+      const next = [...current];
+      next[blankIndex] = answerIndex;
+      return next;
+    });
+  }, []);
 
   // Escuta digitada e Escrita verificam; nos demais casos é só virar.
   const flipLabel =
@@ -158,9 +174,27 @@ export function FlashcardReview({
             label: blank.label,
             typed: clozeTyped[index] ?? '',
             checked: clozeChecked[index],
+            selectedAnswerIndex:
+              clozeSelectedAnswerIndexes[index] ?? clozeChecked[index]?.expectedIndex ?? 0,
+            onSelectAnswerIndex: (answerIndex: number) =>
+              handleSelectClozeAnswer(index, answerIndex),
           }))
           .filter((item): item is ClozeBlankResult => item.checked !== null)
       : [];
+  const clozeSelectedAnswers =
+    answer.kind === 'cloze'
+      ? answer.blanks.map((blank, index) => {
+          const selectedIndex = clozeSelectedAnswerIndexes[index] ?? 0;
+          return blank.acceptedAnswers[selectedIndex] ?? blank.acceptedAnswers[0] ?? '';
+        })
+      : [];
+  const backFace =
+    answer.kind === 'cloze' && answer.composeBackText
+      ? {
+          ...card.back,
+          text: toOptionalText(answer.composeBackText(clozeSelectedAnswers)) ?? card.back.text,
+        }
+      : card.back;
   const showCloseButton = presentation === 'modal' && onClose;
 
   if (!visible) {
@@ -252,7 +286,7 @@ export function FlashcardReview({
             <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
               <View className="gap-4">
                 <FlashcardFace
-                  face={card.back}
+                  face={backFace}
                   emptyHint={strings.face.backEmpty}
                   imageAccessibilityLabel={strings.face.imageA11y}
                   ttsPlaybackSpeed={ttsPlaybackSpeed}

@@ -1,5 +1,6 @@
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
+import { Icon } from '@/components/common/Icon';
 import type { StringCatalog } from '@/strings/types';
 import { useTheme } from '@/theme/useTheme';
 
@@ -9,6 +10,8 @@ export type ClozeBlankResult = {
   label: string;
   typed: string;
   checked: CheckedAnswer;
+  selectedAnswerIndex: number;
+  onSelectAnswerIndex: (index: number) => void;
 };
 
 type ClozeAnswerFeedbackProps = {
@@ -53,16 +56,82 @@ export function ClozeAnswerFeedback({ strings, blanks }: ClozeAnswerFeedbackProp
               </Text>
             ) : null}
             {blank.checked.expected ? (
-              <Text style={{ color: colors.textSecondary }} className="text-sm">
-                {strings.expectedAnswer}{' '}
-                <Text style={{ color: colors.textPrimary }} className="font-semibold">
-                  {blank.checked.expected}
+              <View className="gap-2">
+                <Text style={{ color: colors.textSecondary }} className="text-sm">
+                  {strings.expectedAnswer}
                 </Text>
-              </Text>
+                <AcceptedAnswerPager
+                  strings={strings.answer}
+                  answers={blank.checked.acceptedAnswers ?? [blank.checked.expected]}
+                  selectedIndex={blank.selectedAnswerIndex}
+                  onSelectIndex={blank.onSelectAnswerIndex}
+                />
+              </View>
             ) : null}
           </View>
         );
       })}
+    </View>
+  );
+}
+
+type AcceptedAnswerPagerProps = {
+  strings: StringCatalog['review']['answer'];
+  answers: readonly string[];
+  selectedIndex: number;
+  onSelectIndex: (index: number) => void;
+};
+
+function AcceptedAnswerPager({
+  strings,
+  answers,
+  selectedIndex,
+  onSelectIndex,
+}: AcceptedAnswerPagerProps) {
+  const { colors } = useTheme();
+  const safeAnswers = answers.filter((answer) => answer.trim().length > 0);
+  const answerCount = safeAnswers.length;
+
+  if (answerCount === 0) {
+    return null;
+  }
+
+  const safeSelectedIndex = selectedIndex >= 0 && selectedIndex < answerCount ? selectedIndex : 0;
+  const selectedAnswer = safeAnswers[safeSelectedIndex] ?? safeAnswers[0];
+  const canNavigate = answerCount > 1;
+  const goToPrevious = () => onSelectIndex((safeSelectedIndex - 1 + answerCount) % answerCount);
+  const goToNext = () => onSelectIndex((safeSelectedIndex + 1) % answerCount);
+
+  return (
+    <View className="flex-row items-center gap-2">
+      {canNavigate ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={strings.previousAcceptedAnswerA11y}
+          onPress={goToPrevious}
+          style={{ borderColor: colors.border, backgroundColor: colors.background }}
+          className="h-8 w-8 items-center justify-center rounded-full border active:opacity-90"
+        >
+          <Icon name="previous" size={16} tone="textPrimary" />
+        </Pressable>
+      ) : null}
+      <Text
+        style={{ color: colors.textPrimary }}
+        className="min-h-8 flex-1 text-center text-base font-semibold"
+      >
+        {selectedAnswer}
+      </Text>
+      {canNavigate ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={strings.nextAcceptedAnswerA11y}
+          onPress={goToNext}
+          style={{ borderColor: colors.border, backgroundColor: colors.background }}
+          className="h-8 w-8 items-center justify-center rounded-full border active:opacity-90"
+        >
+          <Icon name="next" size={16} tone="textPrimary" />
+        </Pressable>
+      ) : null}
     </View>
   );
 }

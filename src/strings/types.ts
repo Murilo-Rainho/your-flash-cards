@@ -222,6 +222,11 @@ export type StringCatalog = {
     ttsPlaybackError: string;
     audioRequiredToTest: string;
     audioPlaybackError: string;
+    validation: {
+      clozeNoBlanks: string;
+      clozeBlankWithoutAnswer: string;
+      clozeTextOnly: string;
+    };
     clozeFields: {
       sentenceLabel: string;
       sentenceDescription: string;
@@ -368,6 +373,8 @@ export type StringCatalog = {
       typedAnswer: string;
       markWrong: string;
       markCorrect: string;
+      previousAcceptedAnswerA11y: string;
+      nextAcceptedAnswerA11y: string;
     };
     session: {
       title: string;

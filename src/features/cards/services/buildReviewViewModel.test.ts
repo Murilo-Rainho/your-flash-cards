@@ -114,8 +114,19 @@ describe('buildReviewViewModel', () => {
     }
     expect(vm.answer.blanks).toHaveLength(1);
     expect(vm.answer.blanks[0].label).toBe(enUS.review.answer.clozePrompt);
-    expect(vm.answer.blanks[0].checkAnswer('TIRED')).toEqual({ correct: true, expected: 'tired' });
-    expect(vm.answer.blanks[0].checkAnswer('happy')).toEqual({ correct: false, expected: 'tired' });
+    expect(vm.answer.blanks[0].acceptedAnswers).toEqual(['tired']);
+    expect(vm.answer.blanks[0].checkAnswer('TIRED')).toEqual({
+      correct: true,
+      expected: 'tired',
+      acceptedAnswers: ['tired'],
+      expectedIndex: 0,
+    });
+    expect(vm.answer.blanks[0].checkAnswer('happy')).toEqual({
+      correct: false,
+      expected: 'tired',
+      acceptedAnswers: ['tired'],
+      expectedIndex: 0,
+    });
   });
 
   it('cloze: múltiplas lacunas, cada uma com sua checagem e respostas aceitas', () => {
@@ -136,9 +147,28 @@ describe('buildReviewViewModel', () => {
     }
     expect(vm.answer.blanks).toHaveLength(2);
     expect(vm.answer.blanks[0].label).toBe(`${enUS.review.answer.clozeBlankLabel} 1`);
-    expect(vm.answer.blanks[0].checkAnswer('the two')).toEqual({ correct: true, expected: 'both' });
-    expect(vm.answer.blanks[1].checkAnswer('and')).toEqual({ correct: true, expected: 'and' });
-    expect(vm.answer.blanks[1].checkAnswer('or')).toEqual({ correct: false, expected: 'and' });
+    expect(vm.answer.blanks[0].acceptedAnswers).toEqual(['both', 'the two']);
+    expect(vm.answer.blanks[0].checkAnswer('the two')).toEqual({
+      correct: true,
+      expected: 'the two',
+      acceptedAnswers: ['both', 'the two'],
+      expectedIndex: 1,
+    });
+    expect(vm.answer.blanks[1].checkAnswer('and')).toEqual({
+      correct: true,
+      expected: 'and',
+      acceptedAnswers: ['and'],
+      expectedIndex: 0,
+    });
+    expect(vm.answer.blanks[1].checkAnswer('or')).toEqual({
+      correct: false,
+      expected: 'and',
+      acceptedAnswers: ['and'],
+      expectedIndex: 0,
+    });
+    expect(vm.answer.composeBackText?.(['the two', 'and'])).toBe(
+      'I would like the two water and juice.',
+    );
   });
 
   it('cloze incompleto: não quebra (best-effort)', () => {

@@ -23,6 +23,7 @@ import {
 import { VOCABULARY_FRONT_MODES, type VocabularyFrontMode } from '../config/vocabularyFrontMode';
 import { sanitizeMediaForType } from '../services/cardMedia';
 import { deriveEditCardPrefill } from '../services/deriveEditCardPrefill';
+import { localizeCardFieldErrors } from '../services/localizeCardFieldErrors';
 import type { CreateCardFileMediaInput, CreateCardMediaInput } from '../services/sanitizeCardInput';
 import { isUpdateCardInputError } from '../services/updateCard';
 import { useAudioRecording } from './useAudioRecording';
@@ -115,6 +116,14 @@ export function useEditCardForm({ aggregate, onSaved, onDeleted }: UseEditCardFo
   const notes = watch('notes');
 
   const clozeEditor = useClozeEditor(prefill.cloze);
+
+  useEffect(() => {
+    if (type !== CARD_TYPES.CLOZE) {
+      return;
+    }
+
+    clearErrors(['frontText', 'backText']);
+  }, [clearErrors, clozeEditor.content, type]);
 
   const media = useCardMedia({
     selectedType: type,
@@ -410,7 +419,7 @@ export function useEditCardForm({ aggregate, onSaved, onDeleted }: UseEditCardFo
       onSaved();
     } catch (error) {
       if (isUpdateCardInputError(error)) {
-        applyFieldErrors(setError, error.fieldErrors);
+        applyFieldErrors(setError, localizeCardFieldErrors(error.fieldErrors, strings.cards));
         return;
       }
       setFormError(strings.cards.updateError);
