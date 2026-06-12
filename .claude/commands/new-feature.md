@@ -21,7 +21,7 @@ Siga o fluxo, delegando aos agentes quando útil:
    §34/§35, rótulos amigáveis, acessibilidade, só tokens do tema.
 7. **Estado** (agente `state-management`): o que é React Query (dados) vs Zustand (UI).
 8. **Testes** (agente `testing-quality`): o que precisa de teste (domínio/scheduler/
-   import-export) e como validar (`npm run validate && npm run test`).
+   import-export) e como validar (`npm run validate && npm run test:coverage`).
 
 Entregue um plano em etapas, listando arquivos a criar por camada e os pontos de extensão
 deixados para o futuro. Aponte qualquer parte que exija internet como Premium/extensão.

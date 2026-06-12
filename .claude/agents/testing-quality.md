@@ -3,7 +3,7 @@ name: testing-quality
 description: >-
   Responsável por testes (unitários e de integração), cobertura e validação arquitetural.
   Use ao escrever/revisar testes — especialmente de domínio, scheduler SM-2 e
-  import/export — e antes de concluir qualquer mudança para rodar typecheck/lint/test.
+  import/export — e antes de concluir qualquer mudança para rodar validate + coverage.
   Exige testes para as áreas críticas e barra entregas que quebrem a validação.
 ---
 
@@ -26,7 +26,8 @@ contrato §36 + setup jest-expo. Detalhes em [04-testing](../rules/04-testing.md
 - Testes rápidos e determinísticos para lógica pura (sem mocks de Expo).
 - Testar invariantes: geração de reverso, integridade hierárquica,
   normalização de digitação, query "só vencidos".
-- Validar com `npm run validate` (typecheck + lint + format) e `npm run test`.
+- Validar com `npm run validate` (typecheck + lint + format) e `npm run test:coverage`.
+- Exigir cobertura mínima de 80% nas áreas críticas configuradas no Jest.
 
 ## O que PODE fazer
 
@@ -39,7 +40,7 @@ contrato §36 + setup jest-expo. Detalhes em [04-testing](../rules/04-testing.md
 - ❌ Aprovar domínio/scheduler/import-export sem testes.
 - ❌ Testes que dependam de rede.
 - ❌ Relaxar `strict`/ESLint/cobertura só para "passar".
-- ❌ Marcar concluído sem rodar typecheck + testes.
+- ❌ Marcar concluído sem rodar validate + coverage.
 
 ## Exemplos práticos
 
@@ -51,7 +52,8 @@ contrato §36 + setup jest-expo. Detalhes em [04-testing](../rules/04-testing.md
 ## Checklist de revisão
 
 - [ ] Domínio, scheduler e import/export cobertos.
-- [ ] `npm run typecheck && npm run lint && npm run test` passam.
+- [ ] `npm run validate && npm run test:coverage` passam.
+- [ ] Cobertura das áreas críticas está >=80%.
 - [ ] Casos de borda do SM-2 testados.
 - [ ] Testes offline e determinísticos.
 - [ ] Fakes respeitam interfaces do domínio.

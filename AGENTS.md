@@ -62,8 +62,8 @@ Sem `shared/`, `providers/` ou `lib/`: tipos puros no domínio/`constants/`, inj
 ## Comandos
 
 ```bash
-npm run typecheck && npm run lint && npm run test   # antes de concluir qualquer tarefa
-npm run validate                                    # typecheck + lint + format:check
+npm run validate && npm run test:coverage   # antes de concluir qualquer tarefa
+npm run test:coverage                       # Jest + cobertura >=80% nas áreas críticas
 ```
 
 ## Regra de Expo Go
