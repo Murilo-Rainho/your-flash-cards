@@ -22,6 +22,7 @@ export const ROUTES = {
   REVIEW_TODAY: '/review/today',
   STATS: '/stats',
   SETTINGS: '/settings',
+  WHY_FLASHCARDS: '/why-flashcards',
   DEV_TOOLS: '/dev-tools',
   DEV_TOOLS_TABLE: '/dev-tools/tables/[name]',
   PREMIUM: '/premium',

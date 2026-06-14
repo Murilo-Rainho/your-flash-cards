@@ -6,6 +6,8 @@ import { home } from './home';
 import { review } from './review';
 import { settings } from './settings';
 import { tags } from './tags';
+import { tour } from './tour';
+import { whyFlashcards } from './whyFlashcards';
 
 export const ptBR = {
   common,
@@ -16,4 +18,6 @@ export const ptBR = {
   review,
   tags,
   settings,
+  tour,
+  whyFlashcards,
 } as const;

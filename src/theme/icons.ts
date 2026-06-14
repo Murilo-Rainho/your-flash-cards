@@ -40,6 +40,8 @@ export const icons = {
   retention: 'target', // 🎯
   streak: 'activity', // 🔥 (Feather não tem "fire")
   mastered: 'award', // 🏆 (Feather não tem "trophy")
+  tour: 'compass', // 🧭 (guided tour / onboarding)
+  guide: 'book-open', // 📖 (página "Por que flashcards")
 } as const;
 
 export type IconName = keyof typeof icons;

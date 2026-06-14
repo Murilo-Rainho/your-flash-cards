@@ -54,6 +54,8 @@ export function AnswerInput({
               underlineColorAndroid="transparent"
               autoCapitalize="none"
               autoCorrect={false}
+              autoComplete="off"
+              spellCheck={false}
               style={{
                 borderColor: colors.border,
                 backgroundColor: colors.surface,
@@ -85,6 +87,8 @@ export function AnswerInput({
           underlineColorAndroid="transparent"
           autoCapitalize="none"
           autoCorrect={false}
+          autoComplete="off"
+          spellCheck={false}
           style={{
             borderColor: colors.border,
             backgroundColor: colors.surface,
@@ -115,6 +119,8 @@ export function AnswerInput({
             underlineColorAndroid="transparent"
             autoCapitalize="none"
             autoCorrect={false}
+            autoComplete="off"
+            spellCheck={false}
             style={{
               borderColor: colors.border,
               backgroundColor: colors.surface,

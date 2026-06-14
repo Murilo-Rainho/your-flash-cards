@@ -459,4 +459,63 @@ export type StringCatalog = {
     devToolsDescription: string;
     devToolsButton: string;
   };
+  tour: {
+    invitation: {
+      question: string;
+      start: string;
+      notNow: string;
+      closeA11y: string;
+    };
+    resume: {
+      title: string;
+      continueLabel: string;
+      restart: string;
+      skip: string;
+      closeA11y: string;
+    };
+    skip: string;
+    finish: string;
+    stepCounterPrefix: string;
+    stepCounterConnector: string;
+    progressA11y: string;
+    openGuide: string;
+    closeA11y: string;
+    menu: {
+      startTour: string;
+    };
+    steps: {
+      welcome: { title: string; description: string };
+      'why-flashcards': { title: string; description: string };
+      'home-daily-review': { title: string; description: string };
+      'collections-decks-cards': { title: string; description: string };
+      'creating-good-cards': { title: string; description: string };
+      'cloze-cards': { title: string; description: string };
+      'spaced-repetition': { title: string; description: string };
+      finish: { title: string; description: string };
+    };
+  };
+  whyFlashcards: {
+    menuLabel: string;
+    screenTitle: string;
+    intro: string;
+    sections: ReadonlyArray<{
+      heading?: string;
+      paragraphs?: readonly string[];
+      bullets?: readonly string[];
+      example?: { front: string; back: string };
+    }>;
+    summary: {
+      heading: string;
+      bullets: readonly string[];
+    };
+    references: {
+      heading: string;
+      intro: string;
+      groups: ReadonlyArray<{
+        heading: string;
+        items: ReadonlyArray<{ title: string; description: string; url: string }>;
+      }>;
+    };
+    openLinkA11y: string;
+  };
 };
