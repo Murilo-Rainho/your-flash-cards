@@ -34,6 +34,10 @@ export function ClozeAnswerFeedback({ strings, blanks }: ClozeAnswerFeedbackProp
       className="gap-3 rounded-xl border p-4"
     >
       {blanks.map((blank, index) => {
+        if (!blank.checked) {
+          return null;
+        }
+
         const trimmedTyped = blank.typed.trim();
 
         return (

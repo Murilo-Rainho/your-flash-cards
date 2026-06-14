@@ -70,6 +70,17 @@ export function FlashcardReview({
   const [clozeTyped, setClozeTyped] = useState<string[]>([]);
   const [clozeChecked, setClozeChecked] = useState<Array<CheckedAnswer | null> | null>(null);
   const [clozeSelectedAnswerIndexes, setClozeSelectedAnswerIndexes] = useState<number[]>([]);
+  const [trackedCardKey, setTrackedCardKey] = useState(cardKey);
+
+  if (cardKey !== trackedCardKey) {
+    setTrackedCardKey(cardKey);
+    setTyped('');
+    setChecked(null);
+    setOverride(null);
+    setClozeTyped([]);
+    setClozeChecked(null);
+    setClozeSelectedAnswerIndexes([]);
+  }
 
   const systemReduceMotion = useReducedMotion();
   const prefersReducedMotion = reduceMotion ?? systemReduceMotion;
@@ -167,20 +178,22 @@ export function FlashcardReview({
     !checked &&
     Boolean(answer.recordedUri);
   const effectiveCorrect = override ?? checked?.correct ?? false;
-  const clozeFeedback: ClozeBlankResult[] =
-    answer.kind === 'cloze' && clozeChecked
-      ? answer.blanks
-          .map((blank, index) => ({
-            label: blank.label,
-            typed: clozeTyped[index] ?? '',
-            checked: clozeChecked[index],
-            selectedAnswerIndex:
-              clozeSelectedAnswerIndexes[index] ?? clozeChecked[index]?.expectedIndex ?? 0,
-            onSelectAnswerIndex: (answerIndex: number) =>
-              handleSelectClozeAnswer(index, answerIndex),
-          }))
-          .filter((item): item is ClozeBlankResult => item.checked !== null)
-      : [];
+  const clozeCheckedReady =
+    answer.kind === 'cloze' &&
+    clozeChecked !== null &&
+    clozeChecked.length === answer.blanks.length;
+  const clozeFeedback: ClozeBlankResult[] = clozeCheckedReady
+    ? answer.blanks
+        .map((blank, index) => ({
+          label: blank.label,
+          typed: clozeTyped[index] ?? '',
+          checked: clozeChecked[index],
+          selectedAnswerIndex:
+            clozeSelectedAnswerIndexes[index] ?? clozeChecked[index]?.expectedIndex ?? 0,
+          onSelectAnswerIndex: (answerIndex: number) => handleSelectClozeAnswer(index, answerIndex),
+        }))
+        .filter((item): item is ClozeBlankResult => item.checked != null)
+    : [];
   const clozeSelectedAnswers =
     answer.kind === 'cloze'
       ? answer.blanks.map((blank, index) => {
