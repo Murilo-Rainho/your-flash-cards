@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '@/components/common/Icon';
 import { ROUTES } from '@/constants/routes';
 import { useStrings } from '@/features/settings/providers/PreferencesProvider';
+import { useTour } from '@/features/tour/providers/TourProvider';
 import { withAlpha } from '@/theme/createShadows';
 import type { IconName } from '@/theme/icons';
 import { useTheme } from '@/theme/useTheme';
@@ -30,6 +31,7 @@ export function AppDrawer({ visible, onClose }: AppDrawerProps) {
   const router = useRouter();
   const strings = useStrings();
   const { colors, shadows } = useTheme();
+  const { openFromMenu } = useTour();
 
   const navigate = (action: () => void) => {
     onClose();
@@ -42,6 +44,18 @@ export function AppDrawer({ visible, onClose }: AppDrawerProps) {
       icon: 'home',
       label: strings.common.backToHome,
       onPress: () => navigate(() => router.replace(ROUTES.HOME as Href)),
+    },
+    {
+      id: 'tour',
+      icon: 'tour',
+      label: strings.tour.menu.startTour,
+      onPress: () => navigate(openFromMenu),
+    },
+    {
+      id: 'why-flashcards',
+      icon: 'guide',
+      label: strings.whyFlashcards.menuLabel,
+      onPress: () => navigate(() => router.push(ROUTES.WHY_FLASHCARDS as Href)),
     },
     {
       id: 'settings',

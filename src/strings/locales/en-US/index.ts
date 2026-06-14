@@ -6,6 +6,8 @@ import { home } from './home';
 import { review } from './review';
 import { settings } from './settings';
 import { tags } from './tags';
+import { tour } from './tour';
+import { whyFlashcards } from './whyFlashcards';
 
 export const enUS = {
   common,
@@ -16,4 +18,6 @@ export const enUS = {
   review,
   tags,
   settings,
+  tour,
+  whyFlashcards,
 } as const;
