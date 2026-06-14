@@ -1,5 +1,3 @@
-import { ROUTES, type Route } from '@/constants/routes';
-
 /**
  * Registro DECLARATIVO dos steps do tour base. Contém apenas dados estruturais e ids
  * estáveis — título/descrição são resolvidos por id no catálogo de tradução (i18n),
@@ -30,8 +28,6 @@ export type TourStep = {
   /** Posição 1-based na sequência. */
   order: number;
   kind: TourStepKind;
-  /** Rota associada (opcional) — usada por ações de navegação do step. */
-  route?: Route;
   /** Ação secundária opcional exibida no step. */
   action?: TourStepAction;
 };
@@ -40,7 +36,7 @@ export type TourStep = {
 export const BASE_TOUR_STEPS: readonly TourStep[] = [
   { id: 'welcome', order: 1, kind: 'educational' },
   { id: 'why-flashcards', order: 2, kind: 'educational', action: 'open-why-flashcards' },
-  { id: 'home-daily-review', order: 3, kind: 'interface', route: ROUTES.HOME },
+  { id: 'home-daily-review', order: 3, kind: 'interface' },
   { id: 'collections-decks-cards', order: 4, kind: 'interface' },
   { id: 'creating-good-cards', order: 5, kind: 'educational' },
   { id: 'cloze-cards', order: 6, kind: 'educational' },

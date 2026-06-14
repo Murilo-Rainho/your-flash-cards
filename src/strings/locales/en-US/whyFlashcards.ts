@@ -163,4 +163,5 @@ export const whyFlashcards = {
     ],
   },
   openLinkA11y: 'Open reference in browser',
+  openLinkError: 'Could not open this link. Check your browser or try again later.',
 } as const;

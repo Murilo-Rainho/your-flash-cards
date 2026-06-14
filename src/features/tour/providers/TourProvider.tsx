@@ -74,14 +74,23 @@ export function TourProvider({
   useEffect(() => {
     let cancelled = false;
 
-    void repository.get(APP_SETTINGS_KEYS.TOUR_BASE_STATE).then((raw) => {
-      if (cancelled) {
-        return;
-      }
+    void repository
+      .get(APP_SETTINGS_KEYS.TOUR_BASE_STATE)
+      .then((raw) => {
+        if (cancelled) {
+          return;
+        }
 
-      setState(parseTourState(raw));
-      setIsReady(true);
-    });
+        setState(parseTourState(raw));
+      })
+      .catch(() => {
+        // Mantém INITIAL_TOUR_STATE se a leitura falhar.
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsReady(true);
+        }
+      });
 
     return () => {
       cancelled = true;

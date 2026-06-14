@@ -7,7 +7,7 @@ import { useStrings } from '@/features/settings/providers/PreferencesProvider';
 import { withAlpha } from '@/theme/createShadows';
 import { useTheme } from '@/theme/useTheme';
 
-import { TourModal } from './TourModal';
+import { TourModal } from '@/features/tour/components/TourModal';
 
 type TourResumeProps = {
   visible: boolean;

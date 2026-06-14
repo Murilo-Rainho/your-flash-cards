@@ -1,4 +1,4 @@
-import { Linking, Pressable, Text, View } from 'react-native';
+import { Alert, Linking, Pressable, Text, View } from 'react-native';
 
 import { Header } from '@/components/common/Header';
 import { Icon } from '@/components/common/Icon';
@@ -101,7 +101,9 @@ function ReferenceLink({ item }: { item: WhyReferenceItem }) {
       accessibilityRole="link"
       accessibilityLabel={`${item.title}. ${strings.whyFlashcards.openLinkA11y}`}
       onPress={() => {
-        void Linking.openURL(item.url);
+        void Linking.openURL(item.url).catch(() => {
+          Alert.alert(strings.whyFlashcards.openLinkError);
+        });
       }}
       style={{ backgroundColor: colors.surface, borderColor: colors.border }}
       className="flex-row items-start gap-3 rounded-xl border p-3 active:opacity-90"

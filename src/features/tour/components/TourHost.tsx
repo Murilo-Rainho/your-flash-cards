@@ -4,13 +4,13 @@ import { useState } from 'react';
 import { ROUTES } from '@/constants/routes';
 import { useStrings } from '@/features/settings/providers/PreferencesProvider';
 
-import { useTour } from '../providers/TourProvider';
-import { TourActions } from './TourActions';
-import { TourInvitation } from './TourInvitation';
-import { TourModal } from './TourModal';
-import { TourProgress } from './TourProgress';
-import { TourResume } from './TourResume';
-import { TourStepCard } from './TourStepCard';
+import { useTour } from '@/features/tour/providers/TourProvider';
+import { TourActions } from '@/features/tour/components/TourActions';
+import { TourInvitation } from '@/features/tour/components/TourInvitation';
+import { TourModal } from '@/features/tour/components/TourModal';
+import { TourProgress } from '@/features/tour/components/TourProgress';
+import { TourResume } from '@/features/tour/components/TourResume';
+import { TourStepCard } from '@/features/tour/components/TourStepCard';
 
 /**
  * Orquestrador do tour montado UMA vez na raiz (irmão do `Stack`). Decide, de forma

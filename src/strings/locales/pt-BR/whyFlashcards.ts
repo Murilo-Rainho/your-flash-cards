@@ -165,4 +165,6 @@ export const whyFlashcards = {
     ],
   },
   openLinkA11y: 'Abrir referência no navegador',
+  openLinkError:
+    'Não foi possível abrir este link. Verifique o navegador ou tente novamente mais tarde.',
 } as const;

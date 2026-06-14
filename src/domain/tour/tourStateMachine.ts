@@ -126,7 +126,8 @@ export function getTourProgress(
   state: TourState,
   steps: readonly TourStep[] = BASE_TOUR_STEPS,
 ): number {
-  const total = steps.length;
+  const ordered = orderedSteps(steps);
+  const total = ordered.length;
 
   if (total === 0) {
     return 0;
@@ -136,7 +137,7 @@ export function getTourProgress(
     return 100;
   }
 
-  const index = getTourStepIndex(state.currentStepId, steps);
+  const index = getTourStepIndex(state.currentStepId, ordered);
   const position = index === -1 ? 0 : index + 1;
 
   return Math.round((position / total) * 100);

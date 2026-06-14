@@ -517,5 +517,6 @@ export type StringCatalog = {
       }>;
     };
     openLinkA11y: string;
+    openLinkError: string;
   };
 };

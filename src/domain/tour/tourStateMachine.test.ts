@@ -125,4 +125,10 @@ describe('getTourProgress', () => {
   it('returns 0 for an empty registry', () => {
     expect(getTourProgress(INITIAL_TOUR_STATE, [])).toBe(0);
   });
+
+  it('uses step order, not array position, when the registry is shuffled', () => {
+    const shuffled = [...BASE_TOUR_STEPS].reverse();
+    expect(getTourProgress(inProgressAt('welcome'), shuffled)).toBe(Math.round((1 / 8) * 100));
+    expect(getTourProgress(inProgressAt('finish'), shuffled)).toBe(100);
+  });
 });
