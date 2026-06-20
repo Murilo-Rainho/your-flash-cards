@@ -17,7 +17,6 @@ export type CardAggregate = {
  */
 export type CardRepository = {
   createAggregate(aggregate: CardAggregate): Promise<CardAggregate>;
-  listActiveByDeck(deckId: string): Promise<Card[]>;
   findAggregateById(id: string): Promise<CardAggregate | null>;
   /**
    * Atualiza o card físico e sincroniza mídia/tags com o aggregate informado.

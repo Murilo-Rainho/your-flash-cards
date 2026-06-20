@@ -136,7 +136,7 @@ export function buildReviewViewModel(source: ReviewSource): FlashcardViewModel {
   if (type === CARD_TYPES.TYPING) {
     // Escrita (§11): a frente é uma mídia (áudio/gravação/TTS ou imagem) — nunca o texto, que
     // só existe como fonte do TTS (fallback ao vivo no preview). O revisor digita a resposta,
-    // comparada localmente (normalizada) com o verso, com override manual no feedback.
+    // comparada localmente (normalizada) com o verso; a nota final continua manual.
     const answer: ReviewAnswerBehavior = {
       kind: 'typing',
       promptLabel: source.reviewStrings.answer.typingPrompt,

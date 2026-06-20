@@ -65,7 +65,6 @@ export function FlashcardReview({
   const { colors, shadows } = useTheme();
   const [typed, setTyped] = useState('');
   const [checked, setChecked] = useState<CheckedAnswer | null>(null);
-  const [override, setOverride] = useState<boolean | null>(null);
   // Cloze (§9): uma entrada e um resultado por lacuna (null = lacuna não respondida).
   const [clozeTyped, setClozeTyped] = useState<string[]>([]);
   const [clozeChecked, setClozeChecked] = useState<Array<CheckedAnswer | null> | null>(null);
@@ -76,7 +75,6 @@ export function FlashcardReview({
     setTrackedCardKey(cardKey);
     setTyped('');
     setChecked(null);
-    setOverride(null);
     setClozeTyped([]);
     setClozeChecked(null);
     setClozeSelectedAnswerIndexes([]);
@@ -106,7 +104,6 @@ export function FlashcardReview({
     }
     setTyped('');
     setChecked(null);
-    setOverride(null);
     setClozeTyped([]);
     setClozeChecked(null);
     setClozeSelectedAnswerIndexes([]);
@@ -171,13 +168,11 @@ export function FlashcardReview({
     answer.kind === 'typing' || (answer.kind === 'listening' && hasTyped)
       ? strings.flipVerify
       : strings.flipCard;
-  const allowOverride = answer.kind === 'typing' || answer.kind === 'listening';
   // Escuta e Pronúncia: ao virar, o verso reouve a própria gravação para comparar com o card.
   const showRecordedOnBack =
     (answer.kind === 'listening' || answer.kind === 'recording') &&
     !checked &&
     Boolean(answer.recordedUri);
-  const effectiveCorrect = override ?? checked?.correct ?? false;
   const clozeCheckedReady =
     answer.kind === 'cloze' &&
     clozeChecked !== null &&
@@ -311,12 +306,9 @@ export function FlashcardReview({
                 ) : checked ? (
                   <AnswerFeedback
                     strings={strings}
-                    correct={effectiveCorrect}
+                    correct={checked.correct}
                     typed={typed}
                     expected={checked.expected}
-                    onToggleOverride={
-                      allowOverride ? () => setOverride(!effectiveCorrect) : undefined
-                    }
                   />
                 ) : null}
                 {showRecordedOnBack &&

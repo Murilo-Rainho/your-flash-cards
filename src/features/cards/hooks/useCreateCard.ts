@@ -6,6 +6,7 @@ import {
   getSQLiteDeckRepository,
 } from '@/infrastructure/database/sqlite/repositories';
 import { getExpoLocalMediaStorage } from '@/infrastructure/filesystem/ExpoLocalMediaStorage';
+import { DECK_CARDS_QUERY_KEY } from '@/features/cards/hooks/useDeckCards';
 import { ACTIVE_COLLECTIONS_QUERY_KEY } from '@/features/collections/hooks/useActiveCollections';
 import { ACTIVE_DECKS_QUERY_KEY } from '@/features/decks/hooks/useActiveDecks';
 import { HOME_DATA_QUERY_KEY } from '@/features/home/hooks/useHomeData';
@@ -28,6 +29,7 @@ export function useCreateCard() {
         queryClient.invalidateQueries({ queryKey: HOME_DATA_QUERY_KEY }),
         queryClient.invalidateQueries({ queryKey: ACTIVE_COLLECTIONS_QUERY_KEY }),
         queryClient.invalidateQueries({ queryKey: ACTIVE_DECKS_QUERY_KEY }),
+        queryClient.resetQueries({ queryKey: DECK_CARDS_QUERY_KEY }),
       ]);
     },
   });

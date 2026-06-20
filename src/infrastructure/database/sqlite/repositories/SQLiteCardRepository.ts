@@ -1,31 +1,18 @@
-import type { Card } from '@/domain/entities/Card';
-import type { CardType } from '@/constants/cardTypes';
-import { deserializeClozeContent, serializeClozeContent } from '@/domain/cloze/clozeContent';
+import { serializeClozeContent } from '@/domain/cloze/clozeContent';
 import type { CardVariant, VariantType } from '@/domain/entities/CardVariant';
 import type { Media, MediaSide, MediaType } from '@/domain/entities/Media';
 import type { ReviewItem } from '@/domain/entities/ReviewItem';
 import type { Tag } from '@/domain/entities/Tag';
 import type { CardAggregate, CardRepository } from '@/domain/repositories/CardRepository';
+import { normalizeSearchText } from '@/utils/search';
 
 import type { SqliteDatabaseConnection } from '../types';
+import { mapCardRow, type CardRow } from './cardRowMapper';
 
 type GetDatabase = () => Promise<SqliteDatabaseConnection>;
 
 type TagIdRow = {
   id: string;
-};
-
-type CardRow = {
-  id: string;
-  deckId: string;
-  type: CardType;
-  front: string;
-  back: string;
-  clozeData: string | null;
-  notes: string | null;
-  createdAt: string;
-  updatedAt: string;
-  archivedAt: string | null;
 };
 
 type CardVariantRow = {
@@ -72,23 +59,6 @@ type ReviewItemRow = {
   createdAt: string;
   updatedAt: string;
 };
-
-function mapCard(row: CardRow): Card {
-  const cloze = deserializeClozeContent(row.clozeData);
-
-  return {
-    id: row.id,
-    deckId: row.deckId,
-    type: row.type,
-    front: row.front,
-    back: row.back,
-    ...(cloze ? { cloze } : {}),
-    notes: row.notes ?? undefined,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-    archivedAt: row.archivedAt ?? undefined,
-  };
-}
 
 function mapCardVariant(row: CardVariantRow): CardVariant {
   return {
@@ -158,6 +128,8 @@ INSERT INTO cards (
   type,
   front,
   back,
+  front_search,
+  back_search,
   cloze_data,
   notes,
   created_at,
@@ -169,6 +141,8 @@ INSERT INTO cards (
   $type,
   $front,
   $back,
+  $frontSearch,
+  $backSearch,
   $clozeData,
   $notes,
   $createdAt,
@@ -181,6 +155,8 @@ INSERT INTO cards (
           $type: aggregate.card.type,
           $front: aggregate.card.front,
           $back: aggregate.card.back,
+          $frontSearch: normalizeSearchText(aggregate.card.front),
+          $backSearch: normalizeSearchText(aggregate.card.back),
           $clozeData: aggregate.card.cloze ? serializeClozeContent(aggregate.card.cloze) : null,
           $notes: aggregate.card.notes ?? null,
           $createdAt: aggregate.card.createdAt,
@@ -423,6 +399,8 @@ UPDATE cards
 SET deck_id = $deckId,
     front = $front,
     back = $back,
+    front_search = $frontSearch,
+    back_search = $backSearch,
     cloze_data = $clozeData,
     notes = $notes,
     updated_at = $updatedAt
@@ -434,6 +412,8 @@ WHERE id = $id
           $deckId: aggregate.card.deckId,
           $front: aggregate.card.front,
           $back: aggregate.card.back,
+          $frontSearch: normalizeSearchText(aggregate.card.front),
+          $backSearch: normalizeSearchText(aggregate.card.back),
           $clozeData: aggregate.card.cloze ? serializeClozeContent(aggregate.card.cloze) : null,
           $notes: aggregate.card.notes ?? null,
           $updatedAt: aggregate.card.updatedAt,
@@ -654,32 +634,6 @@ WHERE id = (
     });
   }
 
-  async listActiveByDeck(deckId: string): Promise<Card[]> {
-    const db = await this.getDatabase();
-    const rows = await db.getAllAsync<CardRow>(
-      `
-SELECT
-  id,
-  deck_id AS deckId,
-  type,
-  front,
-  back,
-  cloze_data AS clozeData,
-  notes,
-  created_at AS createdAt,
-  updated_at AS updatedAt,
-  archived_at AS archivedAt
-FROM cards
-WHERE deck_id = $deckId
-  AND archived_at IS NULL
-ORDER BY updated_at DESC, created_at DESC
-`,
-      { $deckId: deckId },
-    );
-
-    return rows.map(mapCard);
-  }
-
   async findAggregateById(id: string): Promise<CardAggregate | null> {
     const db = await this.getDatabase();
 
@@ -764,7 +718,7 @@ ORDER BY tag.normalized_name ASC
     const reviewItemRows = await this.loadReviewItems(db, variantIds);
 
     return {
-      card: mapCard(cardRow),
+      card: mapCardRow(cardRow),
       variants: variantRows.map(mapCardVariant),
       media: mediaRows.map(mapMedia),
       tags: tagRows.map(mapTag),

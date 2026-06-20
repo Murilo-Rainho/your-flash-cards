@@ -80,12 +80,6 @@ class FakeCardRepository implements CardRepository {
     return aggregate;
   }
 
-  async listActiveByDeck(deckId: string) {
-    return this.aggregates
-      .map((aggregate) => aggregate.card)
-      .filter((card) => card.deckId === deckId && !card.archivedAt);
-  }
-
   async findAggregateById(id: string) {
     return this.aggregates.find((aggregate) => aggregate.card.id === id) ?? null;
   }

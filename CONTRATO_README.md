@@ -337,9 +337,12 @@ Usuário escreve a transcrição da frase (verso, obrigatória)
 - **Frente**: o áudio para ouvir + um campo para **escrever** o que ouviu **ou** um botão
   para **gravar** a própria fala. O usuário usa o que preferir.
 - **Verso**: reouve o áudio do card, vê a transcrição e a própria tentativa:
-  - se **escreveu** → comparação local (normalizada, como na Escrita §11), com override manual;
+  - se **escreveu** → comparação local informativa (normalizada, como na Escrita §11);
   - se **gravou** → **sem comparação automática**: apenas um botão para reouvir a própria
     gravação e comparar manualmente com o card.
+
+A comparação local não determina a nota da revisão e não possui override binário. A
+avaliação final é sempre a opção escolhida pelo usuário entre as quatro notas do §19.
 
 Tudo é local (gravação, TTS e comparação) — permanece Free e offline-first (§4/§29).
 
@@ -364,8 +367,11 @@ O card de digitação deve exigir que o usuário escreva a resposta.
 ### Revisão
 
 - **Frente**: o áudio/imagem do enunciado + um campo para o usuário **escrever** a resposta.
-- **Verso**: mostra a resposta esperada e o resultado da comparação local (normalizada),
-  com **override manual** (marcar como certo/errado).
+- **Verso**: mostra a resposta esperada e o resultado informativo da comparação local
+  (normalizada).
+
+A comparação local não determina a nota da revisão e não possui override binário. A
+avaliação final é sempre a opção escolhida pelo usuário entre as quatro notas do §19.
 
 Exemplo:
 
@@ -585,6 +591,10 @@ Fácil
 ```
 
 Não usar apenas “acertei” e “errei”.
+
+Nos cards com comparação local de texto, o resultado automático é apenas informativo. A
+nota escolhida pelo usuário (`again`, `hard`, `good` ou `easy`) é a única entrada que afeta
+o scheduler e as estatísticas; não há override separado de certo/errado.
 
 Cada resposta deve afetar:
 
@@ -846,6 +856,16 @@ O app não deve depender de internet para:
 - visualizar estatísticas;
 - exportar localmente, se tecnicamente possível;
 - importar arquivos locais.
+
+### 29.1 Listagem local de cards
+
+A listagem de cards de um deck deve ser paginada no SQLite, com 30 cards por página. A
+busca por frente/verso e os filtros de mídia devem ser aplicados no banco antes do `LIMIT`,
+considerando todos os cards ativos do deck, e não apenas as páginas já carregadas na UI.
+
+Ao chegar manualmente ao fim da lista, o app carrega a próxima página local. A busca deve
+ignorar caixa e acentos e continuar totalmente Free e offline. Esse requisito de paginação
+se aplica inicialmente apenas à listagem de cards; decks e tags podem permanecer em memória.
 
 ---
 

@@ -10,7 +10,10 @@ import type { SqliteDatabaseConnection } from '../types';
 class FakeCardDatabase {
   runCalls: Array<{ source: string; params: unknown[] }> = [];
   getFirstCalls: Array<{ source: string; params: unknown[] }> = [];
+  getAllCalls: Array<{ source: string; params: unknown[] }> = [];
   transactionCount = 0;
+
+  constructor(private readonly allRows: unknown[] = []) {}
 
   async execAsync(): Promise<void> {}
 
@@ -19,8 +22,9 @@ class FakeCardDatabase {
     return {};
   }
 
-  async getAllAsync<T>(): Promise<T[]> {
-    return [];
+  async getAllAsync<T>(source: string, ...params: unknown[]): Promise<T[]> {
+    this.getAllCalls.push({ source, params });
+    return this.allRows as T[];
   }
 
   async getFirstAsync<T>(source: string, ...params: unknown[]): Promise<T | null> {
@@ -148,6 +152,8 @@ describe('SQLiteCardRepository', () => {
       $type: CARD_TYPES.VOCABULARY,
       $front: 'house',
       $back: 'casa',
+      $frontSearch: 'house',
+      $backSearch: 'casa',
       $clozeData: null,
       $notes: 'basic',
       $createdAt: '2026-06-03T12:00:00.000Z',
@@ -158,5 +164,32 @@ describe('SQLiteCardRepository', () => {
     expect(
       db.runCalls.some((call) => call.source.includes('INSERT OR IGNORE INTO card_tags')),
     ).toBe(true);
+  });
+
+  it('updates normalized search projections with the card source fields', async () => {
+    const db = new FakeCardDatabase();
+    const updatedAggregate: CardAggregate = {
+      ...aggregate,
+      card: {
+        ...aggregate.card,
+        front: '  CAFÉ  ',
+        back: 'Ação RÁPIDA',
+        updatedAt: '2026-06-04T12:00:00.000Z',
+      },
+    };
+
+    await createRepository(db).updateAggregate(updatedAggregate);
+
+    const cardUpdate = db.runCalls.find((call) => call.source.includes('UPDATE cards'));
+    expect(cardUpdate?.source).toContain('front_search = $frontSearch');
+    expect(cardUpdate?.source).toContain('back_search = $backSearch');
+    expect(cardUpdate?.params[0]).toEqual(
+      expect.objectContaining({
+        $front: '  CAFÉ  ',
+        $back: 'Ação RÁPIDA',
+        $frontSearch: 'cafe',
+        $backSearch: 'acao rapida',
+      }),
+    );
   });
 });

@@ -13,6 +13,8 @@ type BottomSheetProps = {
   title?: string;
   /** Altura máxima da área rolável do conteúdo. */
   maxContentHeight?: number;
+  /** Desativa a rolagem externa quando o filho já possui uma lista rolável. */
+  contentScrollable?: boolean;
   children: ReactNode;
 };
 
@@ -29,6 +31,7 @@ export function BottomSheet({
   closeAccessibilityLabel,
   title,
   maxContentHeight = 480,
+  contentScrollable = true,
   children,
 }: BottomSheetProps) {
   const { colors, shadows } = useTheme();
@@ -57,9 +60,18 @@ export function BottomSheet({
                 {title}
               </Text>
             ) : null}
-            <ScrollView style={{ maxHeight: maxContentHeight }} keyboardShouldPersistTaps="handled">
-              <View className="gap-4 px-2 pb-2">{children}</View>
-            </ScrollView>
+            {contentScrollable ? (
+              <ScrollView
+                style={{ maxHeight: maxContentHeight }}
+                keyboardShouldPersistTaps="handled"
+              >
+                <View className="gap-4 px-2 pb-2">{children}</View>
+              </ScrollView>
+            ) : (
+              <View style={{ maxHeight: maxContentHeight }} className="gap-4 px-2 pb-2">
+                {children}
+              </View>
+            )}
           </View>
         </Pressable>
       </Pressable>

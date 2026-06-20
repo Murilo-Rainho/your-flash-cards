@@ -1,28 +1,20 @@
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import type { StringCatalog } from '@/strings/types';
 import { useTheme } from '@/theme/useTheme';
 
 type AnswerFeedbackProps = {
   strings: StringCatalog['review'];
-  /** Resultado efetivo (já considerando override manual, quando houver). */
+  /** Resultado calculado localmente para a resposta digitada. */
   correct: boolean;
   /** Resposta que o usuário digitou (pode ser vazia). */
   typed: string;
   /** Resposta esperada (pode ser vazia em preview incompleto). */
   expected: string;
-  /** Override manual (§11) — presente apenas para Escrita. */
-  onToggleOverride?: () => void;
 };
 
 /** Feedback de resposta digitada no estado ANSWER (cloze/typing). */
-export function AnswerFeedback({
-  strings,
-  correct,
-  typed,
-  expected,
-  onToggleOverride,
-}: AnswerFeedbackProps) {
+export function AnswerFeedback({ strings, correct, typed, expected }: AnswerFeedbackProps) {
   const { colors } = useTheme();
   const trimmedTyped = typed.trim();
 
@@ -54,19 +46,6 @@ export function AnswerFeedback({
             {expected}
           </Text>
         </Text>
-      ) : null}
-
-      {onToggleOverride ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={correct ? strings.answer.markWrong : strings.answer.markCorrect}
-          onPress={onToggleOverride}
-          className="self-start active:opacity-70"
-        >
-          <Text style={{ color: colors.primary }} className="text-sm font-medium">
-            {correct ? strings.actuallyWrong : strings.actuallyCorrect}
-          </Text>
-        </Pressable>
       ) : null}
     </View>
   );

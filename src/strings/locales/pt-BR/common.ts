@@ -19,4 +19,5 @@ export const common = {
   openMenu: 'Abrir menu',
   closeMenu: 'Fechar menu',
   backToHome: 'Voltar para Home',
+  clearSearch: 'Limpar busca',
 } as const;

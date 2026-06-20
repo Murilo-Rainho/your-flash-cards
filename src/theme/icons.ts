@@ -21,6 +21,7 @@ export const icons = {
   menu: 'menu', // hamburger
   back: 'arrow-left',
   close: 'x', // ✕ (fechar modal/folha)
+  search: 'search',
   chevron: 'chevron-right',
   previous: 'chevron-left',
   next: 'chevron-right',

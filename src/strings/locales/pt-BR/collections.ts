@@ -16,6 +16,9 @@ export const collections = {
   noDecks: 'Nenhum deck nesta coleção ainda.',
   decksLoadError: 'Não foi possível carregar os decks',
   decksLoadRetryA11y: 'Tentar carregar decks novamente',
+  decksSearchPlaceholder: 'Buscar deck por nome',
+  decksSearchA11y: 'Buscar decks por nome',
+  noDecksFound: 'Nenhum deck encontrado.',
   editLabel: 'Editar',
   editA11y: 'Editar coleção',
   editTitle: 'Editar coleção',
@@ -33,4 +36,7 @@ export const collections = {
   noTags: 'Nenhuma tag nesta coleção ainda.',
   tagsLoadError: 'Não foi possível carregar as tags',
   tagsLoadRetryA11y: 'Tentar carregar tags novamente',
+  tagsSearchPlaceholder: 'Buscar tag por nome',
+  tagsSearchA11y: 'Buscar tags por nome',
+  noTagsFound: 'Nenhuma tag encontrada.',
 } as const;

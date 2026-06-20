@@ -453,10 +453,12 @@ export function useEditCardForm({ aggregate, onSaved, onDeleted }: UseEditCardFo
   return {
     type,
     collectionId,
+    collectionName: collectionQuery.data?.name ?? null,
     selectedTypeLabel: selectedTypeConfig.label,
     deckOptions,
     selectedDeckId,
     decksLoading: decksQuery.isLoading,
+    decksEmpty: !decksQuery.isLoading && decks.length === 0,
     errors,
     formError,
     successMessage,

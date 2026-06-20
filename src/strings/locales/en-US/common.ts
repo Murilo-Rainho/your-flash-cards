@@ -19,4 +19,5 @@ export const common = {
   openMenu: 'Open menu',
   closeMenu: 'Close menu',
   backToHome: 'Back to Home',
+  clearSearch: 'Clear search',
 } as const;

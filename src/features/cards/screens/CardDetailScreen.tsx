@@ -7,7 +7,6 @@ import { PrimaryButton } from '@/components/common/PrimaryButton';
 import { SecondaryButton } from '@/components/common/SecondaryButton';
 import { StateCard } from '@/components/common/StateCard';
 import { FormScreen } from '@/components/forms/FormScreen';
-import { SelectField } from '@/components/forms/SelectField';
 import { FlashcardReview } from '@/components/review';
 import type { CardAggregate } from '@/domain/repositories/CardRepository';
 import { usePreferences } from '@/features/settings/providers/PreferencesProvider';
@@ -16,6 +15,7 @@ import { withAlpha } from '@/theme/createShadows';
 import { useTheme } from '@/theme/useTheme';
 
 import { CardTypeFields } from '../components/CardTypeFields';
+import { DeckSelectField } from '../components/DeckSelectField';
 import { OptionalCardFields } from '../components/OptionalCardFields';
 import { useCardAggregate } from '../hooks/useCardAggregate';
 import { useEditCardForm } from '../hooks/useEditCardForm';
@@ -126,14 +126,20 @@ function CardDetailForm({ aggregate }: { aggregate: CardAggregate }) {
         </View>
       </View>
 
-      <SelectField
+      <DeckSelectField
         label={strings.cards.deckLabel}
         value={form.selectedDeckId}
         placeholder={form.decksLoading ? strings.cards.loadingDecks : strings.cards.deckPlaceholder}
         disabled={form.isSaveDisabled || form.decksLoading}
         options={form.deckOptions}
+        collectionKey={form.collectionId ?? ''}
+        emptyHint={form.decksEmpty ? strings.cards.noDecksInCollection : undefined}
         error={form.errors.deckId?.message}
         onChange={form.onDeckChange}
+        searchPlaceholder={strings.cards.deckSearchPlaceholder}
+        searchA11y={strings.cards.deckSearchA11y}
+        clearSearchA11y={strings.common.clearSearch}
+        noResults={strings.cards.noDecksFound}
       />
 
       <CardTypeFields

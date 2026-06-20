@@ -7,6 +7,7 @@ import { Header } from '@/components/common/Header';
 import { Icon } from '@/components/common/Icon';
 import { IconButton } from '@/components/common/IconButton';
 import { PrimaryButton } from '@/components/common/PrimaryButton';
+import { SearchableListContainer } from '@/components/common/SearchableListContainer';
 import { SectionTitle } from '@/components/common/SectionTitle';
 import { StateCard } from '@/components/common/StateCard';
 import { FormScreen } from '@/components/forms/FormScreen';
@@ -45,6 +46,7 @@ import { isUpdateTagInputError } from '@/features/tags/services/updateTag';
 import { useStrings } from '@/features/settings/providers/PreferencesProvider';
 import { withAlpha } from '@/theme/createShadows';
 import { useTheme } from '@/theme/useTheme';
+import { filterNamedItems } from '@/utils/search';
 
 type DeckModalState = { mode: 'create' } | { mode: 'edit'; deck: Deck };
 type TagModalState = { mode: 'create' } | { mode: 'edit'; tag: Tag };
@@ -83,6 +85,17 @@ export function CollectionDetailScreen() {
   const [tagModal, setTagModal] = useState<TagModalState | null>(null);
   const [tagErrors, setTagErrors] = useState<TagFormErrors>({});
   const [tagFormError, setTagFormError] = useState<string | undefined>(undefined);
+  const [deckSearchQuery, setDeckSearchQuery] = useState('');
+  const [tagSearchQuery, setTagSearchQuery] = useState('');
+
+  const filteredDecks = useMemo(
+    () => filterNamedItems(decks, deckSearchQuery),
+    [deckSearchQuery, decks],
+  );
+  const filteredTags = useMemo(
+    () => filterNamedItems(tags, tagSearchQuery),
+    [tagSearchQuery, tags],
+  );
 
   const languagePair = collection
     ? `${collection.baseLanguage.toUpperCase()} → ${collection.targetLanguage.toUpperCase()}`
@@ -313,55 +326,65 @@ export function CollectionDetailScreen() {
           ) : decks.length === 0 ? (
             <StateCard title={strings.collections.noDecks} />
           ) : (
-            decks.map((deck) => (
-              <View
-                key={deck.id}
-                style={{
-                  borderColor: colors.border,
-                  backgroundColor: colors.surface,
-                  ...shadows.sm,
-                }}
-                className="flex-row items-center gap-3 rounded-2xl border p-4"
-              >
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={deck.name}
-                  onPress={() => router.push(routeHrefs.deckDetail(deck.id) as Href)}
-                  className="flex-1 flex-row items-center gap-3 active:opacity-90"
+            <SearchableListContainer
+              data={filteredDecks}
+              query={deckSearchQuery}
+              placeholder={strings.collections.decksSearchPlaceholder}
+              searchAccessibilityLabel={strings.collections.decksSearchA11y}
+              clearSearchAccessibilityLabel={strings.common.clearSearch}
+              emptyMessage={strings.collections.noDecksFound}
+              keyExtractor={(deck) => deck.id}
+              onQueryChange={setDeckSearchQuery}
+              maxResultsHeight={280}
+              renderItem={({ item: deck }) => (
+                <View
+                  style={{
+                    borderColor: colors.border,
+                    backgroundColor: colors.surface,
+                    ...shadows.sm,
+                  }}
+                  className="flex-row items-center gap-3 rounded-2xl border p-4"
                 >
-                  <View
-                    style={{ backgroundColor: withAlpha(colors.primary, 0.16) }}
-                    className="h-11 w-11 items-center justify-center rounded-2xl"
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={deck.name}
+                    onPress={() => router.push(routeHrefs.deckDetail(deck.id) as Href)}
+                    className="flex-1 flex-row items-center gap-3 active:opacity-90"
                   >
-                    <Icon name="deck" size={22} tone="primary" />
-                  </View>
-                  <View className="min-w-0 flex-1 gap-1">
-                    <Text
-                      style={{ color: colors.textPrimary }}
-                      className="text-base font-bold"
-                      numberOfLines={1}
+                    <View
+                      style={{ backgroundColor: withAlpha(colors.primary, 0.16) }}
+                      className="h-11 w-11 items-center justify-center rounded-2xl"
                     >
-                      {deck.name}
-                    </Text>
-                    {deck.description ? (
+                      <Icon name="deck" size={22} tone="primary" />
+                    </View>
+                    <View className="min-w-0 flex-1 gap-1">
                       <Text
-                        style={{ color: colors.textSecondary }}
-                        className="text-sm"
+                        style={{ color: colors.textPrimary }}
+                        className="text-base font-bold"
                         numberOfLines={1}
                       >
-                        {deck.description}
+                        {deck.name}
                       </Text>
-                    ) : null}
-                  </View>
-                  <Icon name="chevron" size={22} tone="textSecondary" />
-                </Pressable>
-                <IconButton
-                  icon="edit"
-                  accessibilityLabel={`${strings.decks.editA11y}: ${deck.name}`}
-                  onPress={() => openEditDeck(deck)}
-                />
-              </View>
-            ))
+                      {deck.description ? (
+                        <Text
+                          style={{ color: colors.textSecondary }}
+                          className="text-sm"
+                          numberOfLines={1}
+                        >
+                          {deck.description}
+                        </Text>
+                      ) : null}
+                    </View>
+                    <Icon name="chevron" size={22} tone="textSecondary" />
+                  </Pressable>
+                  <IconButton
+                    icon="edit"
+                    accessibilityLabel={`${strings.decks.editA11y}: ${deck.name}`}
+                    onPress={() => openEditDeck(deck)}
+                  />
+                </View>
+              )}
+            />
           )}
 
           <PrimaryButton
@@ -393,45 +416,55 @@ export function CollectionDetailScreen() {
           ) : tags.length === 0 ? (
             <StateCard title={strings.collections.noTags} />
           ) : (
-            tags.map((tag) => (
-              <View
-                key={tag.id}
-                style={{
-                  borderColor: colors.border,
-                  backgroundColor: colors.surface,
-                  ...shadows.sm,
-                }}
-                className="flex-row items-center gap-3 rounded-2xl border p-4"
-              >
+            <SearchableListContainer
+              data={filteredTags}
+              query={tagSearchQuery}
+              placeholder={strings.collections.tagsSearchPlaceholder}
+              searchAccessibilityLabel={strings.collections.tagsSearchA11y}
+              clearSearchAccessibilityLabel={strings.common.clearSearch}
+              emptyMessage={strings.collections.noTagsFound}
+              keyExtractor={(tag) => tag.id}
+              onQueryChange={setTagSearchQuery}
+              maxResultsHeight={270}
+              renderItem={({ item: tag }) => (
                 <View
-                  style={{ backgroundColor: withAlpha(colors.primary, 0.16) }}
-                  className="h-11 w-11 items-center justify-center rounded-2xl"
+                  style={{
+                    borderColor: colors.border,
+                    backgroundColor: colors.surface,
+                    ...shadows.sm,
+                  }}
+                  className="flex-row items-center gap-3 rounded-2xl border p-4"
                 >
-                  <Icon name="tag" size={22} tone="primary" />
-                </View>
-                <View className="min-w-0 flex-1">
-                  <Text
-                    style={{ color: colors.textPrimary }}
-                    className="text-base font-bold"
-                    numberOfLines={1}
+                  <View
+                    style={{ backgroundColor: withAlpha(colors.primary, 0.16) }}
+                    className="h-11 w-11 items-center justify-center rounded-2xl"
                   >
-                    {tag.name}
-                  </Text>
+                    <Icon name="tag" size={22} tone="primary" />
+                  </View>
+                  <View className="min-w-0 flex-1">
+                    <Text
+                      style={{ color: colors.textPrimary }}
+                      className="text-base font-bold"
+                      numberOfLines={1}
+                    >
+                      {tag.name}
+                    </Text>
+                  </View>
+                  <IconButton
+                    icon="edit"
+                    accessibilityLabel={`${strings.tags.editA11y}: ${tag.name}`}
+                    onPress={() => openEditTag(tag)}
+                  />
+                  <IconButton
+                    icon="delete"
+                    tone="danger"
+                    accessibilityLabel={`${strings.tags.deleteA11y}: ${tag.name}`}
+                    onPress={() => confirmDeleteTag(tag)}
+                    disabled={deleteTagMutation.isPending}
+                  />
                 </View>
-                <IconButton
-                  icon="edit"
-                  accessibilityLabel={`${strings.tags.editA11y}: ${tag.name}`}
-                  onPress={() => openEditTag(tag)}
-                />
-                <IconButton
-                  icon="delete"
-                  tone="danger"
-                  accessibilityLabel={`${strings.tags.deleteA11y}: ${tag.name}`}
-                  onPress={() => confirmDeleteTag(tag)}
-                  disabled={deleteTagMutation.isPending}
-                />
-              </View>
-            ))
+              )}
+            />
           )}
 
           <PrimaryButton

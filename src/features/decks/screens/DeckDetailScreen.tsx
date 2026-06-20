@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { type Href, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { Badge } from '@/components/common/Badge';
@@ -7,12 +7,15 @@ import { Header } from '@/components/common/Header';
 import { Icon } from '@/components/common/Icon';
 import { IconButton } from '@/components/common/IconButton';
 import { PrimaryButton } from '@/components/common/PrimaryButton';
+import { SearchableListContainer } from '@/components/common/SearchableListContainer';
+import { SecondaryButton } from '@/components/common/SecondaryButton';
 import { SectionTitle } from '@/components/common/SectionTitle';
 import { StateCard } from '@/components/common/StateCard';
 import { FormScreen } from '@/components/forms/FormScreen';
+import { SelectableChip } from '@/components/forms/SelectableChip';
 import type { CardType } from '@/constants/cardTypes';
 import { routeHrefs } from '@/constants/routes';
-import type { Card } from '@/domain/entities/Card';
+import type { CardListMediaFilters } from '@/domain/repositories/CardListReadRepository';
 import { useCollection } from '@/features/collections/hooks/useCollection';
 import { useDeckCards } from '@/features/cards/hooks/useDeckCards';
 import {
@@ -28,8 +31,6 @@ import { useGoBack } from '@/hooks/useGoBack';
 import { withAlpha } from '@/theme/createShadows';
 import { useTheme } from '@/theme/useTheme';
 
-const emptyCards: Card[] = [];
-
 export function DeckDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -41,14 +42,20 @@ export function DeckDetailScreen() {
   const deck = deckQuery.data;
   const collectionQuery = useCollection(deck?.collectionId);
   const collection = collectionQuery.data;
-  const cardsQuery = useDeckCards(id);
   const updateDeckMutation = useUpdateDeck();
-
-  const cards = cardsQuery.data ?? emptyCards;
 
   const [isEditingDeck, setIsEditingDeck] = useState(false);
   const [deckErrors, setDeckErrors] = useState<DeckFormErrors>({});
   const [deckFormError, setDeckFormError] = useState<string | undefined>(undefined);
+  const [cardSearchQuery, setCardSearchQuery] = useState('');
+  const [mediaFilters, setMediaFilters] = useState<CardListMediaFilters>({
+    audio: false,
+    image: false,
+  });
+  const cardsQuery = useDeckCards(id, cardSearchQuery, mediaFilters);
+  const cards = cardsQuery.cards;
+  const hasActiveFilters =
+    cardSearchQuery.trim().length > 0 || mediaFilters.audio || mediaFilters.image;
 
   const cardTypeLabel = (type: CardType): string => strings.cards.cardTypes[type].label;
 
@@ -158,11 +165,11 @@ export function DeckDetailScreen() {
         <View className="gap-3">
           <SectionTitle title={strings.decks.detailCardsTitle} />
 
-          {cardsQuery.isLoading ? (
+          {cardsQuery.isPending ? (
             <Text style={{ color: colors.textSecondary }} className="text-sm">
               {strings.common.loading}
             </Text>
-          ) : cardsQuery.error ? (
+          ) : cardsQuery.isError && cards.length === 0 && !cardsQuery.isFetchNextPageError ? (
             <StateCard
               title={strings.decks.cardsLoadError}
               action={{
@@ -174,52 +181,113 @@ export function DeckDetailScreen() {
                 },
               }}
             />
-          ) : cards.length === 0 ? (
+          ) : cards.length === 0 && !hasActiveFilters && !cardsQuery.isFilterTransition ? (
             <StateCard title={strings.decks.noCards} />
           ) : (
-            cards.map((card) => (
-              <Pressable
-                key={card.id}
-                accessibilityRole="button"
-                accessibilityLabel={card.front}
-                onPress={() => router.push(routeHrefs.cardDetail(card.id) as Href)}
-                style={{
-                  borderColor: colors.border,
-                  backgroundColor: colors.surface,
-                  ...shadows.sm,
-                }}
-                className="flex-row items-center gap-3 rounded-2xl border p-4 active:opacity-90"
-              >
-                <View
-                  style={{ backgroundColor: withAlpha(colors.primary, 0.16) }}
-                  className="h-11 w-11 items-center justify-center rounded-2xl"
-                >
-                  <Icon name="card" size={22} tone="primary" />
-                </View>
-                <View className="min-w-0 flex-1 gap-1">
-                  <Text
-                    style={{ color: colors.textPrimary }}
-                    className="text-base font-bold"
-                    numberOfLines={2}
-                  >
-                    {card.front}
-                  </Text>
-                  {card.back ? (
-                    <Text
-                      style={{ color: colors.textSecondary }}
-                      className="text-sm"
-                      numberOfLines={1}
-                    >
-                      {card.back}
-                    </Text>
-                  ) : null}
-                  <View className="mt-1 flex-row">
-                    <Badge label={cardTypeLabel(card.type)} tone="secondary" />
+            <SearchableListContainer
+              data={cards}
+              query={cardSearchQuery}
+              placeholder={strings.decks.cardsSearchPlaceholder}
+              searchAccessibilityLabel={strings.decks.cardsSearchA11y}
+              clearSearchAccessibilityLabel={strings.common.clearSearch}
+              emptyMessage={strings.decks.noCardsFound}
+              keyExtractor={(item) => item.card.id}
+              onQueryChange={setCardSearchQuery}
+              resetKey={`${cardsQuery.debouncedQuery}:${mediaFilters.audio}:${mediaFilters.image}`}
+              canLoadMore={Boolean(cardsQuery.hasNextPage) && !cardsQuery.isFilterTransition}
+              isLoadingMore={cardsQuery.isFetchingNextPage || cardsQuery.isFilterTransition}
+              onEndReached={() => {
+                void cardsQuery.fetchNextPage();
+              }}
+              footer={
+                cardsQuery.isFetchingNextPage || cardsQuery.isFilterTransition ? (
+                  <View className="items-center py-4">
+                    <ActivityIndicator
+                      color={colors.primary}
+                      accessibilityLabel={strings.decks.cardsLoadingMoreA11y}
+                    />
                   </View>
+                ) : cardsQuery.isFetchNextPageError ? (
+                  <View className="gap-2 py-3">
+                    <Text style={{ color: colors.danger }} className="text-center text-sm">
+                      {strings.decks.cardsLoadMoreError}
+                    </Text>
+                    <SecondaryButton
+                      compact
+                      label={strings.common.retry}
+                      accessibilityLabel={strings.decks.cardsLoadMoreRetryA11y}
+                      onPress={() => {
+                        void cardsQuery.fetchNextPage();
+                      }}
+                    />
+                  </View>
+                ) : undefined
+              }
+              filters={
+                <View className="flex-row flex-wrap gap-2">
+                  <SelectableChip
+                    label={strings.decks.audioFilter}
+                    selected={mediaFilters.audio}
+                    onPress={() =>
+                      setMediaFilters((current) => ({ ...current, audio: !current.audio }))
+                    }
+                  />
+                  <SelectableChip
+                    label={strings.decks.imageFilter}
+                    selected={mediaFilters.image}
+                    onPress={() =>
+                      setMediaFilters((current) => ({ ...current, image: !current.image }))
+                    }
+                  />
                 </View>
-                <Icon name="chevron" size={22} tone="textSecondary" />
-              </Pressable>
-            ))
+              }
+              renderItem={({ item }) => {
+                const card = item.card;
+
+                return (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={card.front}
+                    onPress={() => router.push(routeHrefs.cardDetail(card.id) as Href)}
+                    style={{
+                      borderColor: colors.border,
+                      backgroundColor: colors.surface,
+                      ...shadows.sm,
+                    }}
+                    className="flex-row items-center gap-3 rounded-2xl border p-4 active:opacity-90"
+                  >
+                    <View
+                      style={{ backgroundColor: withAlpha(colors.primary, 0.16) }}
+                      className="h-11 w-11 items-center justify-center rounded-2xl"
+                    >
+                      <Icon name="card" size={22} tone="primary" />
+                    </View>
+                    <View className="min-w-0 flex-1 gap-1">
+                      <Text
+                        style={{ color: colors.textPrimary }}
+                        className="text-base font-bold"
+                        numberOfLines={2}
+                      >
+                        {card.front}
+                      </Text>
+                      {card.back ? (
+                        <Text
+                          style={{ color: colors.textSecondary }}
+                          className="text-sm"
+                          numberOfLines={1}
+                        >
+                          {card.back}
+                        </Text>
+                      ) : null}
+                      <View className="mt-1 flex-row">
+                        <Badge label={cardTypeLabel(card.type)} tone="secondary" />
+                      </View>
+                    </View>
+                    <Icon name="chevron" size={22} tone="textSecondary" />
+                  </Pressable>
+                );
+              }}
+            />
           )}
 
           <PrimaryButton

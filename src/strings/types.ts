@@ -32,6 +32,7 @@ export type StringCatalog = {
     openMenu: string;
     closeMenu: string;
     backToHome: string;
+    clearSearch: string;
   };
   home: {
     greeting: {
@@ -112,6 +113,9 @@ export type StringCatalog = {
     noDecks: string;
     decksLoadError: string;
     decksLoadRetryA11y: string;
+    decksSearchPlaceholder: string;
+    decksSearchA11y: string;
+    noDecksFound: string;
     editLabel: string;
     editA11y: string;
     editTitle: string;
@@ -129,6 +133,9 @@ export type StringCatalog = {
     noTags: string;
     tagsLoadError: string;
     tagsLoadRetryA11y: string;
+    tagsSearchPlaceholder: string;
+    tagsSearchA11y: string;
+    noTagsFound: string;
   };
   decks: {
     newTitle: string;
@@ -163,6 +170,14 @@ export type StringCatalog = {
     noCards: string;
     cardsLoadError: string;
     cardsLoadRetryA11y: string;
+    cardsLoadingMoreA11y: string;
+    cardsLoadMoreError: string;
+    cardsLoadMoreRetryA11y: string;
+    cardsSearchPlaceholder: string;
+    cardsSearchA11y: string;
+    noCardsFound: string;
+    audioFilter: string;
+    imageFilter: string;
     loadError: string;
     loadRetryA11y: string;
     notFound: string;
@@ -195,6 +210,9 @@ export type StringCatalog = {
     collectionPlaceholder: string;
     deckLabel: string;
     deckPlaceholder: string;
+    deckSearchPlaceholder: string;
+    deckSearchA11y: string;
+    noDecksFound: string;
     reverseModeAuto: string;
     reverseModeOriginalOnly: string;
     saveLabel: string;
@@ -343,8 +361,6 @@ export type StringCatalog = {
     flipCard: string;
     correct: string;
     incorrect: string;
-    actuallyWrong: string;
-    actuallyCorrect: string;
     expectedAnswer: string;
     closeKeyboardA11y: string;
     closeA11y: string;
@@ -371,8 +387,6 @@ export type StringCatalog = {
       compareRecording: string;
       playMyRecording: string;
       typedAnswer: string;
-      markWrong: string;
-      markCorrect: string;
       previousAcceptedAnswerA11y: string;
       nextAcceptedAnswerA11y: string;
     };

@@ -90,6 +90,7 @@ export function NewCardScreen() {
             }
             disabled={!form.selectedCollectionId || form.decksLoading || form.isSaving}
             options={form.deckOptions}
+            collectionKey={form.selectedCollectionId}
             collectionLabel={strings.decks.collectionLabel}
             collectionName={form.selectedCollectionName ?? ''}
             emptyHint={form.decksEmpty ? strings.cards.noDecksInCollection : undefined}
@@ -105,6 +106,10 @@ export function NewCardScreen() {
             saveDeckA11y={strings.decks.saveA11y}
             backLabel={strings.common.back}
             backA11y={strings.common.back}
+            searchPlaceholder={strings.cards.deckSearchPlaceholder}
+            searchA11y={strings.cards.deckSearchA11y}
+            clearSearchA11y={strings.common.clearSearch}
+            noResults={strings.cards.noDecksFound}
             isCreatingDeck={form.isCreatingDeck}
             createDeckErrors={form.deckCreateErrors}
             onCreateDeck={form.onCreateDeck}

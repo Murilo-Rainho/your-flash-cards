@@ -21,7 +21,7 @@ export function useDeleteCard() {
         queryClient.invalidateQueries({ queryKey: HOME_DATA_QUERY_KEY }),
         queryClient.invalidateQueries({ queryKey: ACTIVE_COLLECTIONS_QUERY_KEY }),
         queryClient.invalidateQueries({ queryKey: ACTIVE_DECKS_QUERY_KEY }),
-        queryClient.invalidateQueries({ queryKey: DECK_CARDS_QUERY_KEY }),
+        queryClient.resetQueries({ queryKey: DECK_CARDS_QUERY_KEY }),
       ]);
     },
   });

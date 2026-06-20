@@ -80,7 +80,7 @@ export type ReviewAnswerBehavior =
       }>;
       composeBackText?: (answersByBlank: readonly string[]) => string;
     }
-  /** Escrita (§11): digitação + "Verificar"; permite override manual no verso. */
+  /** Escrita (§11): digitação + "Verificar"; a avaliação final é manual. */
   | {
       kind: 'typing';
       promptLabel?: string;
