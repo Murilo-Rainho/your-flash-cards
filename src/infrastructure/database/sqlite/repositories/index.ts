@@ -1,5 +1,6 @@
 import type { AppSettingsRepository } from '@/domain/repositories/AppSettingsRepository';
 import type { CardRepository } from '@/domain/repositories/CardRepository';
+import type { CardExportReadRepository } from '@/domain/repositories/CardExportReadRepository';
 import type { CardListReadRepository } from '@/domain/repositories/CardListReadRepository';
 import type { CollectionRepository } from '@/domain/repositories/CollectionRepository';
 import type { DeckRepository } from '@/domain/repositories/DeckRepository';
@@ -10,6 +11,7 @@ import { getAppDatabase } from '@/infrastructure/database/sqlite/database';
 
 import { SQLiteAppSettingsRepository } from './SQLiteAppSettingsRepository';
 import { SQLiteCardRepository } from './SQLiteCardRepository';
+import { SQLiteCardExportReadRepository } from './SQLiteCardExportReadRepository';
 import { SQLiteCardListReadRepository } from './SQLiteCardListReadRepository';
 import { SQLiteCollectionRepository } from './SQLiteCollectionRepository';
 import { SQLiteDeckRepository } from './SQLiteDeckRepository';
@@ -23,6 +25,7 @@ let collectionRepository: CollectionRepository | null = null;
 let deckRepository: DeckRepository | null = null;
 let cardRepository: CardRepository | null = null;
 let cardListReadRepository: CardListReadRepository | null = null;
+let cardExportReadRepository: CardExportReadRepository | null = null;
 let tagRepository: TagRepository | null = null;
 let appSettingsRepository: AppSettingsRepository | null = null;
 let reviewRepository: ReviewRepository | null = null;
@@ -66,6 +69,14 @@ export function getSQLiteCardListReadRepository(): CardListReadRepository {
   }
 
   return cardListReadRepository;
+}
+
+export function getSQLiteCardExportReadRepository(): CardExportReadRepository {
+  if (!cardExportReadRepository) {
+    cardExportReadRepository = new SQLiteCardExportReadRepository(getAppDatabase);
+  }
+
+  return cardExportReadRepository;
 }
 
 export function getSQLiteTagRepository(): TagRepository {

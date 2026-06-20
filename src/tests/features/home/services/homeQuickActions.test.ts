@@ -6,10 +6,10 @@ import { ptBR } from '@/strings/locales/pt-BR';
 import { getHomeQuickActions } from '@/features/home/services/homeQuickActions';
 
 describe('getHomeQuickActions', () => {
-  it('returns the four Home actions with known routes', () => {
+  it('returns the five Home actions with known routes', () => {
     const actions = getHomeQuickActions(ptBR.home.quickActions);
 
-    expect(actions).toHaveLength(4);
+    expect(actions).toHaveLength(5);
     expect(actions[0]).toMatchObject({
       id: 'new-collection',
       label: 'Nova Coleção',
@@ -17,7 +17,10 @@ describe('getHomeQuickActions', () => {
     });
     expect(actions[1]?.route).toBe(ROUTES.DECK_NEW);
     expect(actions[2]?.route).toBe(ROUTES.CARD_NEW);
-    expect(actions[3]).toMatchObject({ id: 'import', disabled: true });
+    expect(actions[3]).toMatchObject({ id: 'import', route: ROUTES.IMPORT });
+    expect(actions[3]?.disabled).toBeUndefined();
+    expect(actions[4]).toMatchObject({ id: 'export', label: 'Exportar' });
+    expect(actions[4]?.route).toBeUndefined();
   });
 
   it('returns independent copies on each call', () => {

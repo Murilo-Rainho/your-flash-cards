@@ -3,6 +3,7 @@ import { collections } from './collections';
 import { common } from './common';
 import { decks } from './decks';
 import { home } from './home';
+import { importExport } from './importExport';
 import { review } from './review';
 import { settings } from './settings';
 import { tags } from './tags';
@@ -20,4 +21,5 @@ export const enUS = {
   settings,
   tour,
   whyFlashcards,
+  importExport,
 } as const;

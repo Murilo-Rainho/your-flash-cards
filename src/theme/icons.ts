@@ -35,6 +35,7 @@ export const icons = {
   deck: 'layers', // 🗂️
   card: 'edit-3', // ✏️
   import: 'download', // 📥
+  export: 'upload', // 📤
   reviewedToday: 'trending-up', // 📈
   retention: 'target', // 🎯
   streak: 'activity', // 🔥 (Feather has no "fire")

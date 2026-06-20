@@ -36,6 +36,7 @@ export const home = {
     newDeck: 'Novo Deck',
     newCard: 'Novo Card',
     import: 'Importar',
+    export: 'Exportar',
     hintClickHere: 'Clique aqui!',
     hintStartHere: 'Comece aqui',
     closeA11y: 'Fechar ações rápidas',

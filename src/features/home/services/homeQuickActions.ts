@@ -24,6 +24,13 @@ export function getHomeQuickActions(
       icon: 'card',
       route: ROUTES.CARD_NEW,
     },
-    { id: 'import', label: quickActionStrings.import, icon: 'import', disabled: true },
+    {
+      id: 'import',
+      label: quickActionStrings.import,
+      icon: 'import',
+      route: ROUTES.IMPORT,
+    },
+    // No route: handled in-place by the Home screen, which opens the export modal.
+    { id: 'export', label: quickActionStrings.export, icon: 'export' },
   ];
 }

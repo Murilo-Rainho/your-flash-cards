@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { type Href, useRouter } from 'expo-router';
 import { RefreshControl, ScrollView, View } from 'react-native';
 
@@ -17,6 +18,7 @@ import { ReviewNowCard } from '@/features/home/components/ReviewNowCard';
 import { useHomeData } from '@/features/home/hooks/useHomeData';
 import { getReviewNowCardState } from '@/features/home/services/getReviewNowCardState';
 import type { CollectionSummary } from '@/features/home/types';
+import { ExportCollectionSheet } from '@/features/import-export/components/ExportCollectionSheet';
 import { useStrings } from '@/features/settings/providers/PreferencesProvider';
 import { useTheme } from '@/theme/useTheme';
 
@@ -30,6 +32,7 @@ export function HomeScreen() {
   const router = useRouter();
   const strings = useStrings();
   const { colors } = useTheme();
+  const [exportSheetVisible, setExportSheetVisible] = useState(false);
   const { greeting, summary, collections, quickActions, error, isLoading, isRefreshing, refetch } =
     useHomeData();
   const loadedCollections = !isLoading && !error ? collections : undefined;
@@ -51,6 +54,11 @@ export function HomeScreen() {
   };
 
   const handleQuickAction = (action: QuickAction) => {
+    if (action.id === 'export') {
+      setExportSheetVisible(true);
+      return;
+    }
+
     if (!action.route || action.disabled) {
       console.log('[Home] Ação rápida indisponível', action.id);
       return;
@@ -123,6 +131,11 @@ export function HomeScreen() {
         actions={quickActions}
         showFirstCollectionHint={shouldGuideFirstCollection}
         onActionPress={handleQuickAction}
+      />
+
+      <ExportCollectionSheet
+        visible={exportSheetVisible}
+        onClose={() => setExportSheetVisible(false)}
       />
     </SafeAreaView>
   );
