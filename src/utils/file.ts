@@ -1,2 +1,2 @@
-// TODO: implement — helpers de arquivo/caminho (mídia local, pacotes ZIP)
+// TODO: implement — file/path helpers (local media, ZIP packages)
 export {};

@@ -2,8 +2,9 @@ import type { Tag } from '@/domain/entities/Tag';
 
 export type TagRepository = {
   /**
-   * Cria a tag se ainda não existir (chave: `collectionId` + `normalizedName`) e retorna
-   * sempre a linha canônica armazenada — a existente quando já houver uma com a mesma chave.
+   * Creates the tag if it does not exist yet (key: `collectionId` + `normalizedName`) and
+   * always returns the stored canonical row — the existing one when one with the same key
+   * already exists.
    */
   createIfAbsent(tag: Tag): Promise<Tag>;
   listByCollection(collectionId: string): Promise<Tag[]>;

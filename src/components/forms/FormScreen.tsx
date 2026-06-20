@@ -10,9 +10,9 @@ type FormScreenProps = {
 };
 
 /**
- * Altura atual do teclado (0 quando fechado). Necessária no Android porque, com
- * edge-to-edge (padrão no SDK 54), a janela não é mais redimensionada
- * automaticamente ao abrir o teclado — o conteúdo de baixo ficaria inacessível.
+ * Current keyboard height (0 when closed). Required on Android because, with
+ * edge-to-edge (default on SDK 54), the window is no longer resized automatically
+ * when the keyboard opens — bottom content would become unreachable.
  */
 function useKeyboardHeight() {
   const [height, setHeight] = useState(0);
@@ -37,9 +37,9 @@ function useKeyboardHeight() {
 }
 
 /**
- * Scaffold compartilhado das telas de formulário: SafeArea + ScrollView que
- * acompanha o teclado, permitindo rolar até o fim mesmo com o teclado aberto.
- * iOS: insets automáticos do ScrollView. Android: padding dinâmico (edge-to-edge).
+ * Shared scaffold for form screens: SafeArea + ScrollView that
+ * follows the keyboard, allowing scroll to the bottom even with the keyboard open.
+ * iOS: automatic ScrollView insets. Android: dynamic padding (edge-to-edge).
  */
 export function FormScreen({
   children,

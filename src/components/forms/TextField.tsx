@@ -15,7 +15,7 @@ type TextFieldProps = {
   onBlur?: () => void;
 };
 
-/** Campo de texto de linha única com rótulo e erro. */
+/** Single-line text field with label and error. */
 export function TextField({
   label,
   value,

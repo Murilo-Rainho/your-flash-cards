@@ -14,7 +14,7 @@ export type MediaSide = (typeof MEDIA_SIDES)[keyof typeof MEDIA_SIDES];
 export type MediaType = (typeof MEDIA_TYPES)[keyof typeof MEDIA_TYPES];
 
 /**
- * Media local (§30.6), compartilhada pelo card fisico quando cardVariantId e
+ * Local media (§30.6), shared by the physical card when cardVariantId and
  * indefinido.
  */
 export type Media = {

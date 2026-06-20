@@ -3,18 +3,18 @@ import { IconFamily, icons, type IconName } from '@/theme/icons';
 import { useTheme } from '@/theme/useTheme';
 
 type IconProps = {
-  /** Nome semântico do ícone (resolvido via `@/theme/icons`). */
+  /** Semantic icon name (resolved via `@/theme/icons`). */
   name: IconName;
   size?: number;
-  /** Cor crua (tem prioridade sobre `tone`). */
+  /** Raw color (takes precedence over `tone`). */
   color?: string;
-  /** Token de cor do tema; default `textPrimary`. */
+  /** Theme color token; default `textPrimary`. */
   tone?: ColorToken;
 };
 
 /**
- * Único ponto de render de ícones do app. Recebe nomes semânticos e delega à
- * família configurada em `@/theme/icons` — trocar a lib não exige mudar telas.
+ * Single app icon render point. Accepts semantic names and delegates to the
+ * family configured in `@/theme/icons` — swapping the library does not require screen changes.
  */
 export function Icon({ name, size = 20, color, tone }: IconProps) {
   const { colors } = useTheme();

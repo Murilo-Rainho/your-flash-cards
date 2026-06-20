@@ -19,8 +19,8 @@ import { OptionalCardFields } from '../components/OptionalCardFields';
 import { useNewCardForm } from '../hooks/useNewCardForm';
 
 /**
- * Novo Card (§7–§12) — tela burra: orquestra `useNewCardForm` e compõe os componentes
- * compartilhados/da feature. Sem regra de negócio nem acesso a infra direto.
+ * New Card (§7–§12) — dumb screen: orchestrates `useNewCardForm` and composes shared/feature
+ * components. No business rules or direct infra access.
  */
 export function NewCardScreen() {
   const form = useNewCardForm();

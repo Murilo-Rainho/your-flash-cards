@@ -14,11 +14,11 @@ type TourResumeProps = {
   onContinue: () => void;
   onRestart: () => void;
   onSkip: () => void;
-  /** Toque no scrim — dispensa só nesta sessão. */
+  /** Scrim tap — dismiss for this session only. */
   onScrimPress: () => void;
 };
 
-/** Prompt de retomada (exibido quando `in_progress` ao abrir o app). */
+/** Resume prompt (shown when `in_progress` on app open). */
 export function TourResume({
   visible,
   onContinue,

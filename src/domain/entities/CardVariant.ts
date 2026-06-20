@@ -6,7 +6,7 @@ export const VARIANT_TYPES = {
 export type VariantType = (typeof VARIANT_TYPES)[keyof typeof VARIANT_TYPES];
 
 /**
- * CardVariant (§30.5) e uma unidade de apresentacao, nao duplica front/back.
+ * CardVariant (§30.5) is a presentation unit; it does not duplicate front/back.
  */
 export type CardVariant = {
   id: string;

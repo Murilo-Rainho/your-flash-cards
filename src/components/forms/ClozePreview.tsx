@@ -2,7 +2,7 @@ import { Text, View } from 'react-native';
 
 import { useTheme } from '@/theme/useTheme';
 
-/** Segmento estrutural (compatível com `ClozeSegment`, sem acoplar a UI ao domínio). */
+/** Structural segment (compatible with `ClozeSegment`, without coupling UI to domain). */
 type PreviewSegment = { kind: 'text'; text: string } | { kind: 'blank'; hint?: string };
 
 type ClozePreviewProps = {
@@ -12,8 +12,8 @@ type ClozePreviewProps = {
 };
 
 /**
- * Prévia da frase do cloze como aparecerá na revisão: texto comum com a dica de cada lacuna
- * destacada entre `{chaves}`. Lacunas sem dica viram `____`.
+ * Cloze sentence preview as it will appear in review: plain text with each blank hint
+ * highlighted in `{braces}`. Blanks without a hint become `____`.
  */
 export function ClozePreview({ label, segments, emptyText }: ClozePreviewProps) {
   const { colors } = useTheme();

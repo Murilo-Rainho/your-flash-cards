@@ -24,35 +24,35 @@ import { BASE_TOUR_STEPS, findTourStepById, type TourStep } from '@/domain/tour/
 import { getSQLiteAppSettingsRepository } from '@/infrastructure/database/sqlite/repositories';
 
 type TourContextValue = {
-  /** Estado persistido do tour. */
+  /** Persisted tour state. */
   state: TourState;
-  /** Steps declarativos do tour base. */
+  /** Declarative base tour steps. */
   steps: readonly TourStep[];
-  /** Step atual resolvido (ou `null`). */
+  /** Resolved current step (or `null`). */
   currentStep: TourStep | null;
-  /** Progresso 0–100. */
+  /** Progress 0–100. */
   progress: number;
-  /** Estado carregado do storage local. */
+  /** Loaded from local storage. */
   isReady: boolean;
-  /** Modal do tour aberto (efêmero, não persistido). */
+  /** Tour modal open (ephemeral, not persisted). */
   isActive: boolean;
-  /** Convite aceito ("Começar"): inicia e abre o tour. */
+  /** Invite accepted ("Start"): starts and opens the tour. */
   beginTour: () => void;
-  /** Convite recusado ("Agora não"): marca como pulado, sem reabrir automaticamente. */
+  /** Invite declined ("Not now"): marks as skipped, does not reopen automatically. */
   skipInvite: () => void;
-  /** Retomada: continua do step salvo. */
+  /** Resume: continues from the saved step. */
   continueTour: () => void;
-  /** Reinicia do primeiro step e abre o tour. */
+  /** Restarts from the first step and opens the tour. */
   restartTour: () => void;
-  /** Abre pelo menu: continua se em andamento, senão reinicia. */
+  /** Opens from menu: continues if in progress, otherwise restarts. */
   openFromMenu: () => void;
-  /** Avança um step (último → conclui). */
+  /** Advances one step (last step → completes). */
   next: () => void;
-  /** Volta um step. */
+  /** Goes back one step. */
   previous: () => void;
-  /** Pula o tour durante a execução. */
+  /** Skips the tour while it is running. */
   skip: () => void;
-  /** Fecha o modal mantendo o progresso (toque no scrim). */
+  /** Closes the modal while keeping progress (scrim tap). */
   pause: () => void;
 };
 
@@ -84,7 +84,7 @@ export function TourProvider({
         setState(parseTourState(raw));
       })
       .catch(() => {
-        // Mantém INITIAL_TOUR_STATE se a leitura falhar.
+        // Keep INITIAL_TOUR_STATE if read fails.
       })
       .finally(() => {
         if (!cancelled) {

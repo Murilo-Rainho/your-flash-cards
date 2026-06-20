@@ -32,11 +32,11 @@ export function isCreateTagInputError(error: unknown): error is CreateTagInputEr
 }
 
 /**
- * Cria (ou reaproveita) uma tag a partir de um nome livre, escopada à collection.
+ * Creates (or reuses) a tag from a free-form name, scoped to the collection.
  *
- * A persistência é idempotente por `(collectionId, normalizedName)`: se já existir uma tag
- * com a mesma chave na coleção, a linha canônica existente é retornada — evitando
- * duplicatas como "verbs" vs "Verb" (§6/§30.7).
+ * Persistence is idempotent by `(collectionId, normalizedName)`: if a tag with the same key
+ * already exists in the collection, the existing canonical row is returned — avoiding
+ * duplicates like "verbs" vs "Verb" (§6/§30.7).
  */
 export async function createTag(
   input: CreateTagInput,

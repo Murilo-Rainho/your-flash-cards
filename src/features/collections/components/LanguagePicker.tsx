@@ -16,7 +16,7 @@ const languageOptions = LANGUAGES.map<SelectOption>((language) => ({
   badge: language.code.toUpperCase(),
 }));
 
-/** Seleção de idioma (base/alvo) usando o SelectField compartilhado do app. */
+/** Language selection (base/target) using the app shared SelectField. */
 export function LanguagePicker({
   label,
   value,

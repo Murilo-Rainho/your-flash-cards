@@ -1,4 +1,4 @@
-/** Baseline SM-2 de um card recém-criado (§18, §30). Compartilhado entre criação e reset dev. */
+/** SM-2 baseline for a newly created card (§18, §30). Shared by creation and dev reset. */
 export const INITIAL_REVIEW_ITEM_STATE = {
   schedulerType: 'sm2',
   schedulerVersion: 'v1',

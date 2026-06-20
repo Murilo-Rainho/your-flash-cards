@@ -13,16 +13,16 @@ export type CardAggregate = {
 };
 
 /**
- * Porta local para persistir o aggregate de criacao de card (§34).
+ * Local port to persist the card creation aggregate (§34).
  */
 export type CardRepository = {
   createAggregate(aggregate: CardAggregate): Promise<CardAggregate>;
   findAggregateById(id: string): Promise<CardAggregate | null>;
   /**
-   * Atualiza o card físico e sincroniza mídia/tags com o aggregate informado.
-   * Preserva variants e review_items (mantém o histórico SM-2).
+   * Updates the physical card and syncs media/tags with the given aggregate.
+   * Preserves variants and review_items (keeps SM-2 history).
    */
   updateAggregate(aggregate: CardAggregate): Promise<CardAggregate>;
-  /** Soft-delete: marca o card como arquivado (não remove fisicamente). */
+  /** Soft-delete: marks the card as archived (does not physically remove it). */
   archiveCard(id: string, archivedAt: string): Promise<void>;
 };

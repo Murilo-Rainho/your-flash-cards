@@ -25,7 +25,7 @@ describe('serialize/parse round-trip', () => {
   });
 });
 
-describe('parseTourState (defensivo / reconciliação)', () => {
+describe('parseTourState (defensive / reconciliation)', () => {
   it('returns the initial state for null/empty input', () => {
     expect(parseTourState(null)).toEqual(INITIAL_TOUR_STATE);
     expect(parseTourState('')).toEqual(INITIAL_TOUR_STATE);

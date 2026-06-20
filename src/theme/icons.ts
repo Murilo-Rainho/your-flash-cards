@@ -1,31 +1,29 @@
 /**
- * Camada de inversão de dependência para ícones.
+ * Dependency-inversion layer for icons.
  *
- * O app referencia ícones por NOMES SEMÂNTICOS (ex.: `'add'`, `'review'`), nunca
- * pelo nome cru da biblioteca de ícones. Assim, ao trocar de lib de ícones no
- * futuro (ex.: Feather → lucide), basta atualizar `IconFamily` e o mapeamento
- * abaixo — nenhuma tela precisa mudar.
+ * The app references icons by SEMANTIC NAMES (e.g. `'add'`, `'review'`), never by raw
+ * library glyph names. To swap icon libraries later (e.g. Feather → lucide), update
+ * `IconFamily` and the mapping below — no screen changes required.
  *
- * Renderize sempre via o componente `@/components/common/Icon`, nunca importando
- * a família diretamente nas telas.
+ * Always render via `@/components/common/Icon`; never import the family directly in screens.
  */
 import { Feather } from '@expo/vector-icons';
 
-/** Família de ícones do app. Trocar a lib inteira = trocar aqui + os glyphs abaixo. */
+/** App icon family. Swapping the whole library = change here + the glyphs below. */
 export const IconFamily = Feather;
 
-/** nome semântico -> glyph na biblioteca atual (Feather). */
+/** semantic name -> glyph in the current library (Feather). */
 export const icons = {
   home: 'home',
   settings: 'settings',
   menu: 'menu', // hamburger
   back: 'arrow-left',
-  close: 'x', // ✕ (fechar modal/folha)
+  close: 'x', // ✕ (close modal/sheet)
   search: 'search',
   chevron: 'chevron-right',
   previous: 'chevron-left',
   next: 'chevron-right',
-  play: 'play', // ▶ (ouvir áudio/gravação)
+  play: 'play', // ▶ (play audio/recording)
   greeting: 'smile',
   add: 'plus',
   edit: 'edit-2', // ✏️
@@ -39,10 +37,10 @@ export const icons = {
   import: 'download', // 📥
   reviewedToday: 'trending-up', // 📈
   retention: 'target', // 🎯
-  streak: 'activity', // 🔥 (Feather não tem "fire")
-  mastered: 'award', // 🏆 (Feather não tem "trophy")
+  streak: 'activity', // 🔥 (Feather has no "fire")
+  mastered: 'award', // 🏆 (Feather has no "trophy")
   tour: 'compass', // 🧭 (guided tour / onboarding)
-  guide: 'book-open', // 📖 (página "Por que flashcards")
+  guide: 'book-open', // 📖 ("Why flashcards" page)
 } as const;
 
 export type IconName = keyof typeof icons;

@@ -5,7 +5,7 @@ import type { ReviewRepository } from '@/domain/repositories/ReviewRepository';
 import type { ReviewScheduler } from '@/domain/schedulers/ReviewScheduler';
 
 export type SubmitReviewInput = {
-  /** Estado completo do item vencido (já em mãos na sessão — evita reler o banco). */
+  /** Full due item state (already in session — avoids re-reading DB). */
   reviewItem: ReviewItem;
   rating: ReviewRating;
   timeSpentMs: number;
@@ -19,9 +19,9 @@ export type SubmitReviewOptions = {
 };
 
 /**
- * Aplica uma avaliação (§19, §35): o `rating` entra no `ReviewScheduler` (que ramifica
- * Errei/Difícil/Médio/Fácil), e o resultado é persistido atomicamente (atualiza o `ReviewItem`
- * e grava o `ReviewLog`). É puro de UI: recebe repositório/scheduler/relógio por injeção.
+ * Applies a rating (§19, §35): `rating` enters `ReviewScheduler` (which branches
+ * Again/Hard/Good/Easy), and the result is persisted atomically (updates `ReviewItem`
+ * and writes `ReviewLog`). UI-free: receives repository/scheduler/clock by injection.
  */
 export async function submitReview(
   input: SubmitReviewInput,

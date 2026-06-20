@@ -5,7 +5,7 @@ type DeleteTagOptions = {
 };
 
 /**
- * Exclusão permanente da tag e dos vínculos em `card_tags` (CASCADE no SQLite).
+ * Permanent deletion of the tag and links in `card_tags` (CASCADE in SQLite).
  */
 export async function deleteTag(id: string, { repository }: DeleteTagOptions): Promise<void> {
   const trimmedId = id?.trim() ?? '';

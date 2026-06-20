@@ -6,8 +6,8 @@ type DeleteCardOptions = {
 };
 
 /**
- * Exclusão de card (soft-delete via `archivedAt`, pronto para sync futura).
- * Os arquivos de mídia são mantidos em disco na V1.
+ * Card deletion (soft-delete via `archivedAt`, ready for future sync).
+ * Media files are kept on disk in V1.
  */
 export async function deleteCard(
   id: string,

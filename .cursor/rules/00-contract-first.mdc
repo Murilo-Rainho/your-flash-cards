@@ -1,14 +1,14 @@
 ---
-description: Regra principal — consultar o CONTRATO_README.md antes de qualquer mudança.
+description: Regra principal — consultar o local_files/CONTRATO_README.md antes de qualquer mudança.
 globs:
 alwaysApply: true
 ---
 
 # Contract-First (REGRA PRINCIPAL)
 
-`CONTRATO_README.md` (raiz do projeto) é a **fonte única da verdade** do produto e da
+`local_files/CONTRATO_README.md` (local folder, gitignored) é a **fonte única da verdade** do produto e da
 arquitetura. **Antes de gerar/alterar código, propor mudanças arquiteturais, criar features,
-adicionar dependências ou modelar dados, você DEVE consultar o `CONTRATO_README.md`** e
+adicionar dependências ou modelar dados, você DEVE consultar o `local_files/CONTRATO_README.md`** e
 citar as seções relevantes (ex.: §18, §29, §30).
 
 Invariantes inegociáveis:

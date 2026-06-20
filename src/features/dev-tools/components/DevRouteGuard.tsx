@@ -7,7 +7,7 @@ type DevRouteGuardProps = {
   children: ReactNode;
 };
 
-/** Redireciona para Home quando a rota dev é acessada fora de `__DEV__`. */
+/** Redirects to Home when the dev route is accessed outside `__DEV__`. */
 export function DevRouteGuard({ children }: DevRouteGuardProps) {
   const router = useRouter();
 

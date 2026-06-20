@@ -1,13 +1,13 @@
 /**
- * Paleta de cores — fonte única de verdade do tema (claro).
+ * Color palette — single source of truth for the theme (light).
  *
- * Consumida de duas formas:
- *  - Em TS/JS: `import { colors } from '@/theme'` (valores brutos).
- *  - Pelo NativeWind/Tailwind: `tailwind.config.ts` importa este arquivo e gera
- *    as classes (`bg-primary`, `text-textSecondary`, `border-border`, ...).
+ * Consumed in two ways:
+ *  - In TS/JS: `import { colors } from '@/theme'` (raw values).
+ *  - By NativeWind/Tailwind: `tailwind.config.ts` imports this file and generates
+ *    classes (`bg-primary`, `text-textSecondary`, `border-border`, ...).
  *
- * Tema CLARO, com foco em leitura, estudo e acessibilidade.
- * Para re-tematizar o app inteiro, altere apenas os valores aqui.
+ * LIGHT theme, focused on reading, study, and accessibility.
+ * To re-theme the entire app, change only the values here.
  */
 export const colors = {
   primary: '#2563EB',

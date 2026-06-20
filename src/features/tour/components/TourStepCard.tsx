@@ -9,13 +9,13 @@ import { useTheme } from '@/theme/useTheme';
 
 type TourStepCardProps = {
   step: TourStep;
-  /** Acionado pela ação secundária "Abrir guia completo". */
+  /** Triggered by the secondary action "Open full guide". */
   onOpenGuide: () => void;
 };
 
 /**
- * Conteúdo de um step do tour: ícone por tipo (educacional/interface), título e descrição
- * curta (i18n por id) e uma ação secundária opcional (ex.: abrir o guia completo).
+ * Tour step content: icon by type (educational/interface), title and description
+ * short (i18n by id) and an optional secondary action (e.g. open full guide).
  */
 export function TourStepCard({ step, onOpenGuide }: TourStepCardProps) {
   const strings = useStrings();

@@ -1,9 +1,9 @@
 /**
- * As quatro avaliações da revisão (§19). Compartilhadas entre a UI de review
- * (`src/components/review`) e o futuro `ReviewScheduler` do domínio (§18, §32.1).
+ * The four review ratings (§19). Shared between the review UI
+ * (`src/components/review`) and the domain `ReviewScheduler` (§18, §32.1).
  *
- * Vive em `constants/` porque é um identificador estável importável tanto por
- * `components/` (UI burra) quanto por `domain/` — nenhuma das duas pode depender da outra.
+ * Lives in `constants/` because it is a stable identifier importable by both
+ * `components/` (dumb UI) and `domain/` — neither may depend on the other.
  */
 export const REVIEW_RATINGS = {
   AGAIN: 'again',
@@ -14,7 +14,7 @@ export const REVIEW_RATINGS = {
 
 export type ReviewRating = (typeof REVIEW_RATINGS)[keyof typeof REVIEW_RATINGS];
 
-/** Ordem de exibição dos botões (do mais difícil ao mais fácil). */
+/** Button display order (hardest to easiest). */
 export const REVIEW_RATING_ORDER = [
   REVIEW_RATINGS.AGAIN,
   REVIEW_RATINGS.HARD,

@@ -43,7 +43,7 @@ function createFakeRepository() {
 }
 
 describe('submitReview', () => {
-  it('calcula o resultado via scheduler e persiste com os valores anteriores corretos', async () => {
+  it('computes the result via scheduler and persists with correct previous values', async () => {
     const { repository, calls } = createFakeRepository();
     const reviewItem = makeReviewItem({ repetitions: 2, intervalDays: 6, easeFactor: 2.5 });
     const now = new Date('2026-06-05T12:00:00.000Z');
@@ -61,13 +61,13 @@ describe('submitReview', () => {
     expect(applied.timeSpentMs).toBe(3000);
     expect(applied.previousIntervalDays).toBe(6);
     expect(applied.previousEaseFactor).toBe(2.5);
-    // SM-2 maduro + Médio: round(6 * 2.5) = 15, rep 3.
+    // Mature SM-2 + Good: round(6 * 2.5) = 15, rep 3.
     expect(applied.result.intervalDays).toBe(15);
     expect(applied.result.repetitions).toBe(3);
     expect(applied.result.nextReviewAt).toBe('2026-06-20T12:00:00.000Z');
   });
 
-  it('Errei reseta repetitions, soma lapse e reagenda para +1 dia', async () => {
+  it('Again resets repetitions, increments lapse and reschedules for +1 day', async () => {
     const { repository, calls } = createFakeRepository();
     const reviewItem = makeReviewItem({
       repetitions: 3,
@@ -88,7 +88,7 @@ describe('submitReview', () => {
     expect(calls[0].result.nextReviewAt).toBe('2026-06-06T12:00:00.000Z');
   });
 
-  it('propaga o sessionId quando informado', async () => {
+  it('propagates sessionId when provided', async () => {
     const { repository, calls } = createFakeRepository();
 
     await submitReview(

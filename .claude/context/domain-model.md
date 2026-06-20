@@ -1,6 +1,6 @@
 # Contexto: Modelo de Domínio
 
-> Fonte da verdade: [`CONTRATO_README.md`](../../CONTRATO_README.md) §5, §17, §19, §20, §30.
+> Fonte da verdade: [`CONTRATO_README.md`](../../local_files/CONTRATO_README.md) §5, §17, §19, §20, §30.
 > As entidades abaixo são **conceituais**. Os campos são o contrato mínimo; não
 > remover campos, não renomear sem atualizar o contrato.
 

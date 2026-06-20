@@ -2,8 +2,8 @@ import { CARD_TYPES, type CardType } from '@/constants/cardTypes';
 import type { StringCatalog } from '@/strings/types';
 
 /**
- * Capacidades de mídia de um lado do card (frente/verso) na UI de criação.
- * Espelha o que o serviço `createCard` aceita por tipo, sem duplicar a validação.
+ * Media capabilities for one card side (front/back) in the creation UI.
+ * Mirrors what `createCard` accepts per type without duplicating validation.
  */
 export type SideMediaCapabilities = {
   allowImage: boolean;
@@ -18,7 +18,7 @@ export type CardSideConfig = {
   media: SideMediaCapabilities | null;
 };
 
-/** Layout do formulário de conteúdo por tipo de card. */
+/** Content form layout per card type. */
 export type CardTypeLayout =
   | 'cloze'
   | 'standard'
@@ -52,8 +52,8 @@ const AUDIO_AND_TTS_MEDIA: SideMediaCapabilities = {
 };
 
 /**
- * Fonte única de metadados/capacidades por tipo de card, consumida tanto pela lista de
- * seleção (etapa 1) quanto pelo render do conteúdo (etapa 2).
+ * Single source of metadata/capabilities per card type, consumed by both the
+ * selection list (step 1) and content render (step 2).
  */
 export function buildCardTypeFormConfigs(
   cardStrings: StringCatalog['cards']['cardTypes'],

@@ -14,8 +14,8 @@ import { usePreferences } from '@/features/settings/providers/PreferencesProvide
 import { useTheme } from '@/theme/useTheme';
 
 /**
- * Sessão de estudo (§33 #11, §35) — UI burra que consome `useReviewSession` e reaproveita o
- * `FlashcardReview`. Trata carregando / vazio / sessão ativa e, ao terminar, navega ao resultado.
+ * Study session (§33 #11, §35) — dumb UI consuming `useReviewSession` and reusing
+ * `FlashcardReview`. Handles loading / empty / active session and navigates to result when done.
  */
 export function ReviewScreen() {
   const router = useRouter();

@@ -1,9 +1,9 @@
 /**
- * Constantes globais do aplicativo.
+ * Global app constants.
  *
- * Observação (§4.1): o plano Free NÃO impõe limite de quantidade de cards — o
- * usuário pode criar quantos cards quiser localmente. Por isso não existe um
- * `cardLimitFree`: criação local de cards é ilimitada.
+ * Note (§4.1): the Free plan does NOT cap card count — the user may create as
+ * many cards as they want locally. Hence there is no `cardLimitFree`: local card
+ * creation is unlimited.
  */
 export const appConfig = {
   appName: 'Flashcards',

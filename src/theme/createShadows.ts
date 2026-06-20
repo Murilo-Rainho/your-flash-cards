@@ -15,7 +15,7 @@ export type Shadows = {
   lg: ShadowPreset;
 };
 
-/** Gera presets de sombra a partir da paleta ativa (evita hex fixo). */
+/** Builds shadow presets from the active palette (avoids hard-coded hex). */
 export function createShadows(colors: ColorPalette): Shadows {
   const shadowColor = colors.textPrimary;
 

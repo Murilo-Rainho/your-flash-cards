@@ -5,15 +5,15 @@ import { useTheme } from '@/theme/useTheme';
 
 type AnswerFeedbackProps = {
   strings: StringCatalog['review'];
-  /** Resultado calculado localmente para a resposta digitada. */
+  /** Locally computed result for the typed answer. */
   correct: boolean;
-  /** Resposta que o usuário digitou (pode ser vazia). */
+  /** Answer the user typed (may be empty). */
   typed: string;
-  /** Resposta esperada (pode ser vazia em preview incompleto). */
+  /** Expected answer (may be empty in incomplete preview). */
   expected: string;
 };
 
-/** Feedback de resposta digitada no estado ANSWER (cloze/typing). */
+/** Typed-answer feedback in the ANSWER state (cloze/typing). */
 export function AnswerFeedback({ strings, correct, typed, expected }: AnswerFeedbackProps) {
   const { colors } = useTheme();
   const trimmedTyped = typed.trim();

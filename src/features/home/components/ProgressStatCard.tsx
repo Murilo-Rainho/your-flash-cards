@@ -1,6 +1,6 @@
 import { MetricCard, type MetricCardProps } from '@/components/common/MetricCard';
 
-/** Tile pequeno e reutilizável de uma métrica de progresso. */
+/** Small reusable tile for a progress metric. */
 export function ProgressStatCard(props: MetricCardProps) {
   return <MetricCard {...props} />;
 }

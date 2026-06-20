@@ -6,18 +6,18 @@ import type { IconName } from '@/theme/icons';
 import { useTheme } from '@/theme/useTheme';
 
 type IconButtonProps = {
-  /** Ícone semântico (resolvido via `@/theme/icons`). */
+  /** Semantic icon (resolved via `@/theme/icons`). */
   icon: IconName;
   accessibilityLabel: string;
   onPress: () => void;
-  /** Token de cor do ícone; default `textPrimary` (use `danger` para ações destrutivas). */
+  /** Icon color token; default `textPrimary` (use `danger` for destructive actions). */
   tone?: ColorToken;
   disabled?: boolean;
 };
 
 /**
- * Botão de ação compacto e circular — mesmo padrão dos botões de voltar/menu do `Header`.
- * Primitivo de UI burro para ações de ícone (editar, excluir) sem cores hardcoded.
+ * Compact circular action button — same pattern as back/menu buttons in `Header`.
+ * Dumb UI primitive for icon actions (edit, delete) without hard-coded colors.
  */
 export function IconButton({
   icon,

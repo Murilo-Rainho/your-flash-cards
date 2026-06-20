@@ -7,13 +7,13 @@ import {
 } from './tts';
 
 describe('tts playback speed constants', () => {
-  it('usa fast como fallback para preferencia ausente ou invalida', () => {
+  it('uses fast as fallback for missing or invalid preference', () => {
     expect(resolveTtsPlaybackSpeedPreference(null)).toBe(DEFAULT_TTS_PLAYBACK_SPEED);
     expect(resolveTtsPlaybackSpeedPreference('')).toBe(DEFAULT_TTS_PLAYBACK_SPEED);
     expect(resolveTtsPlaybackSpeedPreference('normal')).toBe(DEFAULT_TTS_PLAYBACK_SPEED);
   });
 
-  it('aceita preferencias validas', () => {
+  it('accepts valid preferences', () => {
     expect(resolveTtsPlaybackSpeedPreference(TTS_PLAYBACK_SPEEDS.FAST)).toBe(
       TTS_PLAYBACK_SPEEDS.FAST,
     );

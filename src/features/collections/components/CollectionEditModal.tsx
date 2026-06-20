@@ -20,7 +20,7 @@ export type CollectionEditErrors = {
 
 type CollectionEditModalProps = {
   visible: boolean;
-  /** Par de idiomas (imutável) exibido apenas para leitura. */
+  /** Language pair (immutable) shown read-only. */
   languagePair: string;
   initialValues: CollectionEditValues;
   isSaving: boolean;
@@ -30,7 +30,7 @@ type CollectionEditModalProps = {
   onClose: () => void;
 };
 
-/** Modal de edição de coleção: apenas nome e descrição (idiomas são imutáveis). */
+/** Collection edit modal: name and description only (languages are immutable). */
 export function CollectionEditModal({
   visible,
   languagePair,

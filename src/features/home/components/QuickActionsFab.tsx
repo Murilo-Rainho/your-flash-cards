@@ -15,8 +15,8 @@ type QuickActionsFabProps = {
 };
 
 /**
- * FAB de ações rápidas. Abre um menu local simples (sem navegação ainda); ao tocar numa
- * ação, fecha o menu e delega via `onActionPress`.
+ * Quick-actions FAB. Opens a simple local menu (no navigation yet); tapping an
+ * action closes the menu and delegates via `onActionPress`.
  */
 export function QuickActionsFab({
   actions,

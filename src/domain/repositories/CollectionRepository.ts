@@ -1,9 +1,9 @@
 import type { Collection } from '@/domain/entities/Collection';
 
 /**
- * Porta local de escrita/leitura de coleções.
+ * Local read/write port for collections.
  *
- * Implementações concretas podem usar SQLite, mas features dependem apenas deste contrato.
+ * Concrete implementations may use SQLite, but features depend only on this contract.
  */
 export type CollectionRepository = {
   create(collection: Collection): Promise<Collection>;

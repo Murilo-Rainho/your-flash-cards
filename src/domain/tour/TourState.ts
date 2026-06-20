@@ -1,6 +1,6 @@
 /**
- * Estado do Guided Tour (Onboarding, §33). TS puro, sem React/Expo — a persistência
- * concreta vive na infraestrutura (KV `app_settings`) e o estado é serializado em JSON.
+ * Guided Tour state (Onboarding, §33). Pure TS, no React/Expo — concrete persistence
+ * lives in infrastructure (KV `app_settings`) and state is serialized as JSON.
  */
 
 export type TourStatus = 'not_started' | 'in_progress' | 'completed' | 'skipped';
@@ -13,22 +13,22 @@ export const TOUR_STATUSES: readonly TourStatus[] = [
 ] as const;
 
 /**
- * Configuração central versionada do tour. `version` permite reconciliar/expandir steps
- * no futuro sem quebrar usuários existentes (ver `tourStateSerialization`).
+ * Versioned central tour configuration. `version` allows reconciling/expanding steps
+ * in the future without breaking existing users (see `tourStateSerialization`).
  */
 export type TourState = {
   version: number;
   status: TourStatus;
-  /** Id do step atual quando `in_progress`; `null` nos demais estados. */
+  /** Current step id when `in_progress`; `null` in other states. */
   currentStepId: string | null;
-  /** Ids de steps já concluídos (sem duplicados, na ordem do registro). */
+  /** Completed step ids (no duplicates, in registration order). */
   completedStepIds: string[];
 };
 
-/** Versão atual do esquema do tour base. */
+/** Current base tour schema version. */
 export const CURRENT_TOUR_VERSION = 1;
 
-/** Estado inicial (primeira execução / reset). */
+/** Initial state (first run / reset). */
 export const INITIAL_TOUR_STATE: TourState = {
   version: CURRENT_TOUR_VERSION,
   status: 'not_started',

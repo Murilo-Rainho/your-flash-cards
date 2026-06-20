@@ -8,7 +8,7 @@ repositório. Espelha as regras definidas para Claude (`CLAUDE.md`, `.claude/`) 
 
 **Antes de iniciar qualquer implementação**, execute a skill
 [`project-context`](./.codex/skills/project-context.md): leia o
-[`CONTRATO_README.md`](./CONTRATO_README.md) (fonte única da verdade) e os arquivos de
+[`CONTRATO_README.md`](./local_files/CONTRATO_README.md) (fonte única da verdade) e os arquivos de
 `.codex/context/` e `.codex/rules/`. Cite as seções do contrato que embasam sua mudança.
 
 Não comece a codar sem passar por essa skill.
@@ -22,7 +22,7 @@ preparada para **Premium/Sync** futuros. Sem IA na V1.
 
 ## Invariantes inegociáveis (os 10 mandamentos)
 
-1. **Contract-first.** `CONTRATO_README.md` manda. Não invente features (§38).
+1. **Contract-first.** `local_files/CONTRATO_README.md` manda. Não invente features (§38).
 2. **Clean Architecture/DDD.** `app/+components → features → domain ← infrastructure`. O
    `domain/` é TypeScript puro (sem React/Expo/SQLite/infra).
 3. **Sem regra de negócio na UI**; **sem acesso a SQLite fora dos repositórios** da infra.

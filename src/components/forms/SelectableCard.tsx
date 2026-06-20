@@ -11,7 +11,7 @@ type SelectableCardProps = {
   disabled?: boolean;
 };
 
-/** Card selecionável de uma lista de opções (ex.: escolha de coleção). */
+/** Selectable card from an option list (e.g. collection choice). */
 export function SelectableCard({
   title,
   subtitle,

@@ -21,10 +21,10 @@ import { useStrings } from '@/features/settings/providers/PreferencesProvider';
 import { useTheme } from '@/theme/useTheme';
 
 /**
- * Home/Dashboard (§33) — hub que responde "o que preciso estudar hoje?".
+ * Home/Dashboard (§33) — hub answering "what do I need to study today?".
  *
- * UI burra: consome dados via `useHomeData`, usa serviços da feature para derivar estado
- * de apresentação e delega navegação/ações.
+ * Dumb UI: consumes data via `useHomeData`, uses feature services to derive state
+ * presentation and delegates navigation/actions.
  */
 export function HomeScreen() {
   const router = useRouter();

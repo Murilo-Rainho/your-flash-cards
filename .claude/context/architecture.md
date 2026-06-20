@@ -1,6 +1,6 @@
 # Contexto: Arquitetura
 
-> Fonte da verdade: [`CONTRATO_README.md`](../../CONTRATO_README.md) §31 e §38.
+> Fonte da verdade: [`CONTRATO_README.md`](../../local_files/CONTRATO_README.md) §31 e §38.
 > Este arquivo descreve a **estrutura física real** do projeto. Em caso de conflito de
 > intenção, o contrato vence; este arquivo vence em **localização dos arquivos**.
 

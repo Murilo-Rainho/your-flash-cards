@@ -13,7 +13,7 @@ type CollectionSummaryCardProps = {
   onPress: () => void;
 };
 
-/** Resumo de uma coleção: nome, par de idiomas e progresso de domínio. */
+/** Collection summary: name, language pair, and mastery progress. */
 export function CollectionSummaryCard({ summary, onPress }: CollectionSummaryCardProps) {
   const { colors, shadows } = useTheme();
   const strings = useStrings();

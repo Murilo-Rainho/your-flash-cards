@@ -17,9 +17,9 @@ import { useTags } from '../hooks/useTags';
 const { MAX_TAGS, MAX_TAG_LENGTH } = LIMITS;
 
 type TagPickerProps = {
-  /** Collection à qual as tags pertencem (§6/§30.7). */
+  /** Collection the tags belong to (§6/§30.7). */
   collectionId: string;
-  /** Nomes das tags selecionadas (fonte da verdade no formulário). */
+  /** Selected tag names (form source of truth). */
   value: string[];
   onChange: (names: string[]) => void;
   disabled?: boolean;
@@ -45,11 +45,11 @@ function createErrorMessage(error: unknown, fallback: string): string | undefine
 }
 
 /**
- * Seleciona tags existentes (chips) e cria novas tags inline.
+ * Selects existing tags (chips) and creates new tags inline.
  *
- * A criação persiste a tag imediatamente (offline, SQLite) e a lista é revalidada via
- * React Query, então a nova tag aparece na hora — sem reload. A comparação é feita por
- * `normalizedName` na collection para evitar duplicatas como "verbs" vs "Verb" (§6/§30.7).
+ * Creation persists the tag immediately (offline, SQLite) and the list is revalidated via
+ * React Query, so the new tag appears right away — no reload. Comparison uses
+ * `normalizedName` within the collection to avoid duplicates like "verbs" vs "Verb" (§6/§30.7).
  */
 export function TagPicker({
   collectionId,
@@ -77,7 +77,7 @@ export function TagPicker({
       selected: selectedKeys.has(tag.normalizedName),
     }));
 
-    // Defensivo: nomes selecionados que ainda não estão na lista do banco.
+    // Defensive: selected names not yet in the database list.
     const extras = value
       .filter((name) => !knownKeys.has(normalizeTagKey(name)))
       .map<PickerChip>((name) => ({ key: normalizeTagKey(name), name, selected: true }));

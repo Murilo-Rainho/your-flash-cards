@@ -1,13 +1,13 @@
 import { parseClozeTemplate } from '@/domain/cloze/clozeContent';
 
 /**
- * Operações puras de autoria do cloze sobre a frase (com `{}`) e as respostas por lacuna.
- * Extraídas do hook `useClozeEditor` para ficarem testáveis sem React. Mantêm o alinhamento
- * entre a ordem das lacunas na frase e o array de respostas.
+ * Pure cloze authoring operations on the sentence (with `{}`) and per-blank answers.
+ * Extracted from `useClozeEditor` hook for testing without React. Keep alignment
+ * between blank order in the sentence and the answers array.
  */
 export type ClozeEditorState = { sentence: string; answers: string[][] };
 
-/** Remove chaves do texto da dica para evitar marcações aninhadas/inválidas. */
+/** Removes braces from hint text to avoid nested/invalid markers. */
 export function sanitizeClozeHint(value: string): string {
   return value.replace(/[{}]/g, '');
 }
@@ -17,8 +17,8 @@ function blankCount(sentence: string): number {
 }
 
 /**
- * Ajusta o array de respostas ao número de lacunas após uma edição livre da frase (best-effort,
- * por índice): trunca quando há menos lacunas, completa com uma resposta vazia quando há mais.
+ * Adjusts the answers array to blank count after free sentence edit (best-effort,
+ * by index): truncates when fewer blanks, pads with empty answer when more.
  */
 export function reconcileClozeAnswers(answers: string[][], sentence: string): string[][] {
   const count = blankCount(sentence);
@@ -38,7 +38,7 @@ export function reconcileClozeAnswers(answers: string[][], sentence: string): st
   return next;
 }
 
-/** Envolve o trecho [start, end) em `{}` (vira lacuna) e insere uma resposta vazia na ordem certa. */
+/** Wraps span [start, end) in `{}` (becomes a blank) and inserts an empty answer in order. */
 export function insertClozeBlank(
   state: ClozeEditorState,
   start: number,
@@ -65,7 +65,7 @@ export function insertClozeBlank(
   };
 }
 
-/** Reescreve a dica (conteúdo entre chaves) da lacuna `blankIndex`. */
+/** Rewrites the hint (brace content) of blank `blankIndex`. */
 export function rewriteClozeBlankHint(sentence: string, blankIndex: number, hint: string): string {
   const { blankRanges } = parseClozeTemplate(sentence);
   const range = blankRanges[blankIndex];
@@ -77,7 +77,7 @@ export function rewriteClozeBlankHint(sentence: string, blankIndex: number, hint
   return `${sentence.slice(0, range.start)}{${sanitizeClozeHint(hint)}}${sentence.slice(range.end)}`;
 }
 
-/** Desfaz a lacuna `blankIndex` (mantém o texto da dica como texto comum) e remove suas respostas. */
+/** Removes blank `blankIndex` (keeps hint text as plain text) and drops its answers. */
 export function removeClozeBlank(state: ClozeEditorState, blankIndex: number): ClozeEditorState {
   const { sentence, answers } = state;
   const { blankRanges } = parseClozeTemplate(sentence);

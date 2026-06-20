@@ -23,68 +23,68 @@ type Case = {
   name: string;
   before: State;
   rating: ReviewRating;
-  expected: State; // estado pós-revisão (ef/rep/int/lap)
+  expected: State; // post-review state (ef/rep/int/lap)
 };
 
 const NEW_CARD: State = { repetitions: 0, intervalDays: 0, easeFactor: 2.5, lapses: 0 };
 
 const CASES: Case[] = [
   {
-    name: 'card novo + Errei: reseta repetitions, soma lapse, intervalo 1, EF cai',
+    name: 'new card + Again: resets repetitions, increments lapse, interval 1, EF drops',
     before: NEW_CARD,
     rating: REVIEW_RATINGS.AGAIN,
     expected: { easeFactor: 2.18, repetitions: 0, intervalDays: 1, lapses: 1 },
   },
   {
-    name: 'card novo + Difícil',
+    name: 'new card + Hard',
     before: NEW_CARD,
     rating: REVIEW_RATINGS.HARD,
     expected: { easeFactor: 2.36, repetitions: 1, intervalDays: 1, lapses: 0 },
   },
   {
-    name: 'card novo + Médio',
+    name: 'new card + Good',
     before: NEW_CARD,
     rating: REVIEW_RATINGS.GOOD,
     expected: { easeFactor: 2.5, repetitions: 1, intervalDays: 1, lapses: 0 },
   },
   {
-    name: 'card novo + Fácil',
+    name: 'new card + Easy',
     before: NEW_CARD,
     rating: REVIEW_RATINGS.EASY,
     expected: { easeFactor: 2.6, repetitions: 1, intervalDays: 1, lapses: 0 },
   },
   {
-    name: 'segunda revisão (Médio) usa o degrau de 6 dias',
+    name: 'second review (Good) uses the 6-day step',
     before: { repetitions: 1, intervalDays: 1, easeFactor: 2.5, lapses: 0 },
     rating: REVIEW_RATINGS.GOOD,
     expected: { easeFactor: 2.5, repetitions: 2, intervalDays: 6, lapses: 0 },
   },
   {
-    name: 'segunda revisão (Fácil) aplica bônus sobre o degrau de 6',
+    name: 'second review (Easy) applies bonus on top of the 6-day step',
     before: { repetitions: 1, intervalDays: 1, easeFactor: 2.5, lapses: 0 },
     rating: REVIEW_RATINGS.EASY,
     expected: { easeFactor: 2.6, repetitions: 2, intervalDays: 8, lapses: 0 },
   },
   {
-    name: 'revisão madura (Médio) multiplica pelo ease',
+    name: 'mature review (Good) multiplies by ease',
     before: { repetitions: 2, intervalDays: 6, easeFactor: 2.5, lapses: 0 },
     rating: REVIEW_RATINGS.GOOD,
     expected: { easeFactor: 2.5, repetitions: 3, intervalDays: 15, lapses: 0 },
   },
   {
-    name: 'revisão madura (Difícil) encurta o intervalo',
+    name: 'mature review (Hard) shortens the interval',
     before: { repetitions: 2, intervalDays: 6, easeFactor: 2.5, lapses: 0 },
     rating: REVIEW_RATINGS.HARD,
     expected: { easeFactor: 2.36, repetitions: 3, intervalDays: 7, lapses: 0 },
   },
   {
-    name: 'lapse: Errei em card maduro reseta repetitions e intervalo',
+    name: 'lapse: Again on mature card resets repetitions and interval',
     before: { repetitions: 3, intervalDays: 15, easeFactor: 2.5, lapses: 0 },
     rating: REVIEW_RATINGS.AGAIN,
     expected: { easeFactor: 2.18, repetitions: 0, intervalDays: 1, lapses: 1 },
   },
   {
-    name: 'ease saturado no piso 1.3 não desce mais (Difícil)',
+    name: 'ease saturated at floor 1.3 does not drop further (Hard)',
     before: { repetitions: 5, intervalDays: 100, easeFactor: 1.3, lapses: 4 },
     rating: REVIEW_RATINGS.HARD,
     expected: { easeFactor: 1.3, repetitions: 6, intervalDays: 120, lapses: 4 },
@@ -92,7 +92,7 @@ const CASES: Case[] = [
 ];
 
 describe('Sm2Scheduler', () => {
-  it('expõe o tipo "sm2"', () => {
+  it('exposes the "sm2" type', () => {
     expect(sm2Scheduler.type).toBe(SM2_SCHEDULER_TYPE);
     expect(SM2_SCHEDULER_TYPE).toBe('sm2');
   });
@@ -104,16 +104,16 @@ describe('Sm2Scheduler', () => {
     expect(result.intervalDays).toBe(expected.intervalDays);
     expect(result.lapses).toBe(expected.lapses);
     expect(result.easeFactor).toBeCloseTo(expected.easeFactor, 5);
-    // O intervalo em dias deve casar exatamente com a próxima data (preserva a hora do dia).
+    // Day interval must match nextReviewAt exactly (preserves time of day).
     expect(deltaInDays(result.nextReviewAt)).toBe(expected.intervalDays);
   });
 
-  it('preserva a hora do dia em UTC ISO na próxima revisão', () => {
+  it('preserves time of day in UTC ISO for the next review', () => {
     const result = run(NEW_CARD, REVIEW_RATINGS.AGAIN);
     expect(result.nextReviewAt).toBe('2026-06-06T12:00:00.000Z');
   });
 
-  it('mantém o ease factor no piso 1.3 mesmo errando repetidamente', () => {
+  it('keeps ease factor at floor 1.3 even when failing repeatedly', () => {
     let state: State = { repetitions: 4, intervalDays: 50, easeFactor: 1.4, lapses: 0 };
 
     for (let i = 0; i < 5; i += 1) {
@@ -128,7 +128,7 @@ describe('Sm2Scheduler', () => {
     expect(state.lapses).toBe(5);
   });
 
-  it('nunca agenda um acerto para menos de 1 dia', () => {
+  it('never schedules a success for less than 1 day', () => {
     const ratings: ReviewRating[] = [REVIEW_RATINGS.HARD, REVIEW_RATINGS.GOOD, REVIEW_RATINGS.EASY];
     for (const rating of ratings) {
       const result = run(NEW_CARD, rating);
@@ -136,12 +136,12 @@ describe('Sm2Scheduler', () => {
     }
   });
 
-  it('é determinístico (mesma entrada → mesmo resultado)', () => {
+  it('is deterministic (same input → same output)', () => {
     expect(run(NEW_CARD, REVIEW_RATINGS.GOOD)).toEqual(run(NEW_CARD, REVIEW_RATINGS.GOOD));
   });
 
-  it('produz delta de dias exato a partir de um horário com fuso/DST', () => {
-    // Construído via componentes locais (pode cair perto de uma transição de DST no CI).
+  it('produces exact day delta from a timestamp with timezone/DST', () => {
+    // Built via local components (may fall near a DST transition in CI).
     const localReviewedAt = new Date(2026, 2, 8, 1, 30, 0);
     const result = run(
       { repetitions: 2, intervalDays: 6, easeFactor: 2.5, lapses: 0 },

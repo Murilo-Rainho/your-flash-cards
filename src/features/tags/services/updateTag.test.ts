@@ -66,7 +66,7 @@ function createOptions(repository = new FakeTagRepository()) {
 }
 
 describe('updateTag', () => {
-  it('atualiza o nome e a chave normalizada da tag', async () => {
+  it('updates tag name and normalized key', async () => {
     const repository = new FakeTagRepository();
     repository.tags.push(existingTag);
 
@@ -85,7 +85,7 @@ describe('updateTag', () => {
     });
   });
 
-  it('permite renomear mantendo a mesma chave normalizada', async () => {
+  it('allows rename while keeping the same normalized key', async () => {
     const repository = new FakeTagRepository();
     repository.tags.push(existingTag);
 
@@ -95,7 +95,7 @@ describe('updateTag', () => {
     expect(updated.normalizedName).toBe('travel');
   });
 
-  it('rejeita conflito com outra tag na mesma collection', async () => {
+  it('rejects conflict with another tag in the same collection', async () => {
     const repository = new FakeTagRepository();
     repository.tags.push(existingTag, {
       id: 'tag-2',
@@ -116,7 +116,7 @@ describe('updateTag', () => {
     }
   });
 
-  it('rejeita tag inexistente', async () => {
+  it('rejects nonexistent tag', async () => {
     expect.assertions(2);
 
     try {
@@ -127,7 +127,7 @@ describe('updateTag', () => {
     }
   });
 
-  it('rejeita nome vazio', async () => {
+  it('rejects empty name', async () => {
     const repository = new FakeTagRepository();
     repository.tags.push(existingTag);
 

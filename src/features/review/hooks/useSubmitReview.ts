@@ -10,9 +10,9 @@ import { submitReview, type SubmitReviewInput } from '../services/submitReview';
 import { REVIEW_TODAY_QUERY_KEY } from './useTodayReviews';
 
 /**
- * Persiste uma avaliação (SM-2 + `ReviewLog`). Não invalida a fila de vencidos durante a
- * sessão (ela é congelada); invalida a Home/coleções/decks para refletir o novo "vencidos" ao
- * voltar. Tudo local (offline-first) — `sm2Scheduler` vem do domínio (puro).
+ * Persists a rating (SM-2 + `ReviewLog`). Does not invalidate due queue during
+ * the session (it is frozen); invalidates Home/collections/decks to reflect new due count on
+ * return. All local (offline-first) — `sm2Scheduler` comes from domain (pure).
  */
 export function useSubmitReview() {
   const queryClient = useQueryClient();

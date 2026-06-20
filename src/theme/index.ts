@@ -1,8 +1,8 @@
 /**
- * API central do tema. Use `import { colors, spacing, theme } from '@/theme'`.
+ * Central theme API. Use `import { colors, spacing, theme } from '@/theme'`.
  *
- * Tema CLARO único na V1 (sem tema escuro). As cores também alimentam o
- * NativeWind via `tailwind.config.ts` (fonte única = `colors.ts`).
+ * Single LIGHT theme in V1 (no dark theme). Colors also feed NativeWind via
+ * `tailwind.config.ts` (single source = `colors.ts`).
  */
 export { colors } from './colors';
 export type { Colors, ColorToken } from './colors';
@@ -40,7 +40,7 @@ import { typography } from './typography';
 import { radius } from './radius';
 import { shadows } from './shadows';
 
-/** Objeto de tema agregado para contextos que não usam className (navigation, inline). */
+/** Aggregated theme object for contexts that do not use className (navigation, inline). */
 export const theme = {
   colors,
   spacing,

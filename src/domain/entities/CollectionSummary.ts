@@ -1,18 +1,18 @@
 import type { Collection } from './Collection';
 
 /**
- * CollectionSummary — read-model local para dashboards/listas.
+ * CollectionSummary — local read-model for dashboards/lists.
  *
- * Mantém `Collection` pura (§30.2) e coloca agregados derivados fora da entidade.
+ * Keeps `Collection` pure (§30.2) and places derived aggregates outside the entity.
  */
 export type CollectionSummary = {
   collection: Collection;
-  /** Total de decks ativos na coleção. */
+  /** Total active decks in the collection. */
   totalDecks: number;
-  /** Total de cards físicos ativos na coleção. */
+  /** Total active physical cards in the collection. */
   totalCards: number;
-  /** Total de unidades revisáveis vencidas (`ReviewItem.nextReviewAt <= now`). */
+  /** Total due review units (`ReviewItem.nextReviewAt <= now`). */
   dueCards: number;
-  /** Percentual de unidades revisáveis consideradas dominadas. */
+  /** Percentage of review units considered mastered. */
   masteredPercentage: number;
 };

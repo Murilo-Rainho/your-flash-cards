@@ -36,7 +36,7 @@ type VocabularyFrontFieldProps = {
   onTestAudio: (speed?: TtsPlaybackSpeed) => void;
 };
 
-/** Frente do card de Vocabulário: escolhe entre texto simples, imagem ou áudio. */
+/** Vocabulary card front: choose plain text, image, or audio. */
 export function VocabularyFrontField({
   mode,
   text,

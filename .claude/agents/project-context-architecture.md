@@ -12,7 +12,7 @@ description: >-
 
 ## Propósito
 
-Manter a integridade arquitetural do app conforme `CONTRATO_README.md` §31 e os arquivos
+Manter a integridade arquitetural do app conforme `local_files/CONTRATO_README.md` §31 e os arquivos
 de contexto em `.claude/context/`. É a autoridade sobre camadas e dependências.
 
 ## Quando utilizar

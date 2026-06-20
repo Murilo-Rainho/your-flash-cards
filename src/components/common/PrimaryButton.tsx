@@ -14,7 +14,7 @@ type PrimaryButtonProps = {
   compact?: boolean;
 };
 
-/** Botão de ação primária (submit). Aplica estado desabilitado/opaco padrão das telas. */
+/** Primary action button (submit). Applies standard disabled/opaque screen state. */
 export function PrimaryButton({
   label,
   onPress,

@@ -29,17 +29,17 @@ export type CardTestReview = {
   isOpen: boolean;
   open: () => void;
   close: () => void;
-  /** Avaliação no modo teste: apenas fecha (não persiste nada, não afeta estatísticas). */
+  /** Test-mode rating: only closes (persists nothing, does not affect stats). */
   handleRate: () => void;
   viewModel: FlashcardViewModel | null;
 };
 
 /**
- * Pré-visualização ("Testar") do card em criação usando o `FlashcardReview`.
+ * Preview ("Test") of the card being created using `FlashcardReview`.
  *
- * Monta o view-model a partir do estado do formulário e mantém uma sessão de gravação
- * SEPARADA e descartável (pronúncia) — a gravação de teste nunca entra na mídia do card.
- * `handleRate` apenas fecha: nada é agendado/persistido (§ não interfere nos acertos reais).
+ * Builds the view-model from form state and keeps a SEPARATE, disposable recording session
+ * (pronunciation) — test recording never enters card media.
+ * `handleRate` only closes: nothing is scheduled/persisted (§ does not affect real stats).
  */
 export function useCardTestReview(params: UseCardTestReviewParams): CardTestReview {
   const {
@@ -59,7 +59,7 @@ export function useCardTestReview(params: UseCardTestReviewParams): CardTestRevi
 
   const { isRecording, startRecording, stopRecording } = useAudioRecording({
     maxDurationMs: MAX_TEST_RECORDING_MS,
-    onError: () => undefined, // preview não deve exibir erros de gravação
+    onError: () => undefined, // preview must not show recording errors
     onComplete: ({ uri }) => setRecordedUri(uri),
   });
 

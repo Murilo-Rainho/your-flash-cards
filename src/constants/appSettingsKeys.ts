@@ -1,4 +1,4 @@
-/** Chaves persistidas na tabela `app_settings`. */
+/** Keys persisted in the `app_settings` table. */
 export const APP_SETTINGS_KEYS = {
   UI_LOCALE: 'ui.locale',
   THEME_PALETTE: 'theme.palette',

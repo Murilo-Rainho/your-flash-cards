@@ -10,7 +10,7 @@ type SelectableChipProps = {
   disabled?: boolean;
 };
 
-/** Chip selecionável (ex.: escolha de idioma). */
+/** Selectable chip (e.g. language choice). */
 export function SelectableChip({
   label,
   selected,

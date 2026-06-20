@@ -122,8 +122,8 @@ function ReferenceLink({ item }: { item: WhyReferenceItem }) {
 }
 
 /**
- * Página "Por que flashcards funcionam" (guia completo, §33 Onboarding). Conteúdo 100%
- * local via i18n (offline-first); estilos via tema. Acessível pelo tour e pelo menu.
+ * "Why flashcards work" page (full guide, §33 Onboarding). 100% content
+ * local via i18n (offline-first); styles via theme. Reachable from tour and menu.
  */
 export function WhyFlashcardsScreen() {
   const strings = useStrings();

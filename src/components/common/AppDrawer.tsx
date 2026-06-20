@@ -23,9 +23,9 @@ type DrawerItem = {
 };
 
 /**
- * Drawer lateral do app, aberto pelo Hamburger Menu do `Header`. Usa o mesmo padrão
- * de `Modal` transparente do `QuickActionsFab` (sem lib de navegação extra). Por ora
- * só oferece "Voltar para Home" e "Configurações" (§33).
+ * App side drawer, opened by the `Header` Hamburger Menu. Uses the same pattern
+ * as the `QuickActionsFab` transparent `Modal` (no extra navigation lib). For now
+ * only offers "Back to Home" and "Settings" (§33).
  */
 export function AppDrawer({ visible, onClose }: AppDrawerProps) {
   const router = useRouter();
@@ -74,7 +74,7 @@ export function AppDrawer({ visible, onClose }: AppDrawerProps) {
         style={{ backgroundColor: withAlpha(colors.textPrimary, 0.4) }}
         className="flex-1 flex-row justify-end"
       >
-        {/* Painel: Pressable que não propaga o toque para não fechar ao tocar dentro. */}
+        {/* Panel: Pressable that does not propagate taps so inner touches do not close. */}
         <Pressable
           onPress={() => undefined}
           style={{ backgroundColor: colors.background, width: 288, ...shadows.lg }}

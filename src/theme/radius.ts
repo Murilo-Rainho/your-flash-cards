@@ -1,5 +1,5 @@
 /**
- * Raios de borda (em px) usados em cards, botões e inputs.
+ * Border radii (px) used in cards, buttons, and inputs.
  */
 export const radius = {
   none: 0,

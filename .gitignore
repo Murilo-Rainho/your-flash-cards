@@ -44,3 +44,6 @@ coverage/
 
 # prompt
 /prompt/main.md
+
+# Local-only files (product contract, not for public portfolio)
+local_files/

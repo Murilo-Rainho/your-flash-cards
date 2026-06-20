@@ -8,7 +8,7 @@ Planeje (sem implementar ainda) a feature: $ARGUMENTS
 Siga o fluxo, delegando aos agentes quando útil:
 
 1. **Contrato primeiro** — rode mentalmente o `/contract-check`: cite as seções do
-   `CONTRATO_README.md` que cobrem a feature e confirme que está na V1 (§36) e não em §37.
+   `local_files/CONTRATO_README.md` que cobrem a feature e confirme que está na V1 (§36) e não em §37.
 2. **Domínio** (agente `cards-domain-model`): que entidades/invariantes/enums envolve?
    Precisa de novas regras puras?
 3. **Interfaces** (agentes `spaced-repetition-scheduler` / `import-export-connectors` /

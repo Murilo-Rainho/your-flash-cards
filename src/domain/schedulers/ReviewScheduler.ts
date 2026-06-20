@@ -1,14 +1,14 @@
 import type { ReviewRating } from '@/constants/reviewRatings';
 
 /**
- * Interface de agendamento de revisão (§18, §32.1).
+ * Review scheduling interface (§18, §32.1).
  *
- * O algoritmo (SM-2 na V1) fica atrás desta porta para ser substituível no futuro (FSRS,
- * algoritmo por tipo de card etc.). É TypeScript puro: nada de React/Expo/SQLite. O scheduler
- * NÃO lê o relógio — recebe `reviewedAt` para permanecer determinístico e testável.
+ * The algorithm (SM-2 in V1) sits behind this port for future swap (FSRS, per-card-type
+ * algorithm, etc.). Pure TypeScript: no React/Expo/SQLite. The scheduler does NOT read the
+ * clock — it receives `reviewedAt` to stay deterministic and testable.
  */
 
-/** Estado atual de scheduling do item + a avaliação do usuário. */
+/** Current scheduling state of the item + the user's rating. */
 export type ReviewScheduleInput = {
   repetitions: number;
   intervalDays: number;
@@ -18,7 +18,7 @@ export type ReviewScheduleInput = {
   reviewedAt: Date;
 };
 
-/** Novo estado de scheduling calculado. `nextReviewAt` é ISO (igual a `ReviewItem`). */
+/** New computed scheduling state. `nextReviewAt` is ISO (same as `ReviewItem`). */
 export type ReviewScheduleResult = {
   repetitions: number;
   intervalDays: number;
@@ -28,7 +28,7 @@ export type ReviewScheduleResult = {
 };
 
 export type ReviewScheduler = {
-  /** Identificador estável do algoritmo, persistido em `review_items.scheduler_type`. */
+  /** Stable algorithm identifier, persisted in `review_items.scheduler_type`. */
   type: string;
   schedule(input: ReviewScheduleInput): ReviewScheduleResult;
 };

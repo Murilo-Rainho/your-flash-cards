@@ -20,7 +20,7 @@ import type { StringCatalog } from '@/strings/types';
 
 import type { CreateCardMediaInput } from './createCard';
 
-/** Estado/handlers da gravação de teste (pronúncia), injetados pela feature. */
+/** Test recording state/handlers (pronunciation), injected by the feature. */
 export type ReviewRecordingControls = {
   isRecording: boolean;
   recordedUri: string | null;
@@ -29,7 +29,7 @@ export type ReviewRecordingControls = {
   onPlayRecording: () => void;
 };
 
-/** Dados do card (estado do formulário) + callbacks p/ montar o view-model de revisão. */
+/** Card data (form state) + callbacks to build the review view-model. */
 export type ReviewSource = {
   type: CardType;
   frontText: string;
@@ -49,10 +49,10 @@ function findImageUri(media: readonly CreateCardMediaInput[], side: MediaSide): 
 }
 
 /**
- * Monta a afordância de áudio de um lado: prioriza mídia de arquivo (áudio/gravação),
- * depois TTS já materializado, e por fim um fallback de TTS "ao vivo" (quando o lado é
- * inerentemente sonoro e ainda não existe mídia TTS — caso de Escuta/Pronúncia em modo TTS,
- * que só vira mídia ao salvar).
+ * Builds the audio affordance for one side: prioritizes file media (audio/recording),
+ * then materialized TTS, and finally a live TTS fallback (when the side is inherently
+ * audio-driven and no TTS media exists yet — Listening/Pronunciation in TTS mode,
+ * which only becomes media on save).
  */
 function buildAudioFace(
   side: MediaSide,
@@ -92,7 +92,7 @@ function toUndefined(value: string): string | undefined {
   return value.trim() ? value : undefined;
 }
 
-/** Rótulo do campo de cada lacuna: 1 lacuna mantém o prompt atual; N usam "Lacuna i". */
+/** Label for each blank field: 1 blank keeps the current prompt; N use "Blank i". */
 function clozeBlankLabel(
   answerStrings: StringCatalog['review']['answer'],
   total: number,
@@ -102,9 +102,9 @@ function clozeBlankLabel(
 }
 
 /**
- * Constrói o `FlashcardViewModel` (agnóstico de domínio) a partir do estado do formulário.
- * É a mesma função conceitual que o futuro fluxo de revisão usará a partir de um
- * `CardAggregate` persistido. Best-effort: campos vazios viram `undefined` (sem lançar erro).
+ * Builds the `FlashcardViewModel` (domain-agnostic) from form state.
+ * Same conceptual function the future review flow will use from a persisted `CardAggregate`.
+ * Best-effort: empty fields become `undefined` (no error thrown).
  */
 export function buildReviewViewModel(source: ReviewSource): FlashcardViewModel {
   const { type, frontText, backText, frontMedia } = source;
@@ -134,9 +134,9 @@ export function buildReviewViewModel(source: ReviewSource): FlashcardViewModel {
   }
 
   if (type === CARD_TYPES.TYPING) {
-    // Escrita (§11): a frente é uma mídia (áudio/gravação/TTS ou imagem) — nunca o texto, que
-    // só existe como fonte do TTS (fallback ao vivo no preview). O revisor digita a resposta,
-    // comparada localmente (normalizada) com o verso; a nota final continua manual.
+    // Typing (§11): front is media (audio/recording/TTS or image) — never text, which
+    // only exists as the TTS source (live fallback in preview). The reviewer types the answer,
+    // compared locally (normalized) against the back; final rating remains manual.
     const answer: ReviewAnswerBehavior = {
       kind: 'typing',
       promptLabel: source.reviewStrings.answer.typingPrompt,
@@ -158,8 +158,8 @@ export function buildReviewViewModel(source: ReviewSource): FlashcardViewModel {
   }
 
   if (type === CARD_TYPES.PRONUNCIATION) {
-    // Inverso da Escuta: a frente mostra o texto a pronunciar e grava a própria voz; o áudio
-    // modelo (verso) só aparece ao virar, para comparar com a própria gravação.
+    // Inverse of Listening: front shows text to pronounce and records the user's voice; model
+    // audio (back) only appears on flip, to compare with the user's recording.
     const modelAudio = buildAudioFace(MEDIA_SIDES.BACK, source.backMedia, source, frontText);
 
     return {
@@ -178,8 +178,8 @@ export function buildReviewViewModel(source: ReviewSource): FlashcardViewModel {
   }
 
   if (type === CARD_TYPES.LISTENING) {
-    // O áudio fica na frente; no verso ele é reouvido (mesma afordância) ao lado da
-    // transcrição (verso) e da tentativa do usuário (comparada se digitada).
+    // Audio stays on the front; on the back it is replayed (same affordance) alongside
+    // the transcription (back) and the user's attempt (compared if typed).
     const promptAudio = buildAudioFace(MEDIA_SIDES.FRONT, frontMedia, source, backText);
 
     return {
@@ -202,7 +202,7 @@ export function buildReviewViewModel(source: ReviewSource): FlashcardViewModel {
     };
   }
 
-  // CARD_TYPES.VOCABULARY (padrão): texto/imagem/áudio na frente, texto no verso.
+  // CARD_TYPES.VOCABULARY (default): text/image/audio on front, text on back.
   return {
     cardType: type,
     front: {

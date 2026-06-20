@@ -16,7 +16,7 @@ import type { CreateCardMediaInput } from '../services/createCard';
 
 type TypingFrontFieldProps = {
   mode: TypingFrontMode;
-  /** Texto-fonte do TTS (só usado no modo TTS). */
+  /** TTS source text (TTS mode only). */
   text: string;
   textPlaceholder: string;
   media: CreateCardMediaInput[];
@@ -37,9 +37,9 @@ type TypingFrontFieldProps = {
 };
 
 /**
- * Frente do card de Escrita (§11): escolhe a mídia do enunciado (arquivo de áudio, gravação,
- * TTS, foto ou imagem da galeria). Não há campo de texto na frente além da fonte do TTS — a
- * resposta esperada é digitada no verso. O idioma do TTS vem da coleção (sem seletor aqui).
+ * Typing card front (§11): chooses prompt media (audio file, recording,
+ * TTS, photo, or gallery image). No front text field beyond TTS source — the
+ * expected answer is typed on the back. TTS language comes from the collection (no selector here).
  */
 export function TypingFrontField({
   mode,

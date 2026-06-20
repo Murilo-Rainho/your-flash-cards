@@ -19,7 +19,7 @@ import { MEDIA_SIDES, MEDIA_TYPES, type Media, type MediaSide } from '@/domain/e
 import type { DueReviewCard } from '@/domain/repositories/ReviewRepository';
 import type { StringCatalog } from '@/strings/types';
 
-/** Estado/handlers da gravação da sessão (pronúncia/escuta), injetados pela feature. */
+/** Session recording state/handlers (pronunciation/listening), injected by the feature. */
 export type ReviewRecordingControls = {
   isRecording: boolean;
   recordedUri: string | null;
@@ -39,7 +39,7 @@ export type BuildReviewViewModelFromCardSource = {
 
 const TTS_URI_PREFIX = 'tts://local/';
 
-/** Extrai o idioma de uma mídia TTS persistida (`tts://local/{lang}/{side}`). */
+/** Extracts language from persisted TTS media (`tts://local/{lang}/{side}`). */
 function parseTtsLanguage(uri: string): string {
   if (!uri.startsWith(TTS_URI_PREFIX)) {
     return '';
@@ -59,7 +59,7 @@ function toUndefined(value: string): string | undefined {
   return value.trim() ? value : undefined;
 }
 
-/** Rótulo do campo de cada lacuna: 1 lacuna mantém o prompt atual; N usam "Lacuna i". */
+/** Per-blank field label: 1 blank keeps current prompt; N use "Blank i". */
 function clozeBlankLabel(
   answerStrings: StringCatalog['review']['answer'],
   total: number,
@@ -73,9 +73,9 @@ function findImageUri(media: readonly Media[], side: MediaSide): string | undefi
 }
 
 /**
- * Monta a afordância de áudio de um lado: prioriza arquivo (áudio/gravação) e, na ausência,
- * usa a mídia TTS persistida — falando `ttsText` (o texto que faz sentido para aquele tipo,
- * decidido pelo chamador, igual ao builder de formulário) no idioma codificado no uri.
+ * Builds audio affordance for one side: prefers file (audio/recording); if absent, uses
+ * persisted TTS media — speaking `ttsText` (text meaningful for that type, chosen by caller,
+ * same as form builder) in the language encoded in the uri.
  */
 function buildAudioFace(
   side: MediaSide,
@@ -130,12 +130,12 @@ function buildRecordingBehavior(
 }
 
 /**
- * Constrói o `FlashcardViewModel` (agnóstico de domínio) a partir de um card PERSISTIDO
- * (`DueReviewCard`). É o análogo de `buildReviewViewModel` (que parte do formulário): produz o
- * MESMO view-model consumido pelo `FlashcardReview`, reaproveitando os helpers de cloze.
+ * Builds the domain-agnostic `FlashcardViewModel` from a PERSISTED card (`DueReviewCard`).
+ * Analog of `buildReviewViewModel` (form-based): produces the SAME view-model consumed by
+ * `FlashcardReview`, reusing cloze helpers.
  *
- * Reverso: tratado SEMPRE como vocabulário/reveal com os lados trocados. Cloze/escrita/escuta/
- * pronúncia invertidos não têm checagem confiável offline, então a V1 evita lógica frágil aqui.
+ * Reverse: ALWAYS treated as vocabulary/reveal with swapped sides. Inverted cloze/typing/listening/
+ * pronunciation have no reliable offline checking, so V1 avoids fragile logic here.
  */
 export function buildReviewViewModelFromCard(
   source: BuildReviewViewModelFromCardSource,
@@ -157,7 +157,7 @@ export function buildReviewViewModelFromCard(
   }
 
   if (card.cardType === CARD_TYPES.CLOZE) {
-    // Funciona para o novo formato (card.cloze) e para cards legados (bridge front/back).
+    // Works for new format (card.cloze) and legacy cards (front/back bridge).
     const content = resolveClozeContent(card);
     const blanks = getClozeBlanks(content);
     const display = composeClozeFront(content);
@@ -197,7 +197,7 @@ export function buildReviewViewModelFromCard(
   }
 
   if (card.cardType === CARD_TYPES.LISTENING) {
-    // O áudio da frente fala a frase (transcrição do verso); reouvido no verso ao lado dela.
+    // Front audio speaks the phrase (back transcript); replayed on back beside it.
     const promptAudio = buildAudioFace(MEDIA_SIDES.FRONT, media, card.back, source);
     return {
       cardType: card.cardType,
@@ -216,7 +216,7 @@ export function buildReviewViewModelFromCard(
   }
 
   if (card.cardType === CARD_TYPES.PRONUNCIATION) {
-    // O verso é o áudio modelo da pronúncia do texto da frente (por isso o TTS fala card.front).
+    // Back is model pronunciation audio for front text (so TTS speaks card.front).
     const modelAudio = buildAudioFace(MEDIA_SIDES.BACK, media, card.front, source);
     return {
       cardType: card.cardType,
@@ -226,7 +226,7 @@ export function buildReviewViewModelFromCard(
     };
   }
 
-  // VOCABULARY (padrão): texto/imagem/áudio na frente, texto no verso, resposta "reveal".
+  // VOCABULARY (default): text/image/audio on front, text on back, "reveal" answer.
   return {
     cardType: card.cardType,
     front: {

@@ -13,12 +13,12 @@ import { TourResume } from '@/features/tour/components/TourResume';
 import { TourStepCard } from '@/features/tour/components/TourStepCard';
 
 /**
- * Orquestrador do tour montado UMA vez na raiz (irmão do `Stack`). Decide, de forma
- * desacoplada das telas, qual overlay exibir. Quando o tour está inativo não renderiza
- * nada — não bloqueia toque nem altera o layout do app.
+ * Tour orchestrator mounted ONCE at the root (sibling of `Stack`). Decides, in a
+ * screen-decoupled way, which overlay to show. When the tour is inactive it renders
+ * nothing — does not block touch or change app layout.
  *
- * Auto-exibição (convite/retomada) ocorre apenas na Home (`/`); a execução do tour
- * (iniciada pelo convite, retomada ou menu) pode aparecer sobre qualquer tela.
+ * Auto-display (invitation/resume) happens only on Home (`/`); tour execution
+ * (started from invitation, resume, or menu) may appear over any screen.
  */
 export function TourHost() {
   const strings = useStrings();
@@ -50,7 +50,7 @@ export function TourHost() {
     router.push(ROUTES.WHY_FLASHCARDS as Href);
   };
 
-  // Execução do tour: step atual em um modal centralizado.
+  // Tour execution: current step in a centered modal.
   if (isActive && currentStep) {
     const isLastStep = currentStep.order >= steps.length;
 
@@ -73,7 +73,7 @@ export function TourHost() {
     return null;
   }
 
-  // Convite inicial (primeira execução).
+  // Initial invitation (first run).
   if (state.status === 'not_started' && !inviteDismissed) {
     return (
       <TourInvitation
@@ -85,7 +85,7 @@ export function TourHost() {
     );
   }
 
-  // Retomada de um tour em andamento.
+  // Resume an in-progress tour.
   if (state.status === 'in_progress' && !resumeDismissed) {
     return (
       <TourResume

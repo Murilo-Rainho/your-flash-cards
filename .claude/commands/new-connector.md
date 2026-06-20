@@ -5,7 +5,7 @@ argument-hint: <conector, ex. "Quizlet importer" ou "ZIP exporter">
 
 Projete o conector: $ARGUMENTS
 
-Base: `CONTRATO_README.md` §23, §24, §25, §32.3/§32.4 e o agente
+Base: `local_files/CONTRATO_README.md` §23, §24, §25, §32.3/§32.4 e o agente
 `import-export-connectors`.
 
 Passos:

@@ -1,6 +1,6 @@
 # Regra Codex 00 — Contract-First (PRINCIPAL)
 
-`CONTRATO_README.md` é a fonte única da verdade. **Antes de qualquer mudança
+`local_files/CONTRATO_README.md` é a fonte única da verdade. **Antes de qualquer mudança
 arquitetural, feature, dependência, modelagem ou interface**, execute a skill
 [`project-context`](../skills/project-context.md): leia o contrato e cite as seções.
 

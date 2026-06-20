@@ -92,7 +92,7 @@ function firstSearchParam(value?: string | string[]) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-/** Orquestra todo o estado do formulário de "Novo Card", entregando um view-model à tela. */
+/** Orchestrates all "New Card" form state, exposing a view-model to the screen. */
 export function useNewCardForm() {
   const router = useRouter();
   const searchParams = useLocalSearchParams<NewCardSearchParams>();
@@ -291,8 +291,8 @@ export function useNewCardForm() {
     goBack();
   }, [goBack, step]);
 
-  // Intercepta o back nativo (botão/gesto de hardware do Android) na etapa de conteúdo,
-  // para voltar à etapa de setup em vez de fechar a tela inteira.
+  // Intercepts native back (Android hardware button/gesture) on the content step,
+  // returning to setup instead of closing the whole screen.
   useEffect(() => {
     if (step !== 'content') {
       return;
@@ -410,10 +410,10 @@ export function useNewCardForm() {
       media.removeSideMedia(MEDIA_SIDES.FRONT, MEDIA_TYPES.IMAGE);
       media.removeSideMedia(MEDIA_SIDES.FRONT, MEDIA_TYPES.AUDIO);
       setValue('frontText', '', { shouldDirty: true });
-      // O verso é redefinido: no modo TTS ele passa a espelhar o texto da frente (sem campo
-      // próprio); nos demais modos volta a ser a resposta digitada manualmente.
+      // Back is reset: in TTS mode it mirrors front text (no separate field); in other modes
+      // it becomes the manually typed expected answer again.
       setValue('backText', '', { shouldDirty: true });
-      // Reaproveita a plumbing de áudio/TTS (teste de áudio e materialização do TTS no envio).
+      // Reuses audio/TTS plumbing (audio test and TTS materialization on submit).
       setListeningModes((current) => ({ ...current, front: typingFrontModeToListeningMode(mode) }));
     },
     [clearErrors, media, setValue],
@@ -425,9 +425,9 @@ export function useNewCardForm() {
         shouldDirty: true,
       });
 
-      // Escuta em modo TTS: a frase falada (frente) também é a transcrição esperada (verso).
-      // Escrita em modo TTS: a resposta esperada (verso) é o próprio texto falado da frente.
-      // Em ambos `listeningModes.front` está sincronizado em TTS.
+      // Listening in TTS mode: spoken phrase (front) is also the expected transcript (back).
+      // Typing in TTS mode: expected answer (back) is the front spoken text itself.
+      // In both cases `listeningModes.front` stays synced to TTS.
       if (
         side === MEDIA_SIDES.FRONT &&
         listeningModes.front === LISTENING_INPUT_MODES.TTS &&
@@ -436,7 +436,7 @@ export function useNewCardForm() {
         setValue('backText', value, { shouldDirty: true });
       }
 
-      // Pronúncia em modo TTS: o áudio modelo (verso) reutiliza o texto da frente.
+      // Pronunciation in TTS mode: model audio (back) reuses front text.
       if (
         side === MEDIA_SIDES.FRONT &&
         selectedType === CARD_TYPES.PRONUNCIATION &&
@@ -504,7 +504,7 @@ export function useNewCardForm() {
       media.removeSideMedia(side, MEDIA_TYPES.AUDIO);
 
       const isListeningFront = selectedType === CARD_TYPES.LISTENING && side === MEDIA_SIDES.FRONT;
-      // Pronúncia: o modo de áudio mora no verso e o texto falado vem da frente.
+      // Pronunciation: audio mode lives on the back; spoken text comes from the front.
       const isPronunciationBack =
         selectedType === CARD_TYPES.PRONUNCIATION && side === MEDIA_SIDES.BACK;
 
@@ -512,12 +512,12 @@ export function useNewCardForm() {
         setValue(side === MEDIA_SIDES.FRONT ? 'frontText' : 'backText', '', {
           shouldDirty: true,
         });
-        // Escuta saindo do TTS: o revisor digitará a transcrição manualmente.
+        // Leaving TTS in listening mode: reviewer will type the transcript manually.
         if (isListeningFront) {
           setValue('backText', '', { shouldDirty: true });
         }
       } else if (isListeningFront || isPronunciationBack) {
-        // Entrando no TTS, o lado do áudio espelha o texto da frente (transcrição/frase falada).
+        // Entering TTS: the audio side mirrors front text (transcript/spoken phrase).
         setValue('backText', getValues('frontText'), { shouldDirty: true });
       }
     },
@@ -567,18 +567,18 @@ export function useNewCardForm() {
     async (values: CardFormValues): Promise<CreateCardMediaInput[]> => {
       let nextMedia = sanitizeMediaForType(values.type, media.media);
 
-      // Escuta e Vocabulário (modo áudio) constroem o TTS da frente no envio, a partir do
-      // texto digitado e do idioma da frente.
+      // Listening and Vocabulary (audio mode) build front TTS on submit from typed text
+      // and front language.
       const usesFrontTts =
         (values.type === CARD_TYPES.LISTENING &&
           listeningModes.front === LISTENING_INPUT_MODES.TTS) ||
         (values.type === CARD_TYPES.VOCABULARY &&
           vocabularyFrontMode === VOCABULARY_FRONT_MODES.AUDIO &&
           listeningModes.front === LISTENING_INPUT_MODES.TTS) ||
-        // Escrita em modo TTS: a frente lê o texto-fonte digitado, com o idioma da frente.
+        // Typing in TTS mode: front reads the typed source text, with front language.
         (values.type === CARD_TYPES.TYPING && typingFrontMode === TYPING_FRONT_MODES.TTS);
 
-      // Pronúncia em modo TTS: o áudio modelo (verso) lê o texto da frente, com idioma do verso.
+      // Pronunciation in TTS mode: model audio (back) reads front text, with back language.
       const usesBackTts =
         values.type === CARD_TYPES.PRONUNCIATION &&
         listeningModes.back === LISTENING_INPUT_MODES.TTS;
@@ -637,7 +637,7 @@ export function useNewCardForm() {
       collectionId: values.collectionId,
       deckId: values.deckId,
       type: values.type,
-      // Cloze: frente/verso são derivadas do conteúdo estruturado no serviço.
+      // Cloze: front/back are derived from structured content in the service.
       frontText: isCloze ? undefined : values.frontText,
       backText: isCloze ? undefined : values.backText,
       cloze: isCloze ? clozeEditor.content : undefined,

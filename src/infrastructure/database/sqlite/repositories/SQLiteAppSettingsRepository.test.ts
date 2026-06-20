@@ -42,7 +42,7 @@ function createRepository(db: FakeAppSettingsDatabase): SQLiteAppSettingsReposit
 }
 
 describe('SQLiteAppSettingsRepository', () => {
-  it('retorna null quando a chave não existe', async () => {
+  it('returns null when the key does not exist', async () => {
     const db = new FakeAppSettingsDatabase();
     db.firstRow = null;
 
@@ -50,7 +50,7 @@ describe('SQLiteAppSettingsRepository', () => {
     expect(db.firstCalls[0]?.source).toContain('FROM app_settings');
   });
 
-  it('persiste valor com upsert', async () => {
+  it('persists value with upsert', async () => {
     const db = new FakeAppSettingsDatabase();
 
     await createRepository(db).set('ui.locale', 'en-US');
@@ -64,7 +64,7 @@ describe('SQLiteAppSettingsRepository', () => {
     });
   });
 
-  it('retorna mapa com null para chaves ausentes em getMany', async () => {
+  it('returns map with null for missing keys in getMany', async () => {
     const db = new FakeAppSettingsDatabase();
     db.allRows = [{ key: 'ui.locale', value: 'pt-BR' }];
 

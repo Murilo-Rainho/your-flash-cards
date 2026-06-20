@@ -1,6 +1,6 @@
 # Regra 02 — Offline-First & Storage
 
-> Base: `CONTRATO_README.md` §29, §20, §26, §13, §14.
+> Base: `local_files/CONTRATO_README.md` §29, §20, §26, §13, §14.
 
 ## Princípio
 

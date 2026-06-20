@@ -1,9 +1,9 @@
 /**
- * Normalização de texto de tags (§11/§30.7).
+ * Tag text normalization (§11/§30.7).
  *
- * - `normalizeTagName`: grafia de exibição (trim + colapsa espaços internos).
- * - `normalizeTagKey`: chave de unicidade (sem acento, minúscula) — garante que "Verb"
- *   e "verb" sejam a mesma tag.
+ * - `normalizeTagName`: display spelling (trim + collapse internal spaces).
+ * - `normalizeTagKey`: uniqueness key (no accents, lowercase) — ensures "Verb"
+ *   and "verb" are the same tag.
  */
 export function normalizeTagName(value: string): string {
   return value.trim().replace(/\s+/g, ' ');

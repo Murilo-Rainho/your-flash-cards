@@ -8,8 +8,8 @@ const MAX_NAME_LENGTH = 80;
 const MAX_DESCRIPTION_LENGTH = 280;
 
 /**
- * Edição de coleção: apenas `name` e `description`. Os idiomas base/alvo são
- * imutáveis (alterá-los quebraria o contrato com os cards já criados).
+ * Collection edit: only `name` and `description`. Base/target languages are
+ * immutable (changing them would break the contract with existing cards).
  */
 export type UpdateCollectionInput = {
   id: string;

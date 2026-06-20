@@ -1,10 +1,10 @@
 export type IdFactory = () => string;
 
 /**
- * Gera ids locais estáveis o suficiente para o armazenamento offline.
+ * Generates local ids stable enough for offline storage.
  *
- * O prefixo deixa os registros legíveis e facilita uma futura estratégia de sync sem
- * acoplar o domínio a APIs nativas.
+ * The prefix keeps records readable and eases a future sync strategy without
+ * coupling the domain to native APIs.
  */
 export function createLocalId(prefix: string): string {
   const safePrefix = prefix

@@ -16,7 +16,7 @@ type SecondaryButtonProps = {
   compact?: boolean;
 };
 
-/** Botão de ação secundária (outline). Mesma assinatura do `PrimaryButton`. */
+/** Secondary action button (outline). Same signature as `PrimaryButton`. */
 export function SecondaryButton({
   label,
   onPress,

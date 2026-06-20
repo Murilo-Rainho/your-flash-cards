@@ -10,18 +10,18 @@ import { useTheme } from '@/theme/useTheme';
 import logoSource from '../../../assets/icon.png';
 
 type HeaderProps = {
-  /** `home` mostra a logo à esquerda; `page` mostra o botão de voltar. */
+  /** `home` shows the logo on the left; `page` shows the back button. */
   variant?: 'home' | 'page';
   title?: string;
   subtitle?: string;
-  /** Ação do botão voltar (variant `page`); default = `useGoBack()`. */
+  /** Back button action (variant `page`); default = `useGoBack()`. */
   onBack?: () => void;
 };
 
 /**
- * Cabeçalho comum do app: esquerda (logo na Home / voltar nas demais), centro
- * (título + subtítulo opcional) e direita (Hamburger Menu que abre o `AppDrawer`).
- * Não deve ser usado durante revisão/teste de cards (telas imersivas).
+ * Common app header: left (logo on Home / back elsewhere), center
+ * (title + optional subtitle) and right (Hamburger Menu opening `AppDrawer`).
+ * Must not be used during review/card test (immersive screens).
  */
 export function Header({ variant = 'page', title, subtitle, onBack }: HeaderProps) {
   const strings = useStrings();

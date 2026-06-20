@@ -1,6 +1,6 @@
 # Regra 04 — Testes & Qualidade
 
-> Base: `CONTRATO_README.md` §36 + setup real (jest-expo).
+> Base: `local_files/CONTRATO_README.md` §36 + setup real (jest-expo).
 
 ## Cobertura obrigatória
 

@@ -7,11 +7,11 @@ import type { ReviewItem } from '@/domain/entities/ReviewItem';
 import type { ReviewLog } from '@/domain/entities/ReviewLog';
 
 /**
- * Card vencido pronto para a sessão de revisão (§20, §35).
+ * Due card ready for a review session (§20, §35).
  *
- * Carrega tudo que a UI precisa para montar o `FlashcardViewModel` e o estado completo de
- * scheduling (`reviewItem`) que alimenta o `ReviewScheduler`. A inversão front↔back do reverso
- * é responsabilidade da camada de apresentação — o repositório entrega os dados crus.
+ * Loads everything the UI needs to build the `FlashcardViewModel` and the full scheduling
+ * state (`reviewItem`) that feeds `ReviewScheduler`. Reverse front↔back inversion is the
+ * presentation layer's responsibility — the repository delivers raw data.
  */
 export type DueReviewCard = {
   reviewItem: ReviewItem;
@@ -19,7 +19,7 @@ export type DueReviewCard = {
   cardType: CardType;
   front: string;
   back: string;
-  /** Conteúdo cloze estruturado (quando o card é cloze e foi salvo no novo formato). */
+  /** Structured cloze content (when the card is cloze and was saved in the new format). */
   cloze?: ClozeContent;
   notes?: string;
   variantType: VariantType;
@@ -27,10 +27,10 @@ export type DueReviewCard = {
 };
 
 /**
- * Resumo de um card revisado em um determinado dia (§33 #12, histórico do dia).
+ * Summary of a card reviewed on a given day (§33 #12, day history).
  *
- * `finalRating` é a nota do log mais recente do dia para o card (a "nota final"); `attempts`
- * é quantas avaliações o card recebeu no dia (inclui repetições de "Errei").
+ * `finalRating` is the most recent log rating for the card that day (the "final rating");
+ * `attempts` is how many ratings the card received that day (includes Again re-queues).
  */
 export type DailyReviewedCard = {
   cardId: string;
@@ -44,14 +44,14 @@ export type DailyReviewedCard = {
 
 export type ListDueReviewCardsParams = {
   now: Date;
-  /** Teto de cards da sessão (§20: `... ORDER BY next_review_at ASC LIMIT :sessionLimit`). */
+  /** Session card cap (§20: `... ORDER BY next_review_at ASC LIMIT :sessionLimit`). */
   limit: number;
-  /** Filtros futuros (§21) — ponto de extensão; a query base não muda quando ausentes. */
+  /** Future filters (§21) — extension point; base query unchanged when absent. */
   collectionId?: string;
   deckId?: string;
 };
 
-/** Resultado já calculado pelo `ReviewScheduler`; o repositório só persiste. */
+/** Result already computed by `ReviewScheduler`; the repository only persists. */
 export type ApplyReviewResult = {
   repetitions: number;
   intervalDays: number;
@@ -72,13 +72,13 @@ export type ApplyReviewInput = {
 };
 
 /**
- * Porta local de revisão (§31): lê vencidos e aplica o resultado de uma avaliação de forma
- * atômica (atualiza `review_items` + grava `review_logs`). O cálculo SM-2 fica no domínio
- * (regra 01) — aqui só entra o `result` pronto.
+ * Local review port (§31): reads due cards and applies a rating result atomically (updates
+ * `review_items` + writes `review_logs`). SM-2 calculation lives in the domain (rule 01) —
+ * only the ready `result` enters here.
  */
 export type ReviewRepository = {
   listDueReviewCards(params: ListDueReviewCardsParams): Promise<DueReviewCard[]>;
   applyReview(input: ApplyReviewInput): Promise<ReviewLog>;
-  /** Cards revisados no dia de `now` (start-of-day local → now), com a nota final por card. */
+  /** Cards reviewed on the day of `now` (local start-of-day → now), with final rating per card. */
   listReviewsForDay(now: Date): Promise<DailyReviewedCard[]>;
 };

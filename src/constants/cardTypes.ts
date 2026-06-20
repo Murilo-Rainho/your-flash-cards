@@ -1,6 +1,6 @@
 /**
- * Tipos de card da V1 (§7–§12). São exatamente estes cinco — não inventar outros.
- * O valor é o identificador estável usado em storage/CSV (§24 usa `vocabulary`).
+ * V1 card types (§7–§12). Exactly these five — do not invent others.
+ * The value is the stable identifier used in storage/CSV (§24 uses `vocabulary`).
  */
 export const CARD_TYPES = {
   VOCABULARY: 'vocabulary',

@@ -5,7 +5,7 @@ import { resolveStrings } from '@/strings';
 import { REVIEW_RATING_ORDER, REVIEW_RATINGS } from './reviewRatings';
 
 describe('reviewRatings', () => {
-  it('expõe as 4 avaliações na ordem do mais difícil ao mais fácil', () => {
+  it('exposes the 4 ratings from hardest to easiest', () => {
     expect(REVIEW_RATING_ORDER).toEqual([
       REVIEW_RATINGS.AGAIN,
       REVIEW_RATINGS.HARD,
@@ -14,7 +14,7 @@ describe('reviewRatings', () => {
     ]);
   });
 
-  it('mapeia rótulos PT-BR amigáveis via catálogo de strings (§19)', () => {
+  it('maps friendly PT-BR labels via the string catalog (§19)', () => {
     expect(resolveStrings('pt-BR').review.ratings).toEqual({
       again: 'Errei',
       hard: 'Difícil',

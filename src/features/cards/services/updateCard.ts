@@ -16,15 +16,15 @@ import {
 const TTS_MIME_TYPE = 'application/x-tts';
 
 /**
- * Edição de card. O tipo é imutável; o deck pode ser trocado apenas por outro
- * deck da mesma coleção (trocar de coleção quebraria o contrato de idioma).
+ * Card edit. Type is immutable; deck may move only to another deck in the same collection
+ * (changing collection would break the language contract).
  */
 export type UpdateCardInput = {
   id: string;
   deckId: string;
   frontText?: string;
   backText?: string;
-  /** Conteúdo estruturado do cloze (§9): fonte de frente/verso para cards `cloze`. */
+  /** Structured cloze content (§9): source of front/back for `cloze` cards. */
   cloze?: ClozeContent;
   notes?: string;
   tags?: string[];
@@ -144,7 +144,7 @@ export async function updateCard(
       const persisted = existingByUri.get(item.uri);
 
       if (persisted) {
-        // Mídia já armazenada localmente: mantém arquivo e id.
+        // Media already stored locally: keep file and id.
         keptUris.add(persisted.uri);
         finalMedia.push({ ...persisted, side: item.side, updatedAt: timestamp });
         continue;
@@ -192,7 +192,7 @@ export async function updateCard(
 
     const saved = await cardRepository.updateAggregate(aggregate);
 
-    // Remove arquivos de mídia que não fazem mais parte do card.
+    // Remove media files no longer part of the card.
     const removedUris = existing.media
       .filter((media) => media.type !== MEDIA_TYPES.TTS && !keptUris.has(media.uri))
       .map((media) => media.uri);

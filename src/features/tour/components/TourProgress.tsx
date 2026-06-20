@@ -5,12 +5,12 @@ import { useStrings } from '@/features/settings/providers/PreferencesProvider';
 import { useTheme } from '@/theme/useTheme';
 
 type TourProgressProps = {
-  /** Posição 1-based do step atual. */
+  /** 1-based position of the current step. */
   current: number;
   total: number;
 };
 
-/** Indicador de progresso do tour: "Passo X de N" + barra temática. */
+/** Tour progress indicator: "Step X of N" + themed bar. */
 export function TourProgress({ current, total }: TourProgressProps) {
   const strings = useStrings();
   const { colors } = useTheme();

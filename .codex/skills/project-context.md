@@ -5,13 +5,13 @@
 
 ## Objetivo
 
-Garantir que toda mudança parta do `CONTRATO_README.md` (fonte única da verdade) e respeite
+Garantir que toda mudança parta do `local_files/CONTRATO_README.md` (fonte única da verdade) e respeite
 a arquitetura, o offline-first e a separação Free/Premium do projeto.
 
 ## Entradas
 
 - A tarefa/feature solicitada.
-- [`CONTRATO_README.md`](../../CONTRATO_README.md) (raiz do projeto).
+- [`local_files/CONTRATO_README.md`](../../local_files/CONTRATO_README.md) (pasta local, gitignored).
 - `.codex/context/` (architecture, domain-model, tech-stack, glossary).
 - `.codex/rules/` (contract-first, layering, offline-first, premium-gating, testing).
 

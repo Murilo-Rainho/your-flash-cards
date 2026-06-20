@@ -1,8 +1,8 @@
 /**
- * Declarações de módulo para assets estáticos importados via `import`.
- * O Metro/Expo resolve a imagem para um id numérico (`ImageRequireSource`), aceito
- * por `Image source`. O Expo só declara módulos CSS por padrão, então tipamos
- * imagens aqui. Mantido sem `import`/`export` no topo para permanecer ambiente/global.
+ * Module declarations for static assets imported via `import`.
+ * Metro/Expo resolves the image to a numeric id (`ImageRequireSource`), accepted
+ * by `Image source`. Expo only declares CSS modules by default, so we type images
+ * here. Kept without top-level `import`/`export` to remain ambient/global.
  */
 declare module '*.png' {
   const value: number;

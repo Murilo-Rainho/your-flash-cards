@@ -1,7 +1,7 @@
 /**
- * Nomes/paths de rota das telas da V1 (§33), centralizados para evitar strings
- * soltas. As rotas concretas (expo-router) ficam em `src/app/` e serão criadas
- * em etapas futuras — aqui ficam apenas as constantes.
+ * V1 screen route names/paths (§33), centralized to avoid scattered strings.
+ * Concrete routes (expo-router) live in `src/app/` and will be created in future
+ * steps — only constants live here.
  */
 export const ROUTES = {
   ONBOARDING: '/onboarding',
@@ -35,7 +35,7 @@ type NewCardRouteParams = {
   deckId?: string;
 };
 
-/** Helpers para montar `pathname` + `params` das rotas dinâmicas (expo-router). */
+/** Helpers to build `pathname` + `params` for dynamic routes (expo-router). */
 export const routeHrefs = {
   cardNew: (params: NewCardRouteParams = {}) => ({ pathname: ROUTES.CARD_NEW, params }),
   collectionDetail: (id: string) => ({ pathname: ROUTES.COLLECTION_DETAIL, params: { id } }),

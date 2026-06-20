@@ -10,8 +10,8 @@ type ReviewNowCardProps = {
 };
 
 /**
- * CTA principal da Home — o elemento de maior destaque visual.
- * Renderiza o estado já calculado pela feature, sem decidir regras de onboarding.
+ * Primary Home CTA — the highest visual prominence element.
+ * Renders state already computed by the feature, without deciding onboarding rules.
  */
 export function ReviewNowCard({ state, onPress }: ReviewNowCardProps) {
   const { colors, shadows } = useTheme();

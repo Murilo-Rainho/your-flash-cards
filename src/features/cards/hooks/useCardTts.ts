@@ -8,7 +8,7 @@ export type CardTts = {
   speak: (text: string, language: string, speed?: TtsPlaybackSpeed) => Promise<void>;
 };
 
-/** Acesso ao TTS local (injeção da infraestrutura na borda da feature). */
+/** Local TTS access (infrastructure injected at the feature boundary). */
 export function useCardTts(): CardTts {
   const ttsProvider = useMemo(() => getExpoSpeechTtsProvider(), []);
 

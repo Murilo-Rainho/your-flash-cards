@@ -2,9 +2,9 @@ import type { CollectionSummary } from '@/domain/entities/CollectionSummary';
 import type { DailyStudySummary } from '@/domain/entities/DailyStudySummary';
 
 /**
- * Porta de leitura local da Home/Dashboard.
+ * Local read port for Home/Dashboard.
  *
- * A implementação concreta pode consultar SQLite, mas a feature consome apenas este contrato.
+ * The concrete implementation may query SQLite, but the feature consumes only this contract.
  */
 export type HomeReadRepository = {
   getDailyStudySummary(now: Date): Promise<DailyStudySummary>;

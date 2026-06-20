@@ -9,13 +9,13 @@ import { useTheme } from '@/theme/useTheme';
 export type MetricCardProps = {
   label: string;
   value: string;
-  /** Icone semantico exibido no chip tonal (opcional). */
+  /** Semantic icon shown in the tonal chip (optional). */
   icon?: IconName;
-  /** Token de cor do chip de icone (fundo tonal). O valor permanece em textPrimary. */
+  /** Icon chip color token (tonal background). Value stays on textPrimary. */
   accentTone?: ColorToken;
 };
 
-/** Tile pequeno e reutilizavel de uma metrica de progresso. */
+/** Small reusable tile for a progress metric. */
 export function MetricCard({ label, value, icon, accentTone = 'primary' }: MetricCardProps) {
   const { colors, shadows } = useTheme();
   const accent = colors[accentTone];

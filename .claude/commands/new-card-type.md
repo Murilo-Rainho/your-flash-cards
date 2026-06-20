@@ -10,7 +10,7 @@ Contexto: a V1 suporta 5 tipos (§7–§12): `vocabulary`, `cloze`, `listening`,
 
 Passos:
 
-1. Confirme no `CONTRATO_README.md` as regras do tipo (ex.: §9 cloze, §11 typing, §12
+1. Confirme no `local_files/CONTRATO_README.md` as regras do tipo (ex.: §9 cloze, §11 typing, §12
    pronunciation) e seus rótulos amigáveis (§7).
 2. **Domínio** (`cards-domain-model`): o `CardType` já cobre? Quais campos de `Card`/
    `Media`/`CardVariant` são usados? Há normalização (digitação §11) ou validação de TTS

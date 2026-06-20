@@ -1,7 +1,7 @@
 /**
- * Porta de leitura/escrita de preferências locais (KV em `app_settings`).
+ * Read/write port for local preferences (KV in `app_settings`).
  *
- * Implementações concretas usam SQLite; features dependem apenas deste contrato.
+ * Concrete implementations use SQLite; features depend only on this contract.
  */
 export type AppSettingsRepository = {
   get(key: string): Promise<string | null>;

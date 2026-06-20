@@ -27,8 +27,8 @@ export type AudioRecording = {
 };
 
 /**
- * Gravação e reprodução de áudio local (expo-audio), com auto-stop por duração máxima.
- * Reportar erros via `onError`; entregar a gravação concluída via `onComplete`.
+ * Local audio record and playback (expo-audio), with auto-stop at max duration.
+ * Report errors via `onError`; deliver completed recording via `onComplete`.
  */
 export function useAudioRecording({
   maxDurationMs,

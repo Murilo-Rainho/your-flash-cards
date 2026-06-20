@@ -3,9 +3,9 @@
 Este documento explica a **infraestrutura de contexto para assistentes de IA** deste
 repositório (Claude Code, OpenAI Codex e Cursor). Ele **não** implementa funcionalidades do
 produto — apenas garante que qualquer IA contribua mantendo a **mesma arquitetura, regras de
-negócio e padrões**, sempre ancorados no [`CONTRATO_README.md`](./CONTRATO_README.md).
+negócio e padrões**, sempre ancorados no [`CONTRATO_README.md`](./local_files/CONTRATO_README.md).
 
-> Regra zero, comum às três IAs: **consultar o `CONTRATO_README.md` antes de qualquer
+> Regra zero, comum às três IAs: **consultar o `local_files/CONTRATO_README.md` antes de qualquer
 > mudança arquitetural** e citar as seções relevantes. O contrato é a fonte única da verdade.
 
 ## 1. Mapa de arquivos por ferramenta
@@ -43,7 +43,7 @@ uma regra/contexto, **replique nas outras duas** para manter a consistência.
 
 A consistência vem de **uma única fonte da verdade replicada em formatos nativos**:
 
-1. **Mesmo contrato.** Todas começam pelo `CONTRATO_README.md` (regra `00-contract-first`).
+1. **Mesmo contrato.** Todas começam pelo `local_files/CONTRATO_README.md` (regra `00-contract-first`).
 2. **Mesmas invariantes.** Os "10 mandamentos" em `AGENTS.md` = regras `.claude/rules/` =
    regras `.cursor/rules/`. Mesmo conteúdo, formatos diferentes (markdown, `.mdc`, frontmatter).
 3. **Mesmo modelo de domínio e glossário.** `*/context/domain-model.md` e `glossary.md`
@@ -59,7 +59,7 @@ Premium futuro, e exigir testes — porque leem a mesma regra.
 ## 5. Fluxo recomendado para qualquer IA
 
 ```txt
-1. Ler o CONTRATO_README.md e citar as seções relevantes.   (contract-first)
+1. Ler o local_files/CONTRATO_README.md e citar as seções relevantes.   (contract-first)
 2. Consultar context/ (architecture, domain-model, tech-stack, glossary).
 3. Escolher o(s) agente(s) pela especialidade da tarefa.
 4. Planejar por camada (domain → infrastructure → features → app), com interfaces.

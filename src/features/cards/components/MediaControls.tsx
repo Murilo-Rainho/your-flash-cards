@@ -37,7 +37,7 @@ type MediaControlsProps = {
   onTtsLanguageChange: (language: string) => void;
 };
 
-/** Controles de mídia (imagem, áudio/arquivo, gravação e TTS) para um lado do card. */
+/** Media controls (image, audio/file, recording, and TTS) for one card side. */
 export function MediaControls({
   label,
   media,

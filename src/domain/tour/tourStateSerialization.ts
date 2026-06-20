@@ -7,12 +7,12 @@ import {
 import { BASE_TOUR_STEP_IDS, BASE_TOUR_STEPS, type TourStep } from './tourSteps';
 
 /**
- * Serialização/parse do estado do tour para o KV `app_settings` (string JSON).
+ * Tour state serialization/parse for the `app_settings` KV (JSON string).
  *
- * O parse é DEFENSIVO e reconcilia versões: JSON inválido, versão diferente ou formato
- * inesperado caem para `INITIAL_TOUR_STATE`. Ids de steps que não existem mais no registro
- * são descartados, e `currentStepId` inválido é normalizado — garantindo que adicionar/
- * remover steps no futuro não quebre usuários existentes.
+ * Parse is DEFENSIVE and reconciles versions: invalid JSON, mismatched version, or unexpected
+ * format fall back to `INITIAL_TOUR_STATE`. Step ids no longer in the registry are dropped, and
+ * invalid `currentStepId` is normalized — so adding/removing steps later does not break existing
+ * users.
  */
 
 export function serializeTourState(state: TourState): string {
@@ -45,7 +45,7 @@ export function parseTourState(
 
   const candidate = parsed as Record<string, unknown>;
 
-  // Versão diferente da atual → reset seguro (ponto de extensão para migrações futuras).
+  // Version mismatch → safe reset (extension point for future migrations).
   if (candidate.version !== CURRENT_TOUR_VERSION) {
     return INITIAL_TOUR_STATE;
   }
@@ -66,7 +66,7 @@ export function parseTourState(
   const currentStepId =
     typeof rawCurrent === 'string' && validIds.includes(rawCurrent) ? rawCurrent : null;
 
-  // `in_progress` exige um step atual válido; se perdeu a referência, recomeça.
+  // `in_progress` requires a valid current step; if reference is lost, restart.
   if (candidate.status === 'in_progress' && currentStepId === null) {
     return INITIAL_TOUR_STATE;
   }

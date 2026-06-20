@@ -12,7 +12,7 @@ Contexto do diff:
 - Status: !`git status --short`
 - Diff: !`git diff --stat`
 
-Avalie contra `CONTRATO_README.md` e `.claude/rules/`:
+Avalie contra `local_files/CONTRATO_README.md` e `.claude/rules/`:
 
 1. **Camadas** (`project-context-architecture`): imports respeitam
    `app/+components → features → domain ← infrastructure`? Há regra de negócio em telas/

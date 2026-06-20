@@ -30,8 +30,8 @@ type CollectionListSkeletonProps = {
 };
 
 /**
- * Placeholders de carregamento da lista de coleções. Estático (sem animação) para não
- * depender de reanimated/worklets fixados ao Expo Go.
+ * Loading placeholders for the collection list. Static (no animation) to avoid
+ * depending on reanimated/worklets pinned for Expo Go.
  */
 export function CollectionListSkeleton({ count = 3 }: CollectionListSkeletonProps) {
   const strings = useStrings();

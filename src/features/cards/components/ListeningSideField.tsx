@@ -27,8 +27,8 @@ type ListeningSideFieldProps = {
   isRecordingThisSide: boolean;
   recordingDurationMs: number;
   /**
-   * Quando true, o modo TTS NÃO renderiza um campo de texto próprio: a frase falada vem de
-   * outro lado do card (ex.: Pronúncia reutiliza o texto da frente). `text` é só leitura aqui.
+   * When true, TTS mode does NOT render its own text field: the spoken phrase comes from
+   * the other card side (e.g. Pronunciation reuses front text). `text` is read-only here.
    */
   reuseTextForTts?: boolean;
   onModeChange: (mode: ListeningInputMode) => void;
@@ -40,7 +40,7 @@ type ListeningSideFieldProps = {
   onTestAudio: (speed?: TtsPlaybackSpeed) => void;
 };
 
-/** Um lado (frente/verso) do card de Escuta: modo exclusivo + teste de audio. */
+/** One side (front/back) of a Listening card: exclusive mode + audio test. */
 export function ListeningSideField({
   label,
   mode,

@@ -1,5 +1,5 @@
 ---
-description: Verifica se uma ideia/mudança está em conformidade com o CONTRATO_README.md antes de implementar.
+description: Verifica se uma ideia/mudança está em conformidade com o local_files/CONTRATO_README.md antes de implementar.
 argument-hint: <descrição da mudança ou feature>
 ---
 
@@ -9,7 +9,7 @@ Mudança proposta: $ARGUMENTS
 
 Passos:
 
-1. Leia [`CONTRATO_README.md`](../../CONTRATO_README.md) e identifique TODAS as seções
+1. Leia [`CONTRATO_README.md`](../../local_files/CONTRATO_README.md) e identifique TODAS as seções
    relevantes à mudança (cite os números, ex.: §18, §29).
 2. Consulte os arquivos de contexto em `.claude/context/` e as regras em `.claude/rules/`.
 3. Avalie e responda:

@@ -4,11 +4,11 @@ import type { TtsPlaybackSpeed } from '@/constants/tts';
 import type { StringCatalog } from '@/strings/types';
 
 /**
- * Contrato de view-model do componente de revisão (`FlashcardReview`).
+ * View-model contract for the review component (`FlashcardReview`).
  *
- * IMPORTANTE: este arquivo é UI burra (camada `components/`). Ele NÃO importa `domain/`,
- * `infrastructure/` nem `features/`. Toda regra (comparação de resposta, reprodução de
- * áudio/TTS, gravação) é resolvida na camada `features/` e injetada aqui como callback.
+ * IMPORTANT: this file is dumb UI (the `components/` layer). It does NOT import `domain/`,
+ * `infrastructure/`, or `features/`. All rules (answer comparison, audio/TTS playback,
+ * recording) are resolved in the `features/` layer and injected here as callbacks.
  */
 
 type AudioAffordanceBase = {
@@ -17,7 +17,7 @@ type AudioAffordanceBase = {
   accessibilityLabel?: string;
 };
 
-/** Afordância de áudio genérica (arquivo local ou TTS). O componente só dispara `onPlay`. */
+/** Generic audio affordance (local file or TTS). The component only triggers `onPlay`. */
 export type AudioAffordance =
   | (AudioAffordanceBase & {
       type: 'audio';
@@ -28,33 +28,33 @@ export type AudioAffordance =
       onPlay: (speed: TtsPlaybackSpeed) => void;
     });
 
-/** Um lado do card (frente ou verso). Tudo opcional → pode ser só texto, só imagem ou só áudio. */
+/** One side of the card (front or back). All optional — may be text-only, image-only, or audio-only. */
 export type CardFaceViewModel = {
   text?: string;
   imageUri?: string;
   audio?: AudioAffordance;
 };
 
-/** Resultado de checagem de resposta digitada, JÁ computado pela feature (domínio). */
+/** Result of typed-answer checking, already computed by the feature (domain). */
 export type CheckedAnswer = {
   correct: boolean;
   expected: string;
-  /** Todas as alternativas aceitas para uma lacuna/resposta, na ordem definida pelo usuário. */
+  /** All accepted alternatives for a blank/answer, in user-defined order. */
   acceptedAnswers?: readonly string[];
-  /** Índice da alternativa que deve aparecer primeiro no verso. */
+  /** Index of the alternative that should appear first on the back. */
   expectedIndex?: number;
 };
 
 /**
- * Comportamento de resposta por tipo de card — discriminado por `kind`.
- * O `kind` (não o `cardType`) é a fonte de verdade da máquina de estado.
+ * Answer behavior per card type — discriminated by `kind`.
+ * `kind` (not `cardType`) is the source of truth for the state machine.
  */
 export type ReviewAnswerBehavior =
-  /** Vocabulário (§8): resposta mental → apenas "Virar card". */
+  /** Vocabulary (§8): mental answer → "Flip card" only. */
   | { kind: 'reveal' }
   /**
-   * Escuta (§10): ouve o áudio e responde digitando (comparado com a transcrição do verso)
-   * OU gravando a própria fala (sem comparação automática — só re-escuta no verso).
+   * Listening (§10): listen to audio and respond by typing (compared against back transcription)
+   * OR by recording your own speech (no automatic comparison — replay only on the back).
    */
   | {
       kind: 'listening';
@@ -67,9 +67,9 @@ export type ReviewAnswerBehavior =
       onPlayRecording: () => void;
     }
   /**
-   * Cloze (§9): UMA OU MAIS lacunas, cada uma com digitação OPCIONAL comparada com as
-   * respostas aceitas daquela lacuna. Cada lacuna traz seu próprio rótulo e checagem
-   * (resolvidos pela feature); a UI só alterna entre alternativas já resolvidas.
+   * Cloze (§9): ONE OR MORE blanks, each with OPTIONAL typing compared against that blank's
+   * accepted answers. Each blank brings its own label and check (resolved by the feature);
+   * the UI only cycles through already-resolved alternatives.
    */
   | {
       kind: 'cloze';
@@ -80,15 +80,15 @@ export type ReviewAnswerBehavior =
       }>;
       composeBackText?: (answersByBlank: readonly string[]) => string;
     }
-  /** Escrita (§11): digitação + "Verificar"; a avaliação final é manual. */
+  /** Typing (§11): type + "Verify"; final rating is manual. */
   | {
       kind: 'typing';
       promptLabel?: string;
       checkAnswer: (typed: string) => CheckedAnswer;
     }
   /**
-   * Pronúncia (§12): a frente mostra o texto e grava a voz; o áudio modelo fica no verso
-   * (`back.audio`), reouvido junto da própria gravação. SEM comparação automática.
+   * Pronunciation (§12): front shows text and records voice; model audio stays on the back
+   * (`back.audio`), replayed alongside the user's recording. NO automatic comparison.
    */
   | {
       kind: 'recording';
@@ -109,13 +109,13 @@ export type FlashcardViewModel = {
 export type FlashcardReviewPresentation = 'modal' | 'container';
 
 export type FlashcardReviewProps = {
-  /** Controla se o card está visível/renderizado. */
+  /** Controls whether the card is visible/rendered. */
   visible: boolean;
-  /** `modal` preserva o preview flutuante; `container` embute o card na tela atual. */
+  /** `modal` keeps the floating preview; `container` embeds the card in the current screen. */
   presentation?: FlashcardReviewPresentation;
   /**
-   * Identidade do card exibido. Quando muda (avanço de card na sessão), reseta o estado de
-   * flip/resposta e dispara a animação de entrada. Opcional: o modo "Testar" não precisa.
+   * Identity of the displayed card. When it changes (session advance), resets flip/answer
+   * state and triggers the enter animation. Optional: "Test" mode does not need it.
    */
   cardKey?: number;
   card: FlashcardViewModel;
@@ -124,14 +124,14 @@ export type FlashcardReviewProps = {
   ttsSpeedLabels: Record<TtsPlaybackSpeed, string>;
   onTtsPlaybackSpeedChange: (speed: TtsPlaybackSpeed) => void;
   /**
-   * Disparado ao escolher uma das 4 avaliações. O componente é agnóstico:
-   * em "Testar" (criação) apenas fecha; na revisão real agenda + grava estatística.
+   * Fired when one of the 4 ratings is chosen. The component is agnostic:
+   * in "Test" (creation) it only closes; in real review it schedules + records stats.
    */
   onRate: (rating: ReviewRating) => void;
-  /** Fechar o preview/modal (botão fechar / back do Android). */
+  /** Close the preview/modal (close button / Android back). */
   onClose?: () => void;
-  /** Notifica que o card foi virado (telemetria/áudio do verso). */
+  /** Notifies that the card was flipped (telemetry/back audio). */
   onFlip?: () => void;
-  /** Força swap instantâneo (sem animação). Default lê o AccessibilityInfo do sistema. */
+  /** Forces instant swap (no animation). Default reads system AccessibilityInfo. */
   reduceMotion?: boolean;
 };

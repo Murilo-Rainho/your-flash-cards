@@ -32,7 +32,7 @@ export type CreateCardInput = {
   type: CardType;
   frontText?: string;
   backText?: string;
-  /** Conteúdo estruturado do cloze (§9): fonte de frente/verso para `type === 'cloze'`. */
+  /** Structured cloze content (§9): front/back source for `type === 'cloze'`. */
   cloze?: ClozeContent;
   notes?: string;
   tags?: string[];

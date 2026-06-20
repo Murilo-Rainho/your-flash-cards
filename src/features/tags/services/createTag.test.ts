@@ -76,7 +76,7 @@ function createOptions(repository = new FakeTagRepository()) {
 }
 
 describe('createTag', () => {
-  it('cria uma tag normalizando nome e chave na collection', async () => {
+  it('creates a tag normalizing name and key in the collection', async () => {
     const repository = new FakeTagRepository();
 
     const tag = await createTag(
@@ -95,7 +95,7 @@ describe('createTag', () => {
     expect(repository.tags).toHaveLength(1);
   });
 
-  it('reaproveita a tag existente quando a chave normalizada coincide na mesma collection', async () => {
+  it('reuses existing tag when normalized key matches in the same collection', async () => {
     const repository = new FakeTagRepository();
 
     const first = await createTag(
@@ -111,7 +111,7 @@ describe('createTag', () => {
     expect(repository.tags).toHaveLength(1);
   });
 
-  it('permite o mesmo nome em collections diferentes', async () => {
+  it('allows the same name in different collections', async () => {
     const repository = new FakeTagRepository();
     const options = createOptions(repository);
 
@@ -128,7 +128,7 @@ describe('createTag', () => {
     expect(repository.tags).toHaveLength(2);
   });
 
-  it('rejeita collection ausente com erro de campo', async () => {
+  it('rejects missing collection with field error', async () => {
     expect.assertions(2);
 
     try {
@@ -139,7 +139,7 @@ describe('createTag', () => {
     }
   });
 
-  it('rejeita nome vazio com erro de campo', async () => {
+  it('rejects empty name with field error', async () => {
     expect.assertions(2);
 
     try {
@@ -150,7 +150,7 @@ describe('createTag', () => {
     }
   });
 
-  it('rejeita nome acima do limite de caracteres', async () => {
+  it('rejects name above character limit', async () => {
     expect.assertions(1);
 
     try {

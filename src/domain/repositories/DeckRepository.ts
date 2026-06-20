@@ -1,9 +1,9 @@
 import type { Deck } from '@/domain/entities/Deck';
 
 /**
- * Porta local de escrita de decks.
+ * Local write port for decks.
  *
- * O deck pertence a uma coleção; a feature valida a coleção pai antes de criar.
+ * A deck belongs to a collection; the feature validates the parent collection before create.
  */
 export type DeckRepository = {
   create(deck: Deck): Promise<Deck>;

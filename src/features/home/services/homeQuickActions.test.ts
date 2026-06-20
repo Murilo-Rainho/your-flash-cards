@@ -6,7 +6,7 @@ import { ptBR } from '@/strings/locales/pt-BR';
 import { getHomeQuickActions } from './homeQuickActions';
 
 describe('getHomeQuickActions', () => {
-  it('retorna as quatro ações da Home com rotas conhecidas', () => {
+  it('returns the four Home actions with known routes', () => {
     const actions = getHomeQuickActions(ptBR.home.quickActions);
 
     expect(actions).toHaveLength(4);
@@ -20,14 +20,14 @@ describe('getHomeQuickActions', () => {
     expect(actions[3]).toMatchObject({ id: 'import', disabled: true });
   });
 
-  it('retorna cópias independentes a cada chamada', () => {
+  it('returns independent copies on each call', () => {
     const actions = getHomeQuickActions(ptBR.home.quickActions);
     actions[0]!.label = 'Alterado';
 
     expect(getHomeQuickActions(ptBR.home.quickActions)[0]?.label).toBe('Nova Coleção');
   });
 
-  it('expõe a primeira ação como Nova Coleção', () => {
+  it('exposes the first action as Nova Coleção', () => {
     const [firstAction] = getHomeQuickActions(ptBR.home.quickActions);
 
     expect(firstAction?.id).toBe('new-collection');

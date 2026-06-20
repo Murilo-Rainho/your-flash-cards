@@ -6,16 +6,16 @@ import { useTheme } from '@/theme/useTheme';
 
 type TourModalProps = {
   visible: boolean;
-  /** Toque no scrim (fora do cartão). */
+  /** Scrim tap (outside the card). */
   onScrimPress: () => void;
   closeAccessibilityLabel: string;
   children: ReactNode;
 };
 
 /**
- * Casca de modal centralizada do tour — mesma linguagem visual do `BottomSheet`
- * (scrim escurecido, surface arredondada, sombra), mas centralizada para steps.
- * UI burra: apenas apresenta o conteúdo e delega o fechamento via `onScrimPress`.
+ * Centered tour modal shell — same visual language as `BottomSheet`
+ * (dimmed scrim, rounded surface, shadow), but centered for steps.
+ * Dumb UI: only presents content and delegates closing via `onScrimPress`.
  */
 export function TourModal({
   visible,
@@ -34,7 +34,7 @@ export function TourModal({
         style={{ backgroundColor: withAlpha(colors.textPrimary, 0.4) }}
         className="flex-1 items-center justify-center p-6"
       >
-        {/* Cartão: Pressable que não propaga o toque para não fechar ao tocar dentro. */}
+        {/* Card: Pressable that does not propagate taps so inner touches do not close. */}
         <Pressable onPress={() => undefined} className="w-full max-w-md">
           <View
             style={{ backgroundColor: colors.surface, ...shadows.lg }}

@@ -1,9 +1,9 @@
 import type { StringCatalog } from '@/strings/types';
 
 /**
- * Saudação por faixa horária para o cabeçalho da Home.
+ * Time-of-day greeting for the Home header.
  *
- * Função pura: recebe strings e data por injeção para ser testável sem relógio/locale fixos.
+ * Pure function: receives strings and date by injection for testing without fixed clock/locale.
  */
 export function getGreeting(
   greetingStrings: StringCatalog['home']['greeting'],

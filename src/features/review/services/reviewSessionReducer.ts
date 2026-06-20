@@ -5,15 +5,15 @@ import type { DueReviewCard } from '@/domain/repositories/ReviewRepository';
 import { applyRating, emptyStats, finishStats, type SessionStats } from './reviewSessionStats';
 
 /**
- * Máquina de estado pura da sessão de revisão (§21, §35). Sem React.
+ * Pure review session state machine (§21, §35). No React.
  *
- * A fila é FIFO; "Errei" re-enfileira o card no FIM (estilo Anki) sem alterar `total` (cards
- * distintos). Acertos/Difícil removem o card. A sessão termina quando a fila esvazia.
+ * Queue is FIFO; "Again" re-enqueues the card at the END (Anki-style) without changing `total`
+ * (distinct cards). Good/Hard/Easy remove the card. Session ends when the queue is empty.
  */
 export type ReviewSessionState = {
   initialized: boolean;
   queue: DueReviewCard[];
-  /** Cards distintos da sessão (não muda com re-enfileiramentos de "Errei"). */
+  /** Distinct cards in the session (unchanged by "Again" re-enqueues). */
   total: number;
   finished: boolean;
   stats: SessionStats;
@@ -51,7 +51,7 @@ export function reviewSessionReducer(
         return state;
       }
 
-      // "Errei" repete o card no fim da mesma sessão; demais avaliações o concluem.
+      // "Again" repeats the card at the end of the same session; other ratings finish it.
       const queue = action.rating === REVIEW_RATINGS.AGAIN ? [...rest, current] : rest;
       const finished = queue.length === 0;
       const ratedStats = applyRating(state.stats, action.rating);
@@ -68,12 +68,12 @@ export function reviewSessionReducer(
   }
 }
 
-/** Card atualmente exibido (topo da fila), ou null quando a sessão acabou. */
+/** Currently displayed card (queue head), or null when the session is done. */
 export function currentCard(state: ReviewSessionState): DueReviewCard | null {
   return state.queue[0] ?? null;
 }
 
-/** Posição 1-indexada do card distinto atual para a barra de progresso. */
+/** 1-indexed position of the current distinct card for the progress bar. */
 export function currentProgress(state: ReviewSessionState): { current: number; total: number } {
   if (state.total === 0) {
     return { current: 0, total: 0 };

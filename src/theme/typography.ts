@@ -1,6 +1,6 @@
 /**
- * Tokens de tipografia — tamanhos, pesos e altura de linha.
- * Foco em leitura confortável durante o estudo.
+ * Typography tokens — sizes, weights, and line height.
+ * Focused on comfortable reading during study.
  */
 export const fontSize = {
   xs: 12,

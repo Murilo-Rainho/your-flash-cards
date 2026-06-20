@@ -7,9 +7,9 @@ import { getSQLiteReviewRepository } from '@/infrastructure/database/sqlite/repo
 export const REVIEW_DUE_QUERY_KEY = ['review', 'due'] as const;
 
 /**
- * Carrega os cards vencidos da sessão (§20: `LIMIT`, nunca todos). A fila é "congelada" durante
- * a sessão (`staleTime: Infinity`) para não refazer o fetch a cada avaliação — o snapshot
- * inicial define a sessão; a Home é reatualizada na volta via invalidação no submit.
+ * Loads session due cards (§20: `LIMIT`, never all). Queue is "frozen" during
+ * the session (`staleTime: Infinity`) to avoid refetch on each rating — the initial
+ * snapshot defines the session; Home refreshes on return via invalidation on submit.
  */
 export function useDueReviewCards() {
   return useQuery<DueReviewCard[], Error>({

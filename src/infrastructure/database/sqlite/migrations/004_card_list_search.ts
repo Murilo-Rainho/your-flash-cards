@@ -11,7 +11,7 @@ type CardSearchRow = {
   back: string;
 };
 
-/** Preenche as projeções de busca sem carregar todos os cards existentes em memória. */
+/** Backfills search projections without loading all existing cards into memory. */
 export async function backfillCardSearchProjections(db: SqliteDatabaseConnection): Promise<void> {
   let lastId: string | null = null;
 

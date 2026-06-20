@@ -1,6 +1,6 @@
 # Contexto Codex: Modelo de Domínio
 
-Base: `CONTRATO_README.md` §5, §17, §19, §20, §30. Espelha `.claude/context/domain-model.md`.
+Base: `local_files/CONTRATO_README.md` §5, §17, §19, §20, §30. Espelha `.claude/context/domain-model.md`.
 
 ## Hierarquia
 

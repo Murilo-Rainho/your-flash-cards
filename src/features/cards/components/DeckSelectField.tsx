@@ -53,7 +53,7 @@ type DeckSelectFieldProps = {
   onCreateFormDismiss?: () => void;
 };
 
-/** Seletor de deck com busca e, opcionalmente, criação inline no modal. */
+/** Deck selector with search and, optionally, inline creation in the modal. */
 export function DeckSelectField({
   label,
   value,

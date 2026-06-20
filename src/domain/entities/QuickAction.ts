@@ -1,8 +1,8 @@
 /**
- * QuickAction — ação rápida exibida no FAB da Home.
+ * QuickAction — quick action shown on the Home FAB.
  *
- * TS puro: `icon` é um identificador/emoji e `route` é apenas uma string, preenchida
- * quando a navegação existir (fora de escopo nesta versão). Sem imports de UI.
+ * Pure TS: `icon` is an identifier/emoji and `route` is just a string, filled when navigation
+ * exists (out of scope in this version). No UI imports.
  */
 export type QuickAction = {
   id: string;

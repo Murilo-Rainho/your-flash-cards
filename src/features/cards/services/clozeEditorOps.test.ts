@@ -10,7 +10,7 @@ import {
 
 describe('insertClozeBlank', () => {
   it('wraps the selected range and inserts an empty answer at the right index', () => {
-    // "It was raining. Even so, we went hiking." — selecionar "Even so" (16..23)
+    // "It was raining. Even so, we went hiking." — select "Even so" (16..23)
     const sentence = 'It was raining. Even so, we went hiking.';
     const start = sentence.indexOf('Even so');
     const end = start + 'Even so'.length;
@@ -22,7 +22,7 @@ describe('insertClozeBlank', () => {
   });
 
   it('inserts the new blank answer in sentence order (between existing blanks)', () => {
-    // já existe uma lacuna no fim; marca outra antes dela
+    // A blank already exists at the end; mark another before it
     const sentence = 'a b {c}';
     const start = 2; // "b"
     const end = 3;
@@ -30,7 +30,7 @@ describe('insertClozeBlank', () => {
     const result = insertClozeBlank({ sentence, answers: [['existing']] }, start, end);
 
     expect(result.sentence).toBe('a {b} {c}');
-    // a nova lacuna (b) vem antes da existente (c)
+    // The new blank (b) comes before the existing one (c)
     expect(result.answers).toEqual([[''], ['existing']]);
   });
 

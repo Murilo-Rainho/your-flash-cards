@@ -1,6 +1,6 @@
 # Contexto Codex: Arquitetura
 
-Base: `CONTRATO_README.md` §31. Espelha `.claude/context/architecture.md`.
+Base: `local_files/CONTRATO_README.md` §31. Espelha `.claude/context/architecture.md`.
 
 ## Regra de dependência (inviolável)
 

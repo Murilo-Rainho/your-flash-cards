@@ -2,7 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 
 import { extractExpectedClozeAnswer, normalizeStudyAnswer, parseClozeFront } from './cloze';
 
-describe('parseClozeFront (legado)', () => {
+describe('parseClozeFront (legacy)', () => {
   it('parses a single cloze gap', () => {
     expect(parseClozeFront("I'm {cansado} now")).toEqual({
       before: "I'm ",
@@ -15,7 +15,7 @@ describe('parseClozeFront (legado)', () => {
     expect(parseClozeFront("I'm tired now")).toBeNull();
   });
 
-  it('returns null when there are multiple gaps (frente legada tinha 1 lacuna)', () => {
+  it('returns null when there are multiple gaps (legacy front had 1 blank)', () => {
     expect(parseClozeFront('{a} and {b}')).toBeNull();
   });
 
@@ -24,7 +24,7 @@ describe('parseClozeFront (legado)', () => {
   });
 });
 
-describe('extractExpectedClozeAnswer (legado)', () => {
+describe('extractExpectedClozeAnswer (legacy)', () => {
   it('extracts the middle segment from an aligned back', () => {
     expect(extractExpectedClozeAnswer("I'm {cansado} now", "I'm tired now")).toBe('tired');
   });

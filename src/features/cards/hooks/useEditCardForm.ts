@@ -54,7 +54,7 @@ type UseEditCardFormParams = {
   onDeleted: () => void;
 };
 
-/** Estado do formulário de edição de card. O tipo é imutável; reusa o render de `CardTypeFields`. */
+/** Edit card form state. Type is immutable; reuses `CardTypeFields` render. */
 export function useEditCardForm({ aggregate, onSaved, onDeleted }: UseEditCardFormParams) {
   const strings = useStrings();
   const updateCardMutation = useUpdateCard();
@@ -161,7 +161,7 @@ export function useEditCardForm({ aggregate, onSaved, onDeleted }: UseEditCardFo
       : strings.cards.reverseModeOriginalOnly,
   }));
 
-  // Atualiza idiomas de TTS padrão quando a coleção carrega, sem sobrescrever um TTS já existente.
+  // Update default TTS languages when the collection loads, without overwriting existing TTS.
   useEffect(() => {
     const collection = collectionQuery.data;
     if (!collection) {
@@ -408,7 +408,7 @@ export function useEditCardForm({ aggregate, onSaved, onDeleted }: UseEditCardFo
       await updateCardMutation.mutateAsync({
         id: card.id,
         deckId: values.deckId,
-        // Cloze: frente/verso são derivadas do conteúdo estruturado no serviço.
+        // Cloze: front/back are derived from structured content in the service.
         frontText: isCloze ? undefined : values.frontText,
         backText: isCloze ? undefined : values.backText,
         cloze: isCloze ? clozeEditor.content : undefined,

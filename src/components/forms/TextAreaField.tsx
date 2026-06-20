@@ -15,7 +15,7 @@ type TextAreaFieldProps = {
   onBlur?: () => void;
 };
 
-/** Campo de texto multilinha com rótulo e erro. */
+/** Multiline text field with label and error. */
 export function TextAreaField({
   label,
   value,

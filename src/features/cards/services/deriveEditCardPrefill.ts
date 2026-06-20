@@ -14,7 +14,7 @@ import { TYPING_FRONT_MODES, type TypingFrontMode } from '../config/typingFrontM
 import { VOCABULARY_FRONT_MODES, type VocabularyFrontMode } from '../config/vocabularyFrontMode';
 import type { CreateCardMediaInput } from './sanitizeCardInput';
 
-/** Estado de edição do cloze: a frase com `{dica}` e as respostas aceitas por lacuna (na ordem). */
+/** Cloze edit state: sentence with `{hint}` and accepted answers per blank (in order). */
 export type ClozeEditState = { sentence: string; answers: string[][] };
 
 export type EditCardPrefill = {
@@ -101,8 +101,8 @@ function typingFrontModeFor(media: CreateCardMediaInput[]): TypingFrontMode {
 }
 
 /**
- * Constrói o estado inicial do formulário de edição a partir do aggregate carregado:
- * mapeia mídia, infere os "modos" de cada layout e separa as partes do cloze.
+ * Builds initial edit-form state from the loaded aggregate: maps media, infers each layout's
+ * "modes", and splits cloze parts.
  */
 export function deriveEditCardPrefill(
   aggregate: CardAggregate,
@@ -115,8 +115,8 @@ export function deriveEditCardPrefill(
   let cloze: ClozeEditState = { sentence: '', answers: [] };
 
   if (type === CARD_TYPES.CLOZE) {
-    // Funciona tanto para o novo formato (card.cloze) quanto para cards legados (1 lacuna,
-    // reconstruída de front/back pelo bridge dentro de resolveClozeContent).
+    // Works for both the new format (card.cloze) and legacy cards (single blank,
+    // reconstructed from front/back via the bridge inside resolveClozeContent).
     const content = resolveClozeContent(card);
     cloze = {
       sentence: composeClozeFront(content),

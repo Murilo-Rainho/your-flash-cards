@@ -8,8 +8,8 @@ const MAX_NAME_LENGTH = 80;
 const MAX_DESCRIPTION_LENGTH = 280;
 
 /**
- * Edição de deck. A coleção pai é imutável: o deck permanece vinculado à coleção
- * onde foi criado (não é possível movê-lo para outra coleção).
+ * Deck edit. Parent collection is immutable: the deck stays linked to the collection
+ * where it was created (cannot be moved to another collection).
  */
 export type UpdateDeckInput = {
   id: string;

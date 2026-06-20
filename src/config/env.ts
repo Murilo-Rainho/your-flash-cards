@@ -1,8 +1,8 @@
 /**
- * Variáveis de ambiente do app.
+ * App environment variables.
  *
- * Estrutura mínima para leitura futura de variáveis. NÃO introduz dependência de
- * backend (offline-first, §29). Premium/remoto será tratado como ponto de extensão.
+ * Minimal structure for future variable reads. Does NOT introduce backend dependency
+ * (offline-first, §29). Premium/remote will be treated as an extension point.
  */
 export const env = {
   APP_ENV: 'development',

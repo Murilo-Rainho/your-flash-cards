@@ -7,23 +7,23 @@ import { useTheme } from '@/theme/useTheme';
 type BottomSheetProps = {
   visible: boolean;
   onClose: () => void;
-  /** Rótulo de acessibilidade do scrim (toque fora fecha a folha). */
+  /** Accessibility label for the scrim (tap outside closes the sheet). */
   closeAccessibilityLabel: string;
-  /** Título opcional exibido no topo da folha. */
+  /** Optional title shown at the top of the sheet. */
   title?: string;
-  /** Altura máxima da área rolável do conteúdo. */
+  /** Maximum height of the scrollable content area. */
   maxContentHeight?: number;
-  /** Desativa a rolagem externa quando o filho já possui uma lista rolável. */
+  /** Disables outer scrolling when the child already has a scrollable list. */
   contentScrollable?: boolean;
   children: ReactNode;
 };
 
 /**
- * Bottom sheet padrão do app — mesma linguagem visual do `QuickActionsFab`: scrim
- * escurecido, folha com cantos arredondados, sombra e "puxador" (drag handle).
+ * App default bottom sheet — same visual language as `QuickActionsFab`: darkened scrim,
+ * rounded sheet, shadow, and drag handle.
  *
- * UI burra: apenas apresenta o conteúdo e delega o fechamento via `onClose` (toque no
- * scrim). O consumidor é responsável por ações/estado.
+ * Dumb UI: only presents content and delegates closing via `onClose` (scrim tap).
+ * The consumer owns actions/state.
  */
 export function BottomSheet({
   visible,
@@ -45,7 +45,7 @@ export function BottomSheet({
         style={{ backgroundColor: `${colors.textPrimary}66` }}
         className="flex-1 justify-end p-4"
       >
-        {/* Folha: Pressable que não propaga o toque para não fechar ao tocar dentro. */}
+        {/* Sheet: Pressable that does not propagate taps so inner touches do not close. */}
         <Pressable onPress={() => undefined}>
           <View
             style={{ backgroundColor: colors.surface, ...shadows.lg }}

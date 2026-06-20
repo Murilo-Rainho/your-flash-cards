@@ -6,7 +6,7 @@ import { parseReviewResult, serializeReviewStats } from './reviewResultParams';
 import { applyRating, emptyStats, finishStats } from './reviewSessionStats';
 
 describe('reviewResultParams', () => {
-  it('serializa e re-parseia as estatísticas (round-trip)', () => {
+  it('serializes and re-parses stats (round-trip)', () => {
     let stats = emptyStats(1000);
     stats = applyRating(stats, REVIEW_RATINGS.GOOD);
     stats = applyRating(stats, REVIEW_RATINGS.AGAIN);
@@ -25,7 +25,7 @@ describe('reviewResultParams', () => {
     });
   });
 
-  it('marca hasData=false quando não há params (deep-link direto)', () => {
+  it('sets hasData=false when there are no params (direct deep link)', () => {
     expect(parseReviewResult({}).hasData).toBe(false);
   });
 });

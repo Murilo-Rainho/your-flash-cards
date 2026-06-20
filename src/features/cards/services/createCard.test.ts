@@ -357,7 +357,7 @@ describe('createCard', () => {
     );
 
     expect(aggregate.card.front).toBe('I would like {ambos} water {e} juice.');
-    // O verso usa a resposta primária (a primeira) de cada lacuna.
+    // Back uses the primary answer (the first) for each blank.
     expect(aggregate.card.back).toBe('I would like both water and juice.');
     expect(aggregate.card.cloze?.segments).toContainEqual({
       kind: 'blank',

@@ -1,6 +1,6 @@
 /**
- * Escala de espaçamento (em px) para padding, margin e gap consistentes.
- * Use sempre estes tokens em vez de números soltos.
+ * Spacing scale (px) for consistent padding, margin, and gap.
+ * Always use these tokens instead of raw numbers.
  */
 export const spacing = {
   none: 0,

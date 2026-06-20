@@ -13,7 +13,7 @@ type TourActionsProps = {
   onSkip: () => void;
 };
 
-/** Rodapé de ações do step: Voltar / Próximo(ou Concluir) + Pular. */
+/** Step action footer: Back / Next (or Finish) + Skip. */
 export function TourActions({ canGoBack, isLastStep, onBack, onNext, onSkip }: TourActionsProps) {
   const strings = useStrings();
   const { colors } = useTheme();

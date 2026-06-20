@@ -33,7 +33,7 @@ type SearchableListContainerProps<T> = {
   onEndReached?: () => void;
 };
 
-/** Painel controlado de busca com cabeçalho fixo e resultados virtualizados. */
+/** Controlled search panel with fixed header and virtualized results. */
 export function SearchableListContainer<T>({
   data,
   query,

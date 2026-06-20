@@ -3,11 +3,11 @@ import { REVIEW_RATINGS, type ReviewRating } from '@/constants/reviewRatings';
 import type { ReviewScheduleInput, ReviewScheduleResult, ReviewScheduler } from './ReviewScheduler';
 
 /**
- * Implementação SM-2 (§18, §20). Pura e determinística — sem I/O e sem relógio interno.
+ * SM-2 implementation (§18, §20). Pure and deterministic — no I/O and no internal clock.
  *
- * Cada avaliação (Errei/Difícil/Médio/Fácil → again/hard/good/easy) ramifica aqui e afeta
- * `intervalDays`, `easeFactor`, `repetitions`, `lapses` e `nextReviewAt` (§19). Mantida atrás
- * da interface `ReviewScheduler` para ser substituível (FSRS etc.) no futuro.
+ * Each rating (Again/Hard/Good/Easy) branches here and affects `intervalDays`, `easeFactor`,
+ * `repetitions`, `lapses`, and `nextReviewAt` (§19). Kept behind `ReviewScheduler` for future
+ * swap (FSRS, etc.).
  */
 
 export const SM2_SCHEDULER_TYPE = 'sm2';
@@ -19,7 +19,7 @@ const FIRST_INTERVAL_DAYS = 1;
 const SECOND_INTERVAL_DAYS = 6;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
-/** Escala 0..5 do SM-2. Abaixo de 3 é falha (apenas "Errei"). */
+/** SM-2 quality scale 0..5. Below 3 is failure (Again only). */
 const RATING_QUALITY: Record<ReviewRating, number> = {
   [REVIEW_RATINGS.AGAIN]: 2,
   [REVIEW_RATINGS.HARD]: 3,
@@ -27,15 +27,15 @@ const RATING_QUALITY: Record<ReviewRating, number> = {
   [REVIEW_RATINGS.EASY]: 5,
 };
 
-/** EF' = EF + (0.1 − (5−q)·(0.08 + (5−q)·0.02)), com piso 1.3. Aplica-se a todas as avaliações. */
+/** EF' = EF + (0.1 − (5−q)·(0.08 + (5−q)·0.02)), floored at 1.3. Applied to all ratings. */
 function nextEaseFactor(easeFactor: number, quality: number): number {
   const delta = 0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02);
   return Math.max(MIN_EASE_FACTOR, easeFactor + delta);
 }
 
 function addDaysIso(reviewedAt: Date, intervalDays: number): string {
-  // Aritmética em ms + UTC ISO: alinha com a query de vencidos (também ISO) e evita bugs de
-  // fuso/DST que `addLocalDays` (meia-noite local) introduziria.
+  // ms arithmetic + UTC ISO: aligns with due query (also ISO) and avoids timezone/DST bugs
+  // that `addLocalDays` (local midnight) would introduce.
   return new Date(reviewedAt.getTime() + intervalDays * MS_PER_DAY).toISOString();
 }
 
@@ -64,7 +64,7 @@ function computeInterval(
     return Math.round(previousInterval * ease * EASY_BONUS);
   }
 
-  // GOOD: degraus canônicos do SM-2.
+  // GOOD: canonical SM-2 steps.
   if (previousReps === 1) {
     return SECOND_INTERVAL_DAYS;
   }

@@ -34,7 +34,7 @@ describe('ExpoSpeechTtsProvider', () => {
     });
   });
 
-  it('usa velocidade fast por padrao', async () => {
+  it('uses fast speed by default', async () => {
     const provider = new ExpoSpeechTtsProvider();
 
     await provider.speak({ text: 'hello', language: 'en-US' });
@@ -45,7 +45,7 @@ describe('ExpoSpeechTtsProvider', () => {
     );
   });
 
-  it('mapeia slow para rate 0.5', async () => {
+  it('maps slow to rate 0.5', async () => {
     const provider = new ExpoSpeechTtsProvider();
 
     await provider.speak({

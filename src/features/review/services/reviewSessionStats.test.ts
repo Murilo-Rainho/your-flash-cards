@@ -5,7 +5,7 @@ import { REVIEW_RATINGS } from '@/constants/reviewRatings';
 import { applyRating, emptyStats, finishStats } from './reviewSessionStats';
 
 describe('reviewSessionStats', () => {
-  it('começa zerado com o início registrado', () => {
+  it('starts at zero with start time recorded', () => {
     const stats = emptyStats(1000);
 
     expect(stats).toEqual({
@@ -17,7 +17,7 @@ describe('reviewSessionStats', () => {
     });
   });
 
-  it('contabiliza por avaliação e separa acertos (good/easy) de erros (again)', () => {
+  it('counts by rating and separates hits (good/easy) from misses (again)', () => {
     let stats = emptyStats(0);
     stats = applyRating(stats, REVIEW_RATINGS.GOOD);
     stats = applyRating(stats, REVIEW_RATINGS.EASY);
@@ -31,7 +31,7 @@ describe('reviewSessionStats', () => {
     expect(stats.wrong).toBe(2);
   });
 
-  it('não muta o estado anterior (imutável)', () => {
+  it('does not mutate previous state (immutable)', () => {
     const base = emptyStats(0);
     const next = applyRating(base, REVIEW_RATINGS.GOOD);
 
@@ -40,7 +40,7 @@ describe('reviewSessionStats', () => {
     expect(next.byRating).not.toBe(base.byRating);
   });
 
-  it('marca o término', () => {
+  it('marks finish time', () => {
     const stats = finishStats(emptyStats(0), 5000);
     expect(stats.finishedAt).toBe(5000);
   });

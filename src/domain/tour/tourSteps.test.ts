@@ -2,7 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 
 import { BASE_TOUR_STEPS, findTourStepById, getFirstTourStep, getTourStepIndex } from './tourSteps';
 
-describe('BASE_TOUR_STEPS (invariantes do registro)', () => {
+describe('BASE_TOUR_STEPS (registry invariants)', () => {
   it('has 8 steps with unique, stable ids', () => {
     expect(BASE_TOUR_STEPS).toHaveLength(8);
     const ids = BASE_TOUR_STEPS.map((step) => step.id);

@@ -12,9 +12,9 @@ type RatingButtonsProps = {
 };
 
 /**
- * Tom semântico de cada avaliação (§19). Usa apenas tokens estáveis do tema
- * (`danger`/`warning`/`success`) + a cor `primary` da marca para "good" — evita colisões
- * entre presets (ex.: paletas onde `secondary` == `warning`) e mantém matizes distintos.
+ * Semantic tone for each rating (§19). Uses only stable theme tokens
+ * (`danger`/`warning`/`success`) + brand `primary` for "good" — avoids collisions
+ * between presets (e.g. palettes where `secondary` == `warning`) and keeps distinct hues.
  */
 const RATING_TONE: Record<ReviewRating, ColorToken> = {
   again: 'danger',
@@ -23,7 +23,7 @@ const RATING_TONE: Record<ReviewRating, ColorToken> = {
   easy: 'success',
 };
 
-/** Linha das 4 avaliações (§19). Aparece apenas no estado ANSWER (verso revelado). */
+/** Row of the 4 ratings (§19). Shown only in ANSWER state (back revealed). */
 export function RatingButtons({ labels, onRate, disabled = false }: RatingButtonsProps) {
   const { colors } = useTheme();
 

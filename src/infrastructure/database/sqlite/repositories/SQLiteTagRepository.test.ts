@@ -53,7 +53,7 @@ const tag: Tag = {
 };
 
 describe('SQLiteTagRepository', () => {
-  it('faz upsert por collection e normalized_name e retorna a linha canônica armazenada', async () => {
+  it('upserts by collection and normalized_name and returns the stored canonical row', async () => {
     const db = new FakeTagDatabase();
     db.firstRow = {
       id: 'tag-existente',
@@ -83,14 +83,14 @@ describe('SQLiteTagRepository', () => {
     });
   });
 
-  it('retorna a própria tag quando nenhuma linha é encontrada após o insert', async () => {
+  it('returns the tag itself when no row is found after insert', async () => {
     const db = new FakeTagDatabase();
     db.firstRow = null;
 
     await expect(createRepository(db).createIfAbsent(tag)).resolves.toBe(tag);
   });
 
-  it('lista tags da collection ordenadas por nome e mapeia os campos', async () => {
+  it('lists collection tags ordered by name and maps fields', async () => {
     const db = new FakeTagDatabase();
     db.allRows = [
       {
@@ -120,7 +120,7 @@ describe('SQLiteTagRepository', () => {
     expect(db.allCalls[0]?.params[0]).toEqual({ $collectionId: 'collection-pt-en' });
   });
 
-  it('busca tag por id', async () => {
+  it('finds tag by id', async () => {
     const db = new FakeTagDatabase();
     db.firstRow = {
       id: 'tag-1',
@@ -143,7 +143,7 @@ describe('SQLiteTagRepository', () => {
     expect(db.firstCalls[0]?.source).toContain('WHERE id = $id');
   });
 
-  it('atualiza nome e chave normalizada', async () => {
+  it('updates name and normalized key', async () => {
     const db = new FakeTagDatabase();
 
     await createRepository(db).update({
@@ -162,7 +162,7 @@ describe('SQLiteTagRepository', () => {
     });
   });
 
-  it('exclui tag por id', async () => {
+  it('deletes tag by id', async () => {
     const db = new FakeTagDatabase();
 
     await createRepository(db).delete('tag-1');

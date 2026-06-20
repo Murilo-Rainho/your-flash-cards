@@ -2,8 +2,8 @@ import { createShadows } from './createShadows';
 import { colors } from './colors';
 
 /**
- * Presets de sombra estáticos (fallback build-time / fora do ThemeProvider).
- * Prefira `useTheme().shadows` em componentes para respeitar paleta do usuário.
+ * Static shadow presets (build-time fallback / outside ThemeProvider).
+ * Prefer `useTheme().shadows` in components to respect the user's palette.
  */
 export const shadows = createShadows(colors);
 

@@ -9,7 +9,7 @@ import type { CardFaceViewModel } from './types';
 
 type FlashcardFaceProps = {
   face: CardFaceViewModel;
-  /** Texto exibido quando o lado não tem nenhum conteúdo (preview best-effort). */
+  /** Text shown when the side has no content (best-effort preview). */
   emptyHint?: string;
   imageAccessibilityLabel?: string;
   ttsPlaybackSpeed: TtsPlaybackSpeed;
@@ -17,7 +17,7 @@ type FlashcardFaceProps = {
   onTtsPlaybackSpeedChange: (speed: TtsPlaybackSpeed) => void;
 };
 
-/** Renderiza UM lado do card (texto, imagem e/ou áudio). Reutilizado por frente e verso. */
+/** Renders ONE card side (text, image, and/or audio). Reused by front and back. */
 export function FlashcardFace({
   face,
   emptyHint = 'No content',

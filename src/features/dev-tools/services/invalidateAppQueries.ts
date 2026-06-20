@@ -8,7 +8,7 @@ import { HOME_DATA_QUERY_KEY } from '@/features/home/hooks/useHomeData';
 import { REVIEW_DUE_QUERY_KEY } from '@/features/review/hooks/useDueReviewCards';
 import { REVIEW_TODAY_QUERY_KEY } from '@/features/review/hooks/useTodayReviews';
 
-/** Revalida caches afetados por mutações de revisão (submit ou reset dev). */
+/** Revalidates caches affected by review mutations (submit or dev reset). */
 export async function invalidateAppQueries(queryClient: QueryClient): Promise<void> {
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: HOME_DATA_QUERY_KEY }),

@@ -17,7 +17,7 @@ type SegmentedControlProps<TValue extends string> = {
   accessibilityLabel?: string;
 };
 
-/** Controle segmentado compacto para escolhas curtas e mutuamente exclusivas. */
+/** Compact segmented control for short mutually exclusive choices. */
 export function SegmentedControl<TValue extends string>({
   value,
   options,

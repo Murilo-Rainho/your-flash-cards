@@ -5,10 +5,10 @@ automaticamente** — ele vincula a regra principal e indexa agentes, regras e c
 
 ## ⚠️ Regra principal (OBRIGATÓRIA): Contract-First
 
-[`CONTRATO_README.md`](./CONTRATO_README.md) é a **fonte única da verdade** do produto e da
+[`CONTRATO_README.md`](./local_files/CONTRATO_README.md) é a **fonte única da verdade** do produto e da
 arquitetura. **Antes de propor ou aplicar qualquer mudança arquitetural, nova feature,
 dependência, modelagem de dados, interface ou alteração de fluxo, você DEVE consultar o
-`CONTRATO_README.md`** (citando as seções relevantes) e os arquivos de contexto/regras
+`local_files/CONTRATO_README.md`** (citando as seções relevantes) e os arquivos de contexto/regras
 abaixo. Regra completa: [`.claude/rules/00-contract-first.md`](./.claude/rules/00-contract-first.md).
 
 Princípios inegociáveis:

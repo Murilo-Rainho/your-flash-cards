@@ -6,7 +6,7 @@ type SectionTitleProps = {
   title: string;
 };
 
-/** Título de seção padrão (hierarquia visual consistente entre seções). */
+/** Default section title (consistent visual hierarchy between sections). */
 export function SectionTitle({ title }: SectionTitleProps) {
   const { colors } = useTheme();
 

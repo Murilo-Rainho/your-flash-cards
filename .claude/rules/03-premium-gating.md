@@ -1,6 +1,6 @@
 # Regra 03 — Premium Gating
 
-> Base: `CONTRATO_README.md` §4, §28, §32.5, §37.
+> Base: `local_files/CONTRATO_README.md` §4, §28, §32.5, §37.
 
 ## Regra geral (decoreba)
 

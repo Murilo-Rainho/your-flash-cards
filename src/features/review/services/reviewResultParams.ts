@@ -2,7 +2,7 @@ import { REVIEW_RATINGS, type ReviewRating } from '@/constants/reviewRatings';
 
 import type { SessionStats } from './reviewSessionStats';
 
-/** Resumo da sessão serializado para params de rota (strings) — sem store global (offline). */
+/** Session summary serialized for route params (strings) — no global store (offline). */
 export type ReviewResultParams = {
   reviewed: string;
   correct: string;
@@ -20,7 +20,7 @@ export type ReviewResultSummary = {
   wrong: number;
   byRating: Record<ReviewRating, number>;
   durationMs: number;
-  /** false quando a tela foi aberta sem dados (ex.: deep-link direto). */
+  /** false when screen opened without data (e.g. direct deep link). */
   hasData: boolean;
 };
 

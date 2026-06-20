@@ -60,7 +60,7 @@ type CardTypeFieldsProps = {
   onTtsLanguageChange: (side: MediaSide, language: string) => void;
 };
 
-/** Renderiza os campos de conteúdo do card conforme o layout do tipo selecionado. */
+/** Renders card content fields according to the selected type layout. */
 export function CardTypeFields(props: CardTypeFieldsProps) {
   const {
     type,
@@ -232,10 +232,9 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
   }
 
   if (config.layout === 'typing') {
-    // Escrita (§11): a frente é uma mídia (áudio/gravação/TTS/imagem) escolhida no select; o
-    // verso é a resposta esperada (texto), comparada com o que o revisor digitar. No modo TTS
-    // a resposta já é o próprio texto falado, então o verso reutiliza o texto da frente (sem
-    // campo separado), como na Escuta.
+    // Typing (§11): front is chosen media (audio/recording/TTS/image); back is the expected
+    // answer (text), compared to what the reviewer types. In TTS mode the answer is the spoken
+    // text itself, so back reuses front text (no separate field), like Listening.
     const showBackText = typingFrontMode !== TYPING_FRONT_MODES.TTS;
 
     return (
@@ -275,8 +274,8 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
   }
 
   if (config.layout === 'listening') {
-    // Escuta: a transcrição (verso) é obrigatória. No modo TTS ela já é a própria frase
-    // falada (espelhada na frente), então o campo separado só aparece nos modos de áudio.
+    // Listening: transcript (back) is required. In TTS mode it is the spoken phrase itself
+    // (mirrored on front), so the separate field only appears in audio modes.
     const showTranscript = listeningModes.front !== LISTENING_INPUT_MODES.TTS;
 
     return (
@@ -316,9 +315,8 @@ export function CardTypeFields(props: CardTypeFieldsProps) {
   }
 
   if (config.layout === 'pronunciation') {
-    // Pronúncia: inverso da Escuta. O texto a pronunciar fica na frente; o áudio modelo
-    // (arquivo, gravação ou TTS) fica no verso. No modo TTS, a fala reutiliza o texto da
-    // frente, sem campo de texto duplicado no verso.
+    // Pronunciation: inverse of Listening. Text to pronounce on front; model audio (file,
+    // recording, or TTS) on back. In TTS mode speech reuses front text with no duplicate back field.
     return (
       <>
         <TextAreaField

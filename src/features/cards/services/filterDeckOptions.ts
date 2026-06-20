@@ -5,7 +5,7 @@ type DeckOption = {
   label: string;
 };
 
-/** Mantém o deck selecionado visível e fixa-o antes dos demais resultados. */
+/** Keeps the selected deck visible and pins it before other results. */
 export function filterDeckOptions<T extends DeckOption>(
   options: readonly T[],
   query: string,

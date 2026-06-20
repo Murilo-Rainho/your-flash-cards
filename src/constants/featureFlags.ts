@@ -1,10 +1,10 @@
 /**
- * Chaves de feature usadas pelo `PremiumGate` (§28, §32.5).
+ * Feature keys used by `PremiumGate` (§28, §32.5).
  *
- * Regra (§4.2): tudo que exige internet/API/backend/storage remoto é Premium.
- * Aqui ficam apenas as CHAVES (constantes) — a decisão de liberar/bloquear vive
- * na infraestrutura. Nenhuma destas features é implementada na V1 (§37); são
- * pontos de extensão.
+ * Rule (§4.2): anything requiring internet/API/backend/remote storage is Premium.
+ * Only the KEYS (constants) live here — the allow/block decision lives in
+ * infrastructure. None of these features are implemented in V1 (§37); they are
+ * extension points.
  */
 export const PREMIUM_FEATURES = {
   SYNC: 'sync',

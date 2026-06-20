@@ -30,7 +30,7 @@ export type CardListPage = {
   nextCursor?: CardListCursor;
 };
 
-/** Porta de leitura local e paginada para a listagem de cards de um deck (§29.1). */
+/** Local paginated read port for a deck's card list (§29.1). */
 export type CardListReadRepository = {
   listPage(params: CardListPageParams): Promise<CardListPage>;
 };

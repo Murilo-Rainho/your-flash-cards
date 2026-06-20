@@ -1,10 +1,10 @@
 import { REVIEW_RATINGS, type ReviewRating } from '@/constants/reviewRatings';
 
 /**
- * Estatísticas acumuladas de uma sessão de revisão (§22), puras e testáveis.
+ * Accumulated review session statistics (§22), pure and testable.
  *
- * `reviewedCount` conta avaliações registradas (uma repetição de "Errei" conta de novo).
- * `correct` = Médio+Fácil; `wrong` = Errei (Difícil é acerto difícil, não erro).
+ * `reviewedCount` counts recorded ratings (an Again repeat counts again).
+ * `correct` = Good+Easy; `wrong` = Again (Hard is a difficult success, not wrong).
  */
 export type SessionStats = {
   reviewedCount: number;

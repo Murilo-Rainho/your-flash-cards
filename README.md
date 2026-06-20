@@ -1,73 +1,177 @@
 # Your Flash Cards
 
-App mobile em **Expo (SDK 54) + React Native + TypeScript + Expo Router + NativeWind (Tailwind)**.
-As versões estão fixadas para serem compatíveis com o **Expo Go** publicado na loja.
+Mobile flashcard app for language learning. Built with **Expo SDK 54**, **React Native**,
+**TypeScript**, **Expo Router**, and **NativeWind (Tailwind)**. Versions are pinned for
+compatibility with the **Expo Go** app from the App Store / Play Store.
 
-## Começando
+The app is **offline-first**: collections, decks, cards, spaced-repetition review, and local
+import/export work without an internet connection. Data is stored in on-device SQLite.
+
+## Prerequisites
+
+| Tool                             | Version / notes                                                                                                                                                   |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Node.js**                      | 20 LTS recommended (18+ should work with Expo SDK 54)                                                                                                             |
+| **npm**                          | Comes with Node (this repo uses npm, not yarn/pnpm)                                                                                                               |
+| **Git**                          | To clone the repository                                                                                                                                           |
+| **Expo Go** (phone)              | Latest version from [App Store](https://apps.apple.com/app/expo-go/id982107779) or [Google Play](https://play.google.com/store/apps/details?id=host.exp.exponent) |
+| **Android Studio** (optional)    | Only if you want an Android emulator instead of a physical device                                                                                                 |
+| **Xcode** (optional, macOS only) | Only if you want the iOS Simulator                                                                                                                                |
+
+## Quick start
+
+### 1. Clone and install dependencies
 
 ```bash
+git clone <your-repo-url>
+cd your-flash-cards
 npm install
-npm start        # abre o Metro; leia o QR code no Expo Go
-npm run android  # abre direto no Android
-npm run ios      # abre direto no iOS
-npm run web      # abre no navegador
 ```
 
-## Estrutura
+### 2. Expo account (when you need it)
 
-Toda a aplicação vive em `src/` (alias `@/*` → `src/*`). As rotas do Expo Router ficam em
+For everyday local development with **Expo Go on the same Wi‑Fi network**, you usually **do
+not** need to log in. Metro serves the JavaScript bundle and Expo Go loads it from your
+machine.
+
+Create a free account and log in when:
+
+- The CLI asks you to authenticate (some tunnel / publish flows).
+- You use **EAS Build** (`npm run android:preview`, etc.).
+- You want **tunnel mode** and Expo prompts for credentials.
+
+```bash
+# Create an account at https://expo.dev/signup if you don't have one
+npx expo login
+# Verify
+npx expo whoami
+```
+
+To log out later: `npx expo logout`.
+
+### 3. Start the dev server
+
+```bash
+npm start
+```
+
+This runs `expo start -c` (Metro with cache cleared). The terminal shows a QR code and
+shortcuts:
+
+| Key | Action                                      |
+| --- | ------------------------------------------- |
+| `a` | Open on Android emulator / connected device |
+| `i` | Open on iOS Simulator (macOS + Xcode only)  |
+| `w` | Open in the web browser                     |
+| `r` | Reload the app                              |
+| `m` | Toggle the dev menu                         |
+
+**Offline dev** (no Expo account / no network checks):
+
+```bash
+npm run dev
+```
+
+### 4. Run on a physical device (recommended)
+
+1. Install **Expo Go** on your phone.
+2. Connect the phone and your computer to the **same Wi‑Fi** network.
+3. Run `npm start`.
+4. **Android:** open Expo Go → **Scan QR code** → scan the terminal QR code.
+5. **iOS:** open the **Camera** app → scan the QR code → tap the Expo banner (or scan from
+   inside Expo Go).
+
+If the device cannot reach your computer (corporate Wi‑Fi, VPN, etc.), try tunnel mode:
+
+```bash
+npx expo start --tunnel
+```
+
+Tunnel may require an Expo account and is slower than LAN; use it only when LAN fails.
+
+### 5. Run on emulators
+
+**Android** (Android Studio with a virtual device configured):
+
+```bash
+npm run android
+```
+
+**iOS Simulator** (macOS only, Xcode installed):
+
+```bash
+npm run ios
+```
+
+**Web** (limited; some native features like microphone / SQLite behave differently):
+
+```bash
+npm run web
+```
+
+## Project structure
+
+All application code lives under `src/` (alias `@/*` → `src/*`). Expo Router routes are in
 `src/app/`.
 
 ```
 src/
-  app/                 # Rotas (expo-router, file-based) — _layout.tsx + index.tsx
-  components/
-    common/            # Componentes base compartilhados (a criar)
-    forms/             # Componentes de formulário (a criar)
-  features/            # Casos de uso + hooks por domínio de UI
+  app/                 # Routes (expo-router, file-based)
+  components/          # Shared UI (common/, forms/, review/)
+  features/            # Use cases + hooks per UI domain
     collections/ decks/ cards/ review/ import-export/ stats/ premium/
-      components/ screens/ hooks/ services/
-  domain/              # Núcleo TypeScript puro (entidades, interfaces, regras)
-    entities/ repositories/ services/ schedulers/ importers/ exporters/ premium/
-  infrastructure/      # Implementações (SQLite, filesystem, TTS, conectores, billing)
-    database/sqlite/   # migrations/ repositories/
-    database/remote/   # repositories/ (Premium/sync futuro)
-    filesystem/ tts/ importers/ exporters/ premium/
-  state/stores/        # Estado global de UI/sessão (Zustand)
-  theme/               # colors.ts, spacing.ts, typography.ts, radius.ts, shadows.ts, icons.ts, index.ts
-  constants/           # cardTypes, featureFlags, limits, routes, languages
-  utils/               # date, ids, file, normalizeText, validation
-  config/              # env, app
-  tests/               # factories/ mocks/
-global.css             # Diretivas do Tailwind
-tailwind.config.ts     # Lê as cores de src/theme/colors.ts (fonte única)
+  domain/              # Pure TypeScript core (entities, interfaces, rules)
+  infrastructure/      # SQLite, filesystem, TTS, importers/exporters
+  state/stores/        # Zustand UI/session state
+  theme/               # Design tokens (colors, spacing, typography, icons)
+  constants/ utils/ config/
+  tests/               # Factories and mocks
+global.css             # Tailwind directives
+tailwind.config.ts     # Reads colors from src/theme/colors.ts
 ```
 
-## Tema (cores)
+## Theming
 
-O tema é **TypeScript puro** em `src/theme/`. A paleta vive em **`src/theme/colors.ts`**
-(fonte única de verdade):
+The theme is plain TypeScript in `src/theme/`. The palette lives in **`src/theme/colors.ts`**
+(single source of truth):
 
-- As classes do NativeWind (`bg-primary`, `bg-surface`, `text-textPrimary`,
-  `text-textSecondary`, `border-border`, ...) são geradas a partir de `colors.ts` via
-  `tailwind.config.ts` — sem duplicação.
-- Em contextos que não aceitam `className` (react-navigation, StatusBar, gráficos, estilos
-  inline), importe os valores de `@/theme` (`colors`, `spacing`, `radius`, `shadows`, ...).
-- **Ícones** passam sempre por `src/theme/icons.ts` (inversão de dependência), para permitir
-  trocar a biblioteca de ícones no futuro sem mexer nas telas.
+- NativeWind classes (`bg-primary`, `text-textPrimary`, …) are generated from `colors.ts` via
+  `tailwind.config.ts`.
+- For APIs that don't accept `className` (navigation, StatusBar, inline styles), import tokens
+  from `@/theme`.
+- Icons go through `src/theme/icons.ts` so the icon library can be swapped without touching
+  screens.
 
-Tema **claro único** na V1 (sem tema escuro). Para re-tematizar, altere `colors.ts`.
+V1 ships with a **light theme only**. Screens must use semantic tokens, never raw hex colors.
 
-### Regra de ouro
-
-Telas e componentes **sempre** usam os tokens semânticos do tema (classes do NativeWind ou
-`@/theme`), **nunca** cores cruas (`#fff`, `bg-blue-500`).
-
-## Qualidade
+## Quality checks
 
 ```bash
-npm run typecheck    # tsc --noEmit
-npm run lint         # eslint
-npm run format       # prettier --write
-npm run validate     # roda os três acima
+npm run typecheck      # tsc --noEmit (strict)
+npm run lint           # eslint
+npm run format         # prettier --write
+npm run format:check   # prettier --check
+npm run validate       # typecheck + lint + format:check
+npm run test           # jest (jest-expo)
+npm run test:coverage  # jest with coverage thresholds on critical areas
 ```
+
+Before opening a PR, run:
+
+```bash
+npm run validate && npm run test:coverage
+```
+
+## Troubleshooting
+
+| Problem                               | Things to try                                                               |
+| ------------------------------------- | --------------------------------------------------------------------------- |
+| QR code won't connect                 | Same Wi‑Fi; disable VPN; try `npx expo start --tunnel`                      |
+| "Unable to resolve module" after pull | `npm install` then `npm start` (cache is cleared automatically)             |
+| Expo Go version mismatch              | Update Expo Go from the store; this project targets **SDK 54**              |
+| Metro port in use                     | Kill the other process or run `npx expo start --port 8082`                  |
+| Android emulator not found            | Open Android Studio → Device Manager → start an AVD, then `npm run android` |
+
+## License
+
+See repository settings for license information.

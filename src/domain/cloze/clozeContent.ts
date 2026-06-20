@@ -1,13 +1,13 @@
 import { extractExpectedClozeAnswer, normalizeStudyAnswer, parseClozeFront } from './cloze';
 
 /**
- * Modelo estruturado de um card cloze (§9): a frase é uma sequência de segmentos de texto e
- * lacunas. Cada lacuna tem uma dica opcional (mostrada entre `{chaves}` na frente) e UMA OU
- * MAIS respostas aceitas (`answers[0]` é a primária, usada para compor o verso e o feedback).
+ * Structured model of a cloze card (§9): the sentence is a sequence of text segments and
+ * blanks. Each blank has an optional hint (shown in `{braces}` on the front) and ONE OR MORE
+ * accepted answers (`answers[0]` is primary, used to compose back text and feedback).
  *
- * É a fonte da verdade do conteúdo cloze, persistida em `Card.cloze` (coluna `cloze_data`).
- * `Card.front`/`Card.back` continuam derivados deste modelo para exibição e compatibilidade.
- * TS puro (regra 01): sem React/Expo/infra.
+ * Source of truth for cloze content, persisted in `Card.cloze` (`cloze_data` column).
+ * `Card.front`/`Card.back` remain derived from this model for display and compatibility.
+ * Pure TS (rule 01): no React/Expo/infra.
  */
 export type ClozeTextSegment = { kind: 'text'; text: string };
 export type ClozeBlankSegment = { kind: 'blank'; hint?: string; answers: string[] };
@@ -17,23 +17,23 @@ export type ClozeContent = { segments: ClozeSegment[] };
 export type ClozeValidationError = 'no-blanks' | 'blank-without-answer';
 export type ClozeBlankAnswerCheck = {
   correct: boolean;
-  /** Alternativa que deve aparecer primeiro no feedback: match quando acertou, primária quando errou. */
+  /** Alternative shown first in feedback: matched answer when correct, primary when wrong. */
   expected: string;
   acceptedAnswers: string[];
   expectedIndex: number;
 };
 
-// Regex local (a cada chamada via matchAll, sem estado compartilhado de lastIndex).
+// Local regex (matchAll per call; no shared lastIndex state).
 const CLOZE_GAP_PATTERN = /\{([^{}]*)\}/g;
 
-/** Posição (em caracteres) de cada `{...}` na frase, na ordem das lacunas. */
+/** Character position of each `{...}` in the sentence, in blank order. */
 export type ClozeBlankRange = { start: number; end: number };
 
 /**
- * Divide uma frase com marcações `{dica}` em segmentos (texto/lacuna), preservando o texto
- * exatamente como escrito (espaços inclusos). Cada `{...}` vira uma lacuna com `hint` = conteúdo
- * da chave (vazio vira `undefined`) e `answers` vazio (as respostas vivem fora da frase).
- * Também retorna as faixas de cada `{...}` para o editor reescrever a dica no lugar certo.
+ * Splits a sentence with `{hint}` markers into segments (text/blank), preserving text exactly
+ * as written (spaces included). Each `{...}` becomes a blank with `hint` = brace content
+ * (empty becomes `undefined`) and empty `answers` (answers live outside the sentence).
+ * Also returns ranges for each `{...}` so the editor can rewrite hints in place.
  */
 export function parseClozeTemplate(sentence: string): {
   segments: ClozeSegment[];
@@ -66,7 +66,7 @@ export function parseClozeTemplate(sentence: string): {
   return { segments, blankRanges };
 }
 
-/** Lacunas (na ordem) de um conteúdo cloze. */
+/** Blanks (in order) from cloze content. */
 export function getClozeBlanks(content: ClozeContent): ClozeBlankSegment[] {
   return content.segments.filter(
     (segment): segment is ClozeBlankSegment => segment.kind === 'blank',
@@ -74,8 +74,8 @@ export function getClozeBlanks(content: ClozeContent): ClozeBlankSegment[] {
 }
 
 /**
- * Monta o `ClozeContent` final a partir da frase (com `{}`) e das respostas por lacuna,
- * alinhadas à ordem das lacunas parseadas. Respostas são aparadas e vazias descartadas.
+ * Builds final `ClozeContent` from the sentence (with `{}`) and per-blank answers aligned to
+ * parsed blank order. Answers are trimmed; empty ones discarded.
  */
 export function buildClozeContent(
   sentence: string,
@@ -99,14 +99,14 @@ export function buildClozeContent(
   return { segments: merged };
 }
 
-/** Frase com a dica entre `{chaves}` por lacuna (grava em `Card.front` / exibe na revisão). */
+/** Sentence with hint in `{braces}` per blank (stored in `Card.front` / shown in review). */
 export function composeClozeFront(content: ClozeContent): string {
   return content.segments
     .map((segment) => (segment.kind === 'text' ? segment.text : `{${segment.hint ?? ''}}`))
     .join('');
 }
 
-/** Frase completa com a resposta primária (`answers[0]`) por lacuna (grava em `Card.back`). */
+/** Complete sentence with primary answer (`answers[0]`) per blank (stored in `Card.back`). */
 export function composeClozeBack(content: ClozeContent): string {
   return content.segments
     .map((segment) => (segment.kind === 'text' ? segment.text : (segment.answers[0] ?? '')))
@@ -114,8 +114,8 @@ export function composeClozeBack(content: ClozeContent): string {
 }
 
 /**
- * Frase completa usando uma alternativa selecionada por lacuna. Se uma lacuna não tiver
- * seleção, cai na resposta primária — o mesmo fallback de `composeClozeBack`.
+ * Complete sentence using a selected alternative per blank. If a blank has no selection, falls
+ * back to the primary answer — same fallback as `composeClozeBack`.
  */
 export function composeClozeBackWithAnswers(
   content: ClozeContent,
@@ -136,7 +136,7 @@ export function composeClozeBackWithAnswers(
     .join('');
 }
 
-/** Respostas aceitas prontas para exibição/checagem: aparadas e sem vazios. */
+/** Accepted answers ready for display/checking: trimmed with empties removed. */
 export function getAcceptedClozeAnswers(answers: readonly string[]): string[] {
   return answers.map((answer) => answer.trim()).filter(Boolean);
 }
@@ -161,14 +161,14 @@ export function checkClozeBlankAnswer(
 }
 
 /**
- * Resposta correta para uma lacuna: a digitação normalizada bate com ALGUMA das respostas
- * aceitas (também normalizadas). Reusa a normalização canônica do projeto.
+ * Correct answer for a blank: normalized input matches ANY accepted answer (also normalized).
+ * Reuses the project's canonical normalization.
  */
 export function checkClozeBlank(answers: readonly string[], typed: string): boolean {
   return checkClozeBlankAnswer(answers, typed).correct;
 }
 
-/** Valida o conteúdo cloze: ≥ 1 lacuna e cada lacuna com ≥ 1 resposta aceita. */
+/** Validates cloze content: ≥ 1 blank and each blank with ≥ 1 accepted answer. */
 export function validateClozeContent(content: ClozeContent): ClozeValidationError | null {
   const blanks = getClozeBlanks(content);
 
@@ -188,8 +188,8 @@ export function serializeClozeContent(content: ClozeContent): string {
 }
 
 /**
- * Desserializa o `cloze_data` persistido de forma defensiva: dados ausentes/corrompidos
- * retornam `null` (o chamador cai no bridge legado a partir de `front`/`back`).
+ * Defensively deserializes persisted `cloze_data`: missing/corrupt data returns `null` (caller
+ * falls back to legacy bridge from `front`/`back`).
  */
 export function deserializeClozeContent(raw: string | null | undefined): ClozeContent | null {
   if (!raw) {
@@ -241,8 +241,8 @@ export function deserializeClozeContent(raw: string | null | undefined): ClozeCo
 }
 
 /**
- * Reconstrói um `ClozeContent` (1 lacuna / 1 resposta) a partir de uma frente/verso legados.
- * Compatibilidade com cards cloze criados antes do suporte a múltiplas lacunas.
+ * Rebuilds `ClozeContent` (1 blank / 1 answer) from legacy front/back.
+ * Compatibility for cloze cards created before multi-blank support.
  */
 export function clozeContentFromLegacy(front: string, back: string): ClozeContent {
   const parsed = parseClozeFront(front);
@@ -271,7 +271,7 @@ export function clozeContentFromLegacy(front: string, back: string): ClozeConten
   return { segments };
 }
 
-/** Conteúdo cloze de um card: usa o estruturado (`card.cloze`) ou o bridge legado. */
+/** Cloze content for a card: uses structured (`card.cloze`) or legacy front/back bridge. */
 export function resolveClozeContent(card: {
   front: string;
   back: string;

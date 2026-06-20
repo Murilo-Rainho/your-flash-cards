@@ -78,7 +78,7 @@ function makeDueRow(overrides: Record<string, unknown> = {}) {
 
 describe('SQLiteReviewRepository', () => {
   describe('listDueReviewCards', () => {
-    it('lista vencidos ordenados com LIMIT e agrega a mídia por card', async () => {
+    it('lists due cards ordered with LIMIT and aggregates media per card', async () => {
       const db = new FakeReviewDatabase();
       db.dueRows = [
         makeDueRow(),
@@ -154,7 +154,7 @@ describe('SQLiteReviewRepository', () => {
       expect(dueCall?.params).toEqual({ $now: now.toISOString(), $limit: 20 });
     });
 
-    it('aplica os filtros opcionais de coleção e deck na query e nos params', async () => {
+    it('applies optional collection and deck filters in query and params', async () => {
       const db = new FakeReviewDatabase();
       db.dueRows = [makeDueRow()];
       const now = new Date('2026-06-05T12:00:00.000Z');
@@ -177,7 +177,7 @@ describe('SQLiteReviewRepository', () => {
       });
     });
 
-    it('retorna lista vazia sem consultar mídia quando não há vencidos', async () => {
+    it('returns empty list without querying media when there are no due cards', async () => {
       const db = new FakeReviewDatabase();
       db.dueRows = [];
 
@@ -192,7 +192,7 @@ describe('SQLiteReviewRepository', () => {
   });
 
   describe('applyReview', () => {
-    it('atualiza o review_item e grava o review_log na mesma transação', async () => {
+    it('updates review_item and writes review_log in the same transaction', async () => {
       const db = new FakeReviewDatabase();
       const reviewedAt = new Date('2026-06-05T12:00:00.000Z');
 

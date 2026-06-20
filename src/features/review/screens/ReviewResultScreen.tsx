@@ -116,8 +116,8 @@ function RatingBreakdownCard({ labels, values }: RatingBreakdownCardProps) {
 }
 
 /**
- * Resultado da sessão (§33 #12). Recebe o resumo por params de rota (offline, sem store) e
- * oferece a volta à Home. Sem dados (deep-link direto) mostra um estado vazio.
+ * Session result (§33 #12). Receives summary via route params (offline, no store) and
+ * offers return to Home. Without data (direct deep link) shows empty state.
  */
 export function ReviewResultScreen() {
   const router = useRouter();

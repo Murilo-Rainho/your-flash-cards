@@ -43,7 +43,7 @@ export type CardContentInput = {
   type: CardType;
   frontText?: string;
   backText?: string;
-  /** Conteúdo estruturado do cloze (§9). Para `type === 'cloze'`, é a fonte de frente/verso. */
+  /** Structured cloze content (§9). For `type === 'cloze'`, source of front/back. */
   cloze?: ClozeContent;
   notes?: string;
   tags?: string[];
@@ -106,8 +106,8 @@ function sideMediaField(side: MediaSide): 'frontMedia' | 'backMedia' {
 }
 
 /**
- * Validação/normalização compartilhada do conteúdo de um card (regras por tipo,
- * mídia, tags). Usada por `createCard` e `updateCard` para evitar divergência.
+ * Shared validation/normalization of card content (per-type rules, media, tags).
+ * Used by `createCard` and `updateCard` to avoid divergence.
  */
 export function sanitizeCardContent(
   input: CardContentInput,
@@ -118,8 +118,8 @@ export function sanitizeCardContent(
   const fieldErrors: FieldErrors<CardContentField> = {};
   const type = trimText(input.type);
   const isCloze = type === CARD_TYPES.CLOZE;
-  // Para cloze, a frente/verso são DERIVADAS do conteúdo estruturado (a frente com `{dica}`
-  // por lacuna; o verso com a resposta primária por lacuna). Demais tipos usam o texto cru.
+  // For cloze, front/back are DERIVED from structured content (front with `{hint}` per blank;
+  // back with primary answer per blank). Other types use raw text.
   const clozeContent = isCloze ? input.cloze : undefined;
   const frontText = clozeContent ? composeClozeFront(clozeContent) : trimText(input.frontText);
   const backText = clozeContent ? composeClozeBack(clozeContent) : trimText(input.backText);
@@ -192,8 +192,8 @@ export function sanitizeCardContent(
     return { fieldErrors };
   }
 
-  // Escuta e Pronúncia validam os dois lados em blocos próprios (transcrição / áudio modelo).
-  // Cloze valida o conteúdo estruturado no bloco dedicado abaixo (frente/verso são derivadas).
+  // Listening and Pronunciation validate both sides in dedicated blocks (transcript / model audio).
+  // Cloze validates structured content in its own block below (front/back are derived).
   const backIsUsed = type !== CARD_TYPES.LISTENING && type !== CARD_TYPES.PRONUNCIATION;
   const hasFrontContent = hasText(frontText) || hasSideMedia(media, MEDIA_SIDES.FRONT);
   const hasBackContent = hasText(backText) || hasSideMedia(media, MEDIA_SIDES.BACK);
@@ -244,7 +244,7 @@ export function sanitizeCardContent(
   }
 
   if (type === CARD_TYPES.TYPING) {
-    // A frente é sempre uma mídia (áudio/gravação/TTS ou imagem); o verso é a resposta digitada.
+    // Front is always media (audio/recording/TTS or image); back is the typed answer.
     if (hasBackMedia(media)) {
       fieldErrors.backMedia = 'Use texto no verso do card de escrita.';
     }

@@ -1,11 +1,11 @@
 import type { ReviewRating } from '@/constants/reviewRatings';
 
 /**
- * Registro imutável de uma avaliação de revisão (§19, §30.10).
+ * Immutable record of a review rating (§19, §30.10).
  *
- * Espelha a tabela `review_logs` em camelCase. Guarda o "antes/depois" do scheduling para
- * estatísticas (§22) e auditoria, sem depender do algoritmo concreto. `sessionId` é opcional
- * (a tabela permite NULL) e fica como ponto de extensão para `study_sessions`.
+ * Mirrors the `review_logs` table in camelCase. Stores scheduling before/after for statistics
+ * (§22) and audit, without depending on the concrete algorithm. `sessionId` is optional (the
+ * table allows NULL) and is an extension point for `study_sessions`.
  */
 export type ReviewLog = {
   id: string;

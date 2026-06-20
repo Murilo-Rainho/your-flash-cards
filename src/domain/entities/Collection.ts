@@ -1,9 +1,9 @@
 /**
- * Collection (§30.2) — representa um **par de idiomas** (base → alvo), não só o alvo.
+ * Collection (§30.2) — represents a **language pair** (base → target), not just the target.
  *
- * Entidade pura (TS puro, sem React/RN/Expo). Os agregados derivados exibidos na Home
- * (totalCards, dueCards, % dominados) **não** moram aqui: vivem em read-models como
- * `CollectionSummary` (ver `src/features/home/types.ts`). Campos conforme `domain-model.md`.
+ * Pure entity (pure TS, no React/RN/Expo). Derived aggregates shown on Home (totalCards,
+ * dueCards, % mastered) do **not** live here: they live in read-models like
+ * `CollectionSummary` (see `src/features/home/types.ts`). Fields per `domain-model.md`.
  */
 export type Collection = {
   id: string;

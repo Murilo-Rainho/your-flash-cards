@@ -1,16 +1,16 @@
 /**
- * Registro DECLARATIVO dos steps do tour base. Contém apenas dados estruturais e ids
- * estáveis — título/descrição são resolvidos por id no catálogo de tradução (i18n),
- * mantendo o domínio livre de texto e de dependências de UI.
+ * DECLARATIVE registry of base tour steps. Contains only structural data and stable
+ * ids — title/description are resolved by id in the translation catalog (i18n),
+ * keeping the domain free of copy and UI dependencies.
  *
- * Para adicionar um step no futuro: inclua um novo item com `id` único e `order`
- * sequencial. O `tourStateSerialization` reconcilia estados antigos automaticamente.
+ * To add a step later: include a new item with a unique `id` and sequential `order`.
+ * `tourStateSerialization` reconciles old states automatically.
  */
 
-/** Step puramente educacional (explica um conceito) ou de interface (aponta uma área). */
+/** Purely educational step (explains a concept) or interface step (points to an area). */
 export type TourStepKind = 'educational' | 'interface';
 
-/** Ação secundária opcional disponível em um step. */
+/** Optional secondary action available on a step. */
 export type TourStepAction = 'open-why-flashcards';
 
 export type TourStepId =
@@ -25,14 +25,14 @@ export type TourStepId =
 
 export type TourStep = {
   id: TourStepId;
-  /** Posição 1-based na sequência. */
+  /** 1-based position in the sequence. */
   order: number;
   kind: TourStepKind;
-  /** Ação secundária opcional exibida no step. */
+  /** Optional secondary action shown on the step. */
   action?: TourStepAction;
 };
 
-/** Steps do tour base, em ordem. Fonte única da sequência. */
+/** Base tour steps, in order. Single source for the sequence. */
 export const BASE_TOUR_STEPS: readonly TourStep[] = [
   { id: 'welcome', order: 1, kind: 'educational' },
   { id: 'why-flashcards', order: 2, kind: 'educational', action: 'open-why-flashcards' },
@@ -44,7 +44,7 @@ export const BASE_TOUR_STEPS: readonly TourStep[] = [
   { id: 'finish', order: 8, kind: 'educational', action: 'open-why-flashcards' },
 ] as const;
 
-/** Conjunto de ids válidos do registro (para reconciliação/validação). */
+/** Set of valid registry ids (for reconciliation/validation). */
 export const BASE_TOUR_STEP_IDS: readonly string[] = BASE_TOUR_STEPS.map((step) => step.id);
 
 export function getFirstTourStep(steps: readonly TourStep[] = BASE_TOUR_STEPS): TourStep | null {

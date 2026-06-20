@@ -1,11 +1,11 @@
 import type { SqliteMigration } from './types';
 
 /**
- * Suporte a múltiplas lacunas e múltiplas respostas por lacuna no cloze (§9).
+ * Support for multiple blanks and multiple answers per blank in cloze (§9).
  *
- * Adiciona a coluna `cloze_data` (JSON do `ClozeContent`) como fonte da verdade do conteúdo
- * cloze. Aditiva e anulável: cards cloze antigos ficam com `cloze_data = NULL` e são lidos
- * derivando 1 lacuna/1 resposta de `front`/`back` (bridge legado) — sem backfill.
+ * Adds `cloze_data` column (JSON of `ClozeContent`) as source of truth for cloze
+ * content. Additive and nullable: legacy cloze cards keep `cloze_data = NULL` and are read
+ * by deriving 1 blank/1 answer from `front`/`back` (legacy bridge) — no backfill.
  */
 export const clozeMultiMigration: SqliteMigration = {
   version: '003_cloze_multi',

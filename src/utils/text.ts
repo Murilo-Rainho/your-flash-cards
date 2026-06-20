@@ -1,4 +1,4 @@
-/** Divide uma string de tags separadas por vírgula em uma lista limpa (sem vazios). */
+/** Splits a comma-separated tag string into a clean list (no empty entries). */
 export function splitTags(value: string): string[] {
   return value
     .split(',')

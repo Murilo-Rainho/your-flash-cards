@@ -118,7 +118,7 @@ function createRepository(db: FakeDevDatabase): SQLiteDevToolsRepository {
 }
 
 describe('SQLiteDevToolsRepository', () => {
-  it('lista tabelas do app sem expor tabelas internas sqlite_%', async () => {
+  it('lists app tables without exposing internal sqlite_% tables', async () => {
     const db = new FakeDevDatabase();
 
     await expect(createRepository(db).listTables()).resolves.toEqual([
@@ -130,7 +130,7 @@ describe('SQLiteDevToolsRepository', () => {
     expect(db.allCalls[0]?.source).toContain("name NOT LIKE 'sqlite_%'");
   });
 
-  it('lista rows apenas de tabelas conhecidas', async () => {
+  it('lists rows only from known tables', async () => {
     const db = new FakeDevDatabase();
     const repository = createRepository(db);
     await repository.listTables();
@@ -147,7 +147,7 @@ describe('SQLiteDevToolsRepository', () => {
     ).rejects.toThrow('Unknown table: unknown_table');
   });
 
-  it('agrupa variants por card ao listar estado de revisão', async () => {
+  it('groups variants by card when listing review state', async () => {
     const db = new FakeDevDatabase();
 
     await expect(createRepository(db).listCardsWithReviewState()).resolves.toEqual([
@@ -173,7 +173,7 @@ describe('SQLiteDevToolsRepository', () => {
     ]);
   });
 
-  it('reseta review_items e apaga review_logs das variants do card em transação', async () => {
+  it('resets review_items and deletes review_logs for card variants in a transaction', async () => {
     const db = new FakeDevDatabase();
     const repository = createRepository(db);
     const now = new Date('2026-06-06T12:00:00.000Z');
@@ -198,7 +198,7 @@ describe('SQLiteDevToolsRepository', () => {
     );
   });
 
-  it('reseta todas as variants ativas ao resetar todos os cards', async () => {
+  it('resets all active variants when resetting all cards', async () => {
     const db = new FakeDevDatabase();
 
     await expect(

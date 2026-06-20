@@ -11,13 +11,13 @@ import { TourModal } from '@/features/tour/components/TourModal';
 type TourInvitationProps = {
   visible: boolean;
   onStart: () => void;
-  /** "Agora não" — não exibir automaticamente de novo. */
+  /** "Not now" — do not show automatically again. */
   onSkip: () => void;
-  /** Toque no scrim — dispensa só nesta sessão. */
+  /** Scrim tap — dismiss for this session only. */
   onScrimPress: () => void;
 };
 
-/** Convite inicial do tour (exibido só quando `not_started`). */
+/** Initial tour invitation (shown only when `not_started`). */
 export function TourInvitation({ visible, onStart, onSkip, onScrimPress }: TourInvitationProps) {
   const strings = useStrings();
   const { colors } = useTheme();

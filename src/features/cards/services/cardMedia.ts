@@ -3,12 +3,12 @@ import { MEDIA_SIDES, MEDIA_TYPES } from '@/domain/entities/Media';
 
 import type { CreateCardMediaInput } from './createCard';
 
-/** Agrupa um tipo de mídia em "image" ou "audio" para substituição por lado. */
+/** Groups a media type into "image" or "audio" for per-side replacement. */
 export function mediaGroup(type: CreateCardMediaInput['type']): 'image' | 'audio' {
   return type === MEDIA_TYPES.IMAGE ? 'image' : 'audio';
 }
 
-/** Rótulo amigável de uma mídia para exibição na UI. */
+/** Friendly label for a media item shown in the UI. */
 export function getMediaLabel(item: CreateCardMediaInput): string {
   if (item.type === MEDIA_TYPES.TTS) {
     return `TTS ${item.language}`;
@@ -17,7 +17,7 @@ export function getMediaLabel(item: CreateCardMediaInput): string {
   return item.fileName ?? item.uri.split('/').pop() ?? item.type;
 }
 
-/** Remove mídias incompatíveis com o tipo de card selecionado. */
+/** Removes media incompatible with the selected card type. */
 export function sanitizeMediaForType(
   type: CardType,
   media: readonly CreateCardMediaInput[],
@@ -27,26 +27,26 @@ export function sanitizeMediaForType(
   }
 
   if (type === CARD_TYPES.VOCABULARY) {
-    // Frente aceita imagem ou áudio; verso é apenas texto.
+    // Front accepts image or audio; back is text only.
     return media.filter((item) => item.side === MEDIA_SIDES.FRONT);
   }
 
   if (type === CARD_TYPES.LISTENING) {
-    // Áudio/TTS apenas na frente; o verso usa apenas texto (transcrição).
+    // Audio/TTS on front only; back uses text only (transcript).
     return media.filter(
       (item) => item.side === MEDIA_SIDES.FRONT && item.type !== MEDIA_TYPES.IMAGE,
     );
   }
 
   if (type === CARD_TYPES.PRONUNCIATION) {
-    // Inverso da Escuta: o texto fica na frente; o áudio/TTS modelo fica no verso.
+    // Inverse of Listening: text on front; model audio/TTS on back.
     return media.filter(
       (item) => item.side === MEDIA_SIDES.BACK && item.type !== MEDIA_TYPES.IMAGE,
     );
   }
 
   if (type === CARD_TYPES.TYPING) {
-    // Frente aceita áudio/gravação/TTS ou imagem; o verso é apenas a resposta digitada.
+    // Front accepts audio/recording/TTS or image; back is the typed answer only.
     return media.filter((item) => item.side === MEDIA_SIDES.FRONT);
   }
 

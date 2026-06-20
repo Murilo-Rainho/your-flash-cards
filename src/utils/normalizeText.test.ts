@@ -3,30 +3,30 @@ import { describe, expect, it } from '@jest/globals';
 import { normalizeTagKey, normalizeTagName } from './normalizeText';
 
 describe('normalizeTagName', () => {
-  it('remove espaços nas pontas e colapsa espaços internos', () => {
+  it('trims edges and collapses internal whitespace', () => {
     expect(normalizeTagName('  phrasal   verbs  ')).toBe('phrasal verbs');
   });
 
-  it('preserva a grafia (caixa) do texto', () => {
+  it('preserves text casing', () => {
     expect(normalizeTagName('Travel')).toBe('Travel');
   });
 
-  it('retorna string vazia para entrada só com espaços', () => {
+  it('returns empty string for whitespace-only input', () => {
     expect(normalizeTagName('   ')).toBe('');
   });
 });
 
 describe('normalizeTagKey', () => {
-  it('coloca em minúsculas e remove acentos', () => {
+  it('lowercases and strips accents', () => {
     expect(normalizeTagKey('Ação')).toBe('acao');
   });
 
-  it('gera a mesma chave para variações de caixa e espaço', () => {
+  it('generates the same key for case and spacing variations', () => {
     expect(normalizeTagKey('  Verb ')).toBe('verb');
     expect(normalizeTagKey('verb')).toBe('verb');
   });
 
-  it('mantém singular e plural como chaves distintas', () => {
+  it('keeps singular and plural as distinct keys', () => {
     expect(normalizeTagKey('verb')).not.toBe(normalizeTagKey('verbs'));
   });
 });

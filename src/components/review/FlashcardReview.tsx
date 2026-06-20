@@ -42,11 +42,11 @@ function toOptionalText(value: string | undefined): string | undefined {
 }
 
 /**
- * Card de revisão com animação de flip (§35), renderizado como modal ou container.
+ * Review card with flip animation (§35), rendered as modal or container.
  *
- * QUESTION (frente + afordância de resposta) → vira → ANSWER (verso + avaliação).
- * É 100% agnóstico: a diferença entre "Testar" (criação) e revisão real está apenas no
- * `onRate` passado pela feature.
+ * QUESTION (front + answer affordance) → flip → ANSWER (back + rating).
+ * Fully agnostic: the difference between "Test" (creation) and real review is only in
+ * the `onRate` passed by the feature.
  */
 export function FlashcardReview({
   visible,
@@ -65,7 +65,7 @@ export function FlashcardReview({
   const { colors, shadows } = useTheme();
   const [typed, setTyped] = useState('');
   const [checked, setChecked] = useState<CheckedAnswer | null>(null);
-  // Cloze (§9): uma entrada e um resultado por lacuna (null = lacuna não respondida).
+  // Cloze (§9): one input and one result per blank (null = blank not answered).
   const [clozeTyped, setClozeTyped] = useState<string[]>([]);
   const [clozeChecked, setClozeChecked] = useState<Array<CheckedAnswer | null> | null>(null);
   const [clozeSelectedAnswerIndexes, setClozeSelectedAnswerIndexes] = useState<number[]>([]);
@@ -88,7 +88,7 @@ export function FlashcardReview({
     onFlipped: onFlip,
   });
 
-  // Animação de entrada do card (§35): cada novo card desliza + aparece. Entre cards apenas.
+  // Card enter animation (§35): each new card slides in + fades. Between cards only.
   const enter = useSharedValue(1);
   const prevCardKeyRef = useRef(cardKey);
   const cardAnimatedStyle = useAnimatedStyle(() => ({
@@ -96,8 +96,8 @@ export function FlashcardReview({
     transform: [{ translateX: interpolate(enter.value, [0, 1], [CARD_ENTER_OFFSET, 0]) }],
   }));
 
-  // Ao abrir (ou trocar de card), sempre começa pela frente, com a resposta zerada;
-  // e, quando o card muda dentro da sessão, dispara a animação de entrada.
+  // On open (or card change), always start on the front with answer state cleared;
+  // when the card changes within the session, trigger the enter animation.
   useEffect(() => {
     if (!visible) {
       return;
@@ -139,10 +139,10 @@ export function FlashcardReview({
     if (answer.kind === 'typing') {
       setChecked(answer.checkAnswer(typed));
     } else if (answer.kind === 'listening') {
-      // Escuta: comparação só faz sentido quando o usuário digitou algo.
+      // Listening: comparison only applies when the user typed something.
       setChecked(typed.trim() ? answer.checkAnswer(typed) : null);
     } else if (answer.kind === 'cloze') {
-      // Cloze: checa cada lacuna que o usuário preencheu (vazia = não respondida).
+      // Cloze: check each blank the user filled (empty = not answered).
       const checkedAnswers = answer.blanks.map((blank, index) => {
         const value = clozeTyped[index] ?? '';
         return value.trim() ? blank.checkAnswer(value) : null;
@@ -163,12 +163,12 @@ export function FlashcardReview({
     });
   }, []);
 
-  // Escuta digitada e Escrita verificam; nos demais casos é só virar.
+  // Typed listening and typing verify; all other kinds just flip.
   const flipLabel =
     answer.kind === 'typing' || (answer.kind === 'listening' && hasTyped)
       ? strings.flipVerify
       : strings.flipCard;
-  // Escuta e Pronúncia: ao virar, o verso reouve a própria gravação para comparar com o card.
+  // Listening and pronunciation: on flip, the back replays the user's recording to compare with the card.
   const showRecordedOnBack =
     (answer.kind === 'listening' || answer.kind === 'recording') &&
     !checked &&
@@ -230,7 +230,7 @@ export function FlashcardReview({
         </View>
 
         <View style={styles.flipArea}>
-          {/* FRENTE / QUESTION */}
+          {/* FRONT / QUESTION */}
           <Animated.View
             style={[styles.face, frontAnimatedStyle]}
             pointerEvents={isFlipped ? 'none' : 'auto'}
@@ -286,7 +286,7 @@ export function FlashcardReview({
             </View>
           </Animated.View>
 
-          {/* VERSO / ANSWER */}
+          {/* BACK / ANSWER */}
           <Animated.View
             style={[styles.face, backAnimatedStyle]}
             pointerEvents={isFlipped ? 'auto' : 'none'}
@@ -376,7 +376,7 @@ export function FlashcardReview({
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.centered}
         >
-          {/* Pressable interno "vazio" evita que toques no card fechem o teclado/repassem. */}
+          {/* Inner no-op Pressable prevents card taps from dismissing the keyboard/bubbling. */}
           {reviewCard}
         </KeyboardAvoidingView>
       </Pressable>

@@ -35,7 +35,7 @@ class FakeTagRepository implements TagRepository {
 }
 
 describe('deleteTag', () => {
-  it('remove a tag pelo id', async () => {
+  it('removes tag by id', async () => {
     const repository = new FakeTagRepository();
     repository.tags.push({
       id: 'tag-1',
@@ -51,7 +51,7 @@ describe('deleteTag', () => {
     expect(repository.tags).toHaveLength(0);
   });
 
-  it('ignora id vazio', async () => {
+  it('ignores empty id', async () => {
     const repository = new FakeTagRepository();
     repository.tags.push({
       id: 'tag-1',

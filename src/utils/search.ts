@@ -1,4 +1,4 @@
-/** Normaliza consultas locais para correspondência parcial amigável. */
+/** Normalizes local queries for friendly partial matching. */
 export function normalizeSearchText(value: string): string {
   return value
     .trim()

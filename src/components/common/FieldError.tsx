@@ -6,7 +6,7 @@ type FieldErrorProps = {
   message?: string;
 };
 
-/** Mensagem de erro de campo de formulário. Não renderiza nada quando vazio. */
+/** Form field error message. Renders nothing when empty. */
 export function FieldError({ message }: FieldErrorProps) {
   const { colors } = useTheme();
 

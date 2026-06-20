@@ -15,7 +15,7 @@ type StateCardProps = {
   action?: StateCardAction;
 };
 
-/** Card de estado (vazio/erro) com ação opcional (ex.: "Tentar novamente"/"Criar coleção"). */
+/** State card (empty/error) with optional action (e.g. "Try again"/"Create collection"). */
 export function StateCard({ title, description, action }: StateCardProps) {
   const { colors, shadows } = useTheme();
 

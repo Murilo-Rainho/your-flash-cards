@@ -420,7 +420,7 @@ WHERE id = $id
         },
       );
 
-      // Mídia: substitui o conjunto por completo (o serviço já copiou/removeu arquivos).
+      // Media: replace the full set (the service already copied/removed files).
       await db.runAsync(`DELETE FROM media WHERE card_id = $cardId`, {
         $cardId: aggregate.card.id,
       });
@@ -463,7 +463,7 @@ INSERT INTO media (
         );
       }
 
-      // Tags: recria os vínculos do card (tags órfãs permanecem no catálogo).
+      // Tags: recreate card links (orphan tags remain in the catalog).
       await db.runAsync(`DELETE FROM card_tags WHERE card_id = $cardId`, {
         $cardId: aggregate.card.id,
       });

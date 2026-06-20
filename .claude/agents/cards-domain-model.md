@@ -11,7 +11,7 @@ description: >-
 
 ## Propósito
 
-Manter o modelo de domínio fiel ao `CONTRATO_README.md` §5, §17, §19, §20, §30, com
+Manter o modelo de domínio fiel ao `local_files/CONTRATO_README.md` §5, §17, §19, §20, §30, com
 entidades em TypeScript puro e invariantes garantidas. Detalhe completo em
 [domain-model.md](../context/domain-model.md).
 

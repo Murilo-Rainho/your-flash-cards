@@ -5,13 +5,13 @@
 
 ## A regra
 
-[`CONTRATO_README.md`](../../CONTRATO_README.md) é a **fonte única da verdade** do produto
+[`CONTRATO_README.md`](../../local_files/CONTRATO_README.md) é a **fonte única da verdade** do produto
 e da arquitetura.
 
 **Antes de propor ou aplicar qualquer mudança arquitetural, criar uma feature, adicionar
 dependência, modelar dados, definir interfaces ou alterar fluxos, você DEVE:**
 
-1. **Ler/consultar o `CONTRATO_README.md`** e identificar as seções relevantes
+1. **Ler/consultar o `local_files/CONTRATO_README.md`** e identificar as seções relevantes
    (cite o número da seção, ex.: "conforme §18").
 2. **Conferir os arquivos de contexto** em `.claude/context/` (arquitetura, modelo de
    domínio, stack, glossário).

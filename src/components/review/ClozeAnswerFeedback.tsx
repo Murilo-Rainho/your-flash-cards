@@ -16,11 +16,11 @@ export type ClozeBlankResult = {
 
 type ClozeAnswerFeedbackProps = {
   strings: StringCatalog['review'];
-  /** Resultado por lacuna respondida (lacunas não preenchidas não entram aqui). */
+  /** Result per answered blank (unfilled blanks are not included). */
   blanks: ClozeBlankResult[];
 };
 
-/** Feedback por lacuna do cloze no estado ANSWER: status + o que foi digitado + esperado. */
+/** Per-blank cloze feedback in ANSWER state: status + typed + expected. */
 export function ClozeAnswerFeedback({ strings, blanks }: ClozeAnswerFeedbackProps) {
   const { colors } = useTheme();
 

@@ -12,7 +12,7 @@ type UseCardMediaParams = {
   selectedType: CardType;
   onError: (message: string | null) => void;
   onChange: () => void;
-  /** Mídia já existente (edição). Usada apenas como estado inicial. */
+  /** Existing media (edit). Used only as initial state. */
   initialMedia?: CreateCardMediaInput[];
 };
 
@@ -26,7 +26,7 @@ export type CardMedia = {
   pickAudio: (side: MediaSide) => Promise<void>;
 };
 
-/** Estado e seleção de mídia (imagem/áudio) do card em criação. */
+/** Media state and selection (image/audio) while creating a card. */
 export function useCardMedia({
   selectedType,
   onError,

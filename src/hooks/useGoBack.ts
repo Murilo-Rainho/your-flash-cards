@@ -4,8 +4,8 @@ import { useRouter } from 'expo-router';
 import { ROUTES } from '@/constants/routes';
 
 /**
- * Navega para a tela anterior; quando não há histórico, volta para a Home.
- * Centraliza o padrão repetido nas telas de formulário.
+ * Navigates to the previous screen; when there is no history, goes to Home.
+ * Centralizes the repeated pattern on form screens.
  */
 export function useGoBack(): () => void {
   const router = useRouter();

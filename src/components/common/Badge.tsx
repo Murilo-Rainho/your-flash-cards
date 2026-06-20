@@ -6,14 +6,14 @@ import { useTheme } from '@/theme/useTheme';
 
 type BadgeProps = {
   label: string;
-  /** Token de cor que define texto + fundo tonal do pill. */
+  /** Color token defining pill text + tonal background. */
   tone?: ColorToken;
 };
 
 /**
- * Pill compacto para rótulos curtos (par de idiomas, contadores). Primitivo de UI burro:
- * fundo tonal (`withAlpha` do token) e texto no mesmo token — legível nas paletas claras
- * e escuras.
+ * Compact pill for short labels (language pair, counters). Dumb UI primitive:
+ * tonal background (`withAlpha` of token) and text in the same token — readable on light palettes
+ * and dark palettes.
  */
 export function Badge({ label, tone = 'textSecondary' }: BadgeProps) {
   const { colors } = useTheme();

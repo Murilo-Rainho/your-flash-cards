@@ -4,18 +4,18 @@ import type { ColorToken } from '@/theme/colors';
 import { useTheme } from '@/theme/useTheme';
 
 type ProgressBarProps = {
-  /** Progresso de 0 a 100 (clamp interno). */
+  /** Progress from 0 to 100 (clamped internally). */
   value: number;
-  /** Token de cor do preenchimento. */
+  /** Fill color token. */
   tone?: ColorToken;
-  /** Token de cor do trilho. */
+  /** Track color token. */
   trackTone?: ColorToken;
   accessibilityLabel?: string;
 };
 
 /**
- * Barra de progresso temática (0–100). Primitivo de UI burro: recebe um token de cor
- * e resolve a paleta ativa via `useTheme` — sem cores hardcoded no consumidor.
+ * Themed progress bar (0–100). Dumb UI primitive: receives a color token
+ * and resolves the active palette via `useTheme` — no hard-coded colors in consumers.
  */
 export function ProgressBar({
   value,

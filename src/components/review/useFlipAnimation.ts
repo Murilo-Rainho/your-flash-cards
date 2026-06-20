@@ -13,19 +13,19 @@ const FLIP_DURATION_MS = 420;
 const PERSPECTIVE = 1000;
 
 type UseFlipAnimationParams = {
-  /** Força o swap instantâneo (acessibilidade/testes). Se omitido, lê o sistema. */
+  /** Forces instant swap (accessibility/tests). If omitted, reads from the system. */
   reduceMotion?: boolean;
-  /** Disparado ao chegar no verso (estado ANSWER). */
+  /** Fired when the back face is reached (ANSWER state). */
   onFlipped?: () => void;
 };
 
 /**
- * Animação de flip 3D (reanimated v4).
+ * 3D flip animation (reanimated v4).
  *
- * Usa duas faces absolutas que giram em `rotateY` com `perspective`. O verso é
- * contra-rotacionado (180°→360°) para o texto não ficar espelhado, e a visibilidade
- * é trocada por opacidade no ponto de 90° — abordagem robusta no Android do Expo Go
- * (não depende de `backfaceVisibility`). Respeita "reduzir movimento".
+ * Uses two absolutely positioned faces rotating on `rotateY` with `perspective`. The back is
+ * counter-rotated (180°→360°) so text is not mirrored, and visibility switches via opacity at
+ * 90° — a robust approach on Android Expo Go (does not rely on `backfaceVisibility`). Respects
+ * reduce motion.
  */
 export function useFlipAnimation({ reduceMotion, onFlipped }: UseFlipAnimationParams = {}) {
   const progress = useSharedValue(0);
@@ -75,8 +75,8 @@ export function useFlipAnimation({ reduceMotion, onFlipped }: UseFlipAnimationPa
     );
   }, [handleArrived, prefersReducedMotion, progress]);
 
-  // Reset instantâneo (sem flip-back animado): ao trocar de card, o próximo já deve
-  // aparecer na frente — a transição visual entre cards fica por conta de outra animação.
+  // Instant reset (no animated flip-back): when switching cards, the next one should
+  // already show the front — visual transition between cards is handled elsewhere.
   const reset = useCallback(() => {
     progress.value = 0;
     setIsFlipped(false);

@@ -15,7 +15,7 @@ type OptionalCardFieldsProps = {
   onChangeNotes: (value: string) => void;
 };
 
-/** Campos opcionais do card: tags em multiselect e observações no fim. */
+/** Optional card fields: multiselect tags and notes at the end. */
 export function OptionalCardFields({
   collectionId,
   tags,

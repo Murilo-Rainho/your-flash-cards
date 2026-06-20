@@ -8,16 +8,16 @@ import type { ReviewAnswerBehavior } from './types';
 type AnswerInputProps = {
   answer: ReviewAnswerBehavior;
   strings: StringCatalog['review']['answer'];
-  /** Valor digitado único (typing/listening), controlado pelo FlashcardReview. */
+  /** Single typed value (typing/listening), controlled by FlashcardReview. */
   typed: string;
   onChangeTyped: (value: string) => void;
-  /** Valores digitados por lacuna (cloze), alinhados a `answer.blanks`. */
+  /** Per-blank typed values (cloze), aligned with `answer.blanks`. */
   clozeTyped: string[];
   onChangeClozeAnswer: (index: number, value: string) => void;
   disabled?: boolean;
 };
 
-/** Afordância de resposta no estado QUESTION, conforme o tipo de card. */
+/** Answer affordance in QUESTION state, by card type. */
 export function AnswerInput({
   answer,
   strings,
@@ -34,7 +34,7 @@ export function AnswerInput({
   }
 
   if (answer.kind === 'cloze') {
-    // Uma entrada por lacuna; com 1 lacuna fica igual ao comportamento anterior.
+    // One input per blank; with a single blank this matches the previous behavior.
     return (
       <View className="gap-3">
         {answer.blanks.map((blank, index) => (
@@ -151,8 +151,8 @@ export function AnswerInput({
     );
   }
 
-  // answer.kind === 'recording' (pronúncia §12): a frente grava a própria voz (e regrava) e,
-  // se já houver gravação, permite reouvi-la. O áudio modelo só aparece no verso, ao virar.
+  // answer.kind === 'recording' (pronunciation §12): front records own voice (and re-records);
+  // if a recording exists, it can be replayed. Model audio appears on the back after flip.
   return (
     <View className="gap-2">
       <RecordingButton

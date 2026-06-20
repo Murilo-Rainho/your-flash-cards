@@ -16,14 +16,14 @@ type ClozeSentenceFieldProps = {
   error?: string;
   disabled?: boolean;
   onChangeText: (value: string) => void;
-  /** Transforma o trecho selecionado [start, end) da frase em lacuna. */
+  /** Turns selected sentence span [start, end) into a blank. */
   onMarkBlank: (start: number, end: number) => void;
 };
 
 /**
- * Campo da frase do cloze: o usuário escreve a frase, seleciona um trecho e toca em
- * "Tornar lacuna" para envolvê-lo em `{}` (a dica). Suporta múltiplas lacunas. UI burra:
- * a seleção é local; a transformação do texto é responsabilidade do chamador (domínio).
+ * Cloze sentence field: the user writes the sentence, selects a span and taps
+ * "Make blank" to wrap it in `{}` (the hint). Supports multiple blanks. Dumb UI:
+ * selection is local; text transformation is the caller's responsibility (domain).
  */
 export function ClozeSentenceField({
   label,

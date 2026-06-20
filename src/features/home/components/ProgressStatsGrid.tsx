@@ -11,7 +11,7 @@ type ProgressStatsGridProps = {
   masteredCards: number;
 };
 
-/** Grade 2×2 com as métricas rápidas do dia. */
+/** 2×2 grid with quick daily metrics. */
 export function ProgressStatsGrid({
   reviewedToday,
   retentionPercentage,

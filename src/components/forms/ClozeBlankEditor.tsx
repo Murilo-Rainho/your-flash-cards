@@ -21,8 +21,8 @@ type ClozeBlankEditorProps = {
 };
 
 /**
- * Editor de uma lacuna: a dica (texto entre chaves) e a lista de respostas aceitas (≥ 1,
- * a primeira é a principal). UI burra — todas as strings e callbacks vêm por props.
+ * Blank editor: hint (text in braces) and list of accepted answers (≥ 1,
+ * the first is primary). Dumb UI — all strings and callbacks come via props.
  */
 export function ClozeBlankEditor({
   index,

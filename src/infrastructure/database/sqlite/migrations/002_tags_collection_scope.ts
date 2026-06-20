@@ -17,11 +17,11 @@ type CardCollectionLinkRow = {
 };
 
 /**
- * Copia tags globais para `tags_new` com escopo de collection e reassocia `card_tags`.
+ * Copies global tags to `tags_new` with collection scope and reassociates `card_tags`.
  *
- * - Tags órfãs (sem cards) são descartadas.
- * - Tags em uma collection mantêm o `id` original.
- * - Tags em N collections duplicam o registro (1 por collection) e atualizam vínculos.
+ * - Orphan tags (no cards) are discarded.
+ * - Tags in one collection keep the original `id`.
+ * - Tags in N collections duplicate the record (1 per collection) and update links.
  */
 export async function migrateTagsToCollectionScope(db: SqliteDatabaseConnection): Promise<void> {
   const tags = await db.getAllAsync<OldTagRow>(`

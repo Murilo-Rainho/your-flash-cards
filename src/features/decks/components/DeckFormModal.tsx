@@ -25,7 +25,7 @@ export type DeckFormErrors = {
 type DeckFormModalProps = {
   visible: boolean;
   mode: 'create' | 'edit';
-  /** Coleção (fixa) à qual o deck pertence. Mostrada apenas para leitura. */
+  /** Collection (fixed) the deck belongs to. Read-only display. */
   collectionName: string;
   initialValues?: DeckFormValues;
   isSaving: boolean;
@@ -42,8 +42,8 @@ const emptyValues: DeckFormValues = {
 };
 
 /**
- * Modal de criação/edição de deck reutilizável (coleção fixa). Centraliza o
- * formulário antes disperso na criação inline do fluxo de novo card.
+ * Reusable deck create/edit modal (fixed collection). Centralizes the
+ * form previously scattered in inline creation of the new-card flow.
  */
 export function DeckFormModal({
   visible,

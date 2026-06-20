@@ -9,7 +9,7 @@ type HomeHeaderProps = {
   dueCards: number;
 };
 
-/** Cabeçalho de boas-vindas: saudação + quantos cards aguardam revisão hoje. */
+/** Welcome header: greeting + how many cards await review today. */
 export function HomeHeader({ greeting, dueCards }: HomeHeaderProps) {
   const strings = useStrings();
   const { colors } = useTheme();

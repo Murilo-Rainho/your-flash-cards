@@ -67,8 +67,8 @@ function ReviewedCardRow({ item }: { item: DailyReviewedCard }) {
 }
 
 /**
- * Histórico de revisões do dia (§33 #12). Acessível pelo card "Tudo revisado por hoje" da Home;
- * lista cada card estudado hoje com a nota final e indicação de acerto/erro.
+ * Day review history (§33 #12). Reachable from Home "All reviewed for today" card;
+ * lists each card studied today with final rating and correct/incorrect indication.
  */
 export function TodayReviewsScreen() {
   const router = useRouter();

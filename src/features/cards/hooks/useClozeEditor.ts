@@ -13,10 +13,10 @@ import {
 export type { ClozeEditorState } from '../services/clozeEditorOps';
 
 export type ClozeEditor = ClozeEditorState & {
-  /** Conteúdo estruturado derivado (enviado ao serviço e ao preview de revisão). */
+  /** Derived structured content (sent to service and review preview). */
   content: ClozeContent;
   setSentence: (sentence: string) => void;
-  /** Envolve o trecho [start, end) da frase em `{}`, criando uma lacuna com aquele texto como dica. */
+  /** Wraps sentence span [start, end) in `{}`, creating a blank with that text as hint. */
   markBlank: (start: number, end: number) => void;
   changeBlankHint: (blankIndex: number, hint: string) => void;
   removeBlank: (blankIndex: number) => void;

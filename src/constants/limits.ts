@@ -1,11 +1,11 @@
 /**
- * Limites e valores padrão do app.
+ * App limits and default values.
  *
- * - `FREE_CARD_LIMIT: null` → criação local de cards é ilimitada no Free (§4.1).
- * - `DEFAULT_REVIEW_SESSION_LIMIT` → teto de cards por sessão de revisão; a query
- *   sempre usa `... ORDER BY next_review_at ASC LIMIT :sessionLimit` (§20).
- * - `DEFAULT_CARD_LIST_PAGE_SIZE` → tamanho da página local da listagem de cards (§29.1).
- * - `MAX_TAGS` / `MAX_TAG_LENGTH` → limites de tags por card e de tamanho de cada tag (§6).
+ * - `FREE_CARD_LIMIT: null` → local card creation is unlimited on Free (§4.1).
+ * - `DEFAULT_REVIEW_SESSION_LIMIT` → cap on cards per review session; the query
+ *   always uses `... ORDER BY next_review_at ASC LIMIT :sessionLimit` (§20).
+ * - `DEFAULT_CARD_LIST_PAGE_SIZE` → local page size for the card list (§29.1).
+ * - `MAX_TAGS` / `MAX_TAG_LENGTH` → per-card tag count and per-tag length limits (§6).
  */
 export const LIMITS = {
   FREE_CARD_LIMIT: null,

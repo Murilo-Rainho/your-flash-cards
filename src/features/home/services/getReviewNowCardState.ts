@@ -7,7 +7,7 @@ type ReviewNowCardAction = 'create-collection' | 'create-deck' | 'create-card' |
 
 export type ReviewNowCardState = {
   action: ReviewNowCardAction;
-  /** Ícone semântico do CTA (resolvido via `@/theme/icons`, não texto traduzível). */
+  /** Semantic CTA icon (resolved via `@/theme/icons`, not translatable text). */
   icon: IconName;
   title: string;
   subtitle: string;

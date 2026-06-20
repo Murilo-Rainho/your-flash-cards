@@ -26,7 +26,7 @@ type SelectFieldProps = {
   onChange: (value: string) => void;
 };
 
-/** Campo de seleção genérico (abre lista em modal). */
+/** Generic select field (opens list in modal). */
 export function SelectField({
   label,
   value,

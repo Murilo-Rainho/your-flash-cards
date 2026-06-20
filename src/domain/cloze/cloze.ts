@@ -7,8 +7,8 @@ export type ParsedClozeFront = {
 const CLOZE_GAP_PATTERN = /\{([^{}]*)\}/g;
 
 /**
- * Lê uma frase legada de cloze (1 lacuna no formato `{texto}`) e separa os trechos.
- * Mantido como base do "bridge" de cards antigos — ver `clozeContentFromLegacy`.
+ * Reads a legacy cloze sentence (1 blank in `{text}` format) and splits the parts.
+ * Kept as the base of the legacy card bridge — see `clozeContentFromLegacy`.
  */
 export function parseClozeFront(front: string): ParsedClozeFront | null {
   const matches = [...front.matchAll(CLOZE_GAP_PATTERN)];
@@ -31,8 +31,8 @@ export function parseClozeFront(front: string): ParsedClozeFront | null {
 }
 
 /**
- * Extrai a resposta de uma frase legada comparando frente (`{dica}`) e verso completo.
- * Usado apenas para reconstruir o `ClozeContent` de cards antigos.
+ * Extracts the answer from a legacy sentence by comparing front (`{hint}`) and full back.
+ * Used only to rebuild `ClozeContent` from legacy cards.
  */
 export function extractExpectedClozeAnswer(front: string, back: string): string | null {
   const parsed = parseClozeFront(front);
@@ -57,9 +57,9 @@ export function extractExpectedClozeAnswer(front: string, back: string): string 
 }
 
 /**
- * Normalização canônica de respostas digitadas (cloze/escrita/escuta): remove espaços nas
- * pontas, baixa caixa, descarta pontuação (preserva letras acentuadas e números) e colapsa
- * espaços internos. É a referência de comparação de respostas em todo o app.
+ * Canonical normalization of typed answers (cloze/typing/listening): trims edges, lowercases,
+ * strips punctuation (keeps accented letters and digits), and collapses internal spaces.
+ * Reference for answer comparison across the app.
  */
 export function normalizeStudyAnswer(value: string): string {
   return value

@@ -23,12 +23,12 @@ const MAX_REVIEW_RECORDING_MS = 30_000;
 
 export type ReviewSession = {
   viewModel: FlashcardViewModel | null;
-  /** Identidade do card exibido; muda a cada avanço (inclui repetição de "Errei"). */
+  /** Identity of the displayed card; changes on each advance (including "Again" repeats). */
   cardKey: number;
   isLoading: boolean;
-  /** Carregou e não havia cards vencidos. */
+  /** Loaded and no due cards were found. */
   isEmpty: boolean;
-  /** A fila esvaziou após ter cards (sessão concluída). */
+  /** Queue emptied after having cards (session completed). */
   isFinished: boolean;
   progress: { current: number; total: number };
   stats: SessionStats;
@@ -37,9 +37,10 @@ export type ReviewSession = {
 };
 
 /**
- * Orquestra a sessão de revisão (§35): carrega vencidos, mantém a fila (estado local), monta o
- * view-model atual reusando `FlashcardReview`, e em cada avaliação agenda via SM-2 + grava o
- * log (mutation) e avança. "Errei" repete o card na mesma sessão (reducer).
+ * Orchestrates the review session (§35): loads due cards, maintains the queue (local state),
+ * builds the current view-model reusing `FlashcardReview`, and on each rating schedules via
+ * SM-2 + writes the log (mutation) and advances. "Again" repeats the card in the same session
+ * (reducer).
  */
 export function useReviewSession(): ReviewSession {
   const due = useDueReviewCards();
@@ -57,7 +58,7 @@ export function useReviewSession(): ReviewSession {
     onComplete: ({ uri }) => setRecordedUri(uri),
   });
 
-  // Inicializa a fila uma única vez, com o snapshot de vencidos.
+  // Initialize the queue once from the due-cards snapshot.
   useEffect(() => {
     if (!state.initialized && !due.isLoading && due.data) {
       cardStartedAtRef.current = Date.now();
@@ -101,7 +102,7 @@ export function useReviewSession(): ReviewSession {
       }
 
       const timeSpentMs = Math.max(0, Date.now() - cardStartedAtRef.current);
-      // Offline-first: persistência local; falhas não travam a sessão (apenas não reagendam).
+      // Offline-first: local persistence; failures do not block the session (only skip rescheduling).
       submitReviewMutation.mutate({ reviewItem: currentCard.reviewItem, rating, timeSpentMs });
 
       if (audio.isRecording) {

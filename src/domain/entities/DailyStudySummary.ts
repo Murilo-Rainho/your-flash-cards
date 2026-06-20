@@ -1,20 +1,20 @@
 /**
- * DailyStudySummary — read-model do resumo diário exibido na Home (§22).
+ * DailyStudySummary — daily summary read-model shown on Home (§22).
  *
- * Apenas dados derivados (de `ReviewLog`/`ReviewItem`), calculados localmente no futuro
- * (offline-first, §29). TS puro: sem dependências de UI/infra.
+ * Derived data only (from `ReviewLog`/`ReviewItem`), computed locally in the future
+ * (offline-first, §29). Pure TS: no UI/infra dependencies.
  */
 export type DailyStudySummary = {
-  /** Cards com `nextReviewAt <= now` (vencidos) prontos para revisão hoje (§20). */
+  /** Cards with `nextReviewAt <= now` (due) ready for review today (§20). */
   dueCards: number;
-  /** Cards marcados como difíceis nas últimas revisões. */
+  /** Cards marked as difficult in recent reviews. */
   difficultCards: number;
-  /** Cards revisados hoje. */
+  /** Cards reviewed today. */
   reviewedToday: number;
-  /** Taxa de retenção (0–100). */
+  /** Retention rate (0–100). */
   retentionPercentage: number;
-  /** Dias consecutivos com revisão (streak). */
+  /** Consecutive days with review (streak). */
   streakDays: number;
-  /** Total de cards considerados dominados. */
+  /** Total cards considered mastered. */
   masteredCards: number;
 };

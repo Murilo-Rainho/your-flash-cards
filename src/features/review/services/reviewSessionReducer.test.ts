@@ -46,7 +46,7 @@ function init(ids: string[]): ReviewSessionState {
 }
 
 describe('reviewSessionReducer', () => {
-  it('INIT define fila, total e início; vazio termina imediatamente', () => {
+  it('INIT sets queue, total and start; empty finishes immediately', () => {
     const state = init(['a', 'b']);
     expect(state.initialized).toBe(true);
     expect(state.total).toBe(2);
@@ -60,7 +60,7 @@ describe('reviewSessionReducer', () => {
     expect(currentCard(empty)).toBeNull();
   });
 
-  it('Médio avança e remove o card da fila', () => {
+  it('Good advances and removes the card from the queue', () => {
     let state = init(['a', 'b']);
     state = reviewSessionReducer(state, { type: 'RATE', rating: REVIEW_RATINGS.GOOD, now: 2000 });
 
@@ -70,7 +70,7 @@ describe('reviewSessionReducer', () => {
     expect(state.stats.reviewedCount).toBe(1);
   });
 
-  it('Errei re-enfileira o card no fim sem mudar o total', () => {
+  it('Again re-enqueues the card at the end without changing the total', () => {
     let state = init(['a', 'b']);
     state = reviewSessionReducer(state, { type: 'RATE', rating: REVIEW_RATINGS.AGAIN, now: 2000 });
 
@@ -81,7 +81,7 @@ describe('reviewSessionReducer', () => {
     expect(state.stats.byRating.again).toBe(1);
   });
 
-  it('termina quando a fila esvazia e marca finishedAt', () => {
+  it('finishes when the queue empties and sets finishedAt', () => {
     let state = init(['a']);
     state = reviewSessionReducer(state, { type: 'RATE', rating: REVIEW_RATINGS.GOOD, now: 5000 });
 
@@ -90,12 +90,12 @@ describe('reviewSessionReducer', () => {
     expect(state.stats.finishedAt).toBe(5000);
   });
 
-  it('progresso reflete cards distintos concluídos, ignorando re-enfileiramentos', () => {
+  it('progress reflects distinct cards completed, ignoring re-enqueues', () => {
     let state = init(['a', 'b', 'c']);
     expect(currentProgress(state)).toEqual({ current: 1, total: 3 });
 
     state = reviewSessionReducer(state, { type: 'RATE', rating: REVIEW_RATINGS.AGAIN, now: 2000 });
-    // "Errei" não avança o progresso distinto.
+    // "Again" does not advance distinct progress.
     expect(currentProgress(state)).toEqual({ current: 1, total: 3 });
 
     state = reviewSessionReducer(state, { type: 'RATE', rating: REVIEW_RATINGS.GOOD, now: 3000 });

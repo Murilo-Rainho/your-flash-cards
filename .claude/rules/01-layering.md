@@ -1,7 +1,7 @@
 # Regra 01 — Camadas e Dependências (Clean Architecture + DDD)
 
 > Detalhes e diagrama em [`.claude/context/architecture.md`](../context/architecture.md).
-> Base: `CONTRATO_README.md` §31.
+> Base: `local_files/CONTRATO_README.md` §31.
 
 ## Direção de dependência (inviolável)
 

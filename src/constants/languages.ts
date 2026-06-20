@@ -1,6 +1,6 @@
 /**
- * Idiomas suportados para os pares de uma Coleção (idioma base → idioma alvo, §5.1).
- * Lista inicial baseada nos exemplos do contrato; sem lógica, apenas constantes.
+ * Supported languages for a Collection language pair (base → target, §5.1).
+ * Initial list based on contract examples; no logic, constants only.
  */
 export const LANGUAGES = [
   { code: 'pt', label: 'Português' },
@@ -11,7 +11,7 @@ export const LANGUAGES = [
 
 export type LanguageCode = (typeof LANGUAGES)[number]['code'];
 
-/** Mapeamento de idioma da Coleção para o código BCP-47 usado pelo TTS local. */
+/** Maps Collection language to the BCP-47 code used by local TTS. */
 export const LANGUAGE_SPEECH_CODES: Record<LanguageCode, string> = {
   pt: 'pt-BR',
   en: 'en-US',
@@ -19,7 +19,7 @@ export const LANGUAGE_SPEECH_CODES: Record<LanguageCode, string> = {
   ja: 'ja-JP',
 };
 
-/** Converte um código de idioma em código de fala (BCP-47), com fallback para `en-US`. */
+/** Converts a language code to a speech code (BCP-47), falling back to `en-US`. */
 export function toSpeechLanguage(code: string | undefined): string {
   return LANGUAGE_SPEECH_CODES[code as LanguageCode] ?? 'en-US';
 }

@@ -163,7 +163,7 @@ export function usePreferences(): PreferencesContextValue {
   return context;
 }
 
-/** Atalho para o catálogo de strings da locale ativa. */
+/** Shortcut to the active locale string catalog. */
 export function useStrings(): StringCatalog {
   return usePreferences().strings;
 }

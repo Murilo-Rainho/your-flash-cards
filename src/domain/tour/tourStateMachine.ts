@@ -2,17 +2,17 @@ import { CURRENT_TOUR_VERSION, INITIAL_TOUR_STATE, type TourState } from './Tour
 import { BASE_TOUR_STEPS, getFirstTourStep, getTourStepIndex, type TourStep } from './tourSteps';
 
 /**
- * Transições PURAS e determinísticas do tour. Cada função recebe o estado atual e
- * retorna um novo estado (imutável) — sem efeitos colaterais, sem React, sem I/O.
- * A persistência é responsabilidade da camada de feature/infra.
+ * PURE deterministic tour transitions. Each function receives the current state and
+ * returns a new (immutable) state — no side effects, no React, no I/O.
+ * Persistence is the feature/infra layer's responsibility.
  */
 
-/** Ordena os steps por `order` (cópia, não muta a entrada). */
+/** Sorts steps by `order` (copy; does not mutate input). */
 function orderedSteps(steps: readonly TourStep[]): TourStep[] {
   return [...steps].sort((a, b) => a.order - b.order);
 }
 
-/** Acrescenta um id a `completedStepIds` mantendo unicidade e a ordem do registro. */
+/** Appends an id to `completedStepIds` keeping uniqueness and registration order. */
 function withCompleted(
   completedStepIds: readonly string[],
   stepId: string,
@@ -24,7 +24,7 @@ function withCompleted(
     .filter((id) => next.has(id));
 }
 
-/** Inicia o tour do primeiro step (`not_started`/qualquer estado → `in_progress`). */
+/** Starts the tour from the first step (`not_started`/any state → `in_progress`). */
 export function startTour(steps: readonly TourStep[] = BASE_TOUR_STEPS): TourState {
   const first = getFirstTourStep(steps);
 
@@ -40,17 +40,17 @@ export function startTour(steps: readonly TourStep[] = BASE_TOUR_STEPS): TourSta
   };
 }
 
-/** Reinicia do zero (limpa progresso) e começa do primeiro step. */
+/** Restarts from scratch (clears progress) and begins at the first step. */
 export function restartTour(steps: readonly TourStep[] = BASE_TOUR_STEPS): TourState {
   return startTour(steps);
 }
 
-/** Marca o tour como pulado, preservando o que já havia sido concluído. */
+/** Marks the tour as skipped, preserving what was already completed. */
 export function skipTour(state: TourState): TourState {
   return { ...state, status: 'skipped', currentStepId: null };
 }
 
-/** Marca o tour como concluído (todos os steps viram concluídos). */
+/** Marks the tour as completed (all steps become completed). */
 export function completeTour(
   state: TourState,
   steps: readonly TourStep[] = BASE_TOUR_STEPS,
@@ -64,8 +64,8 @@ export function completeTour(
 }
 
 /**
- * Avança para o próximo step, marcando o atual como concluído. Avançar a partir do
- * último step finaliza o tour (`completed`).
+ * Advances to the next step, marking the current one completed. Advancing from the
+ * last step finishes the tour (`completed`).
  */
 export function goToNextStep(
   state: TourState,
@@ -75,7 +75,7 @@ export function goToNextStep(
   const currentIndex = getTourStepIndex(state.currentStepId, ordered);
 
   if (currentIndex === -1) {
-    // Estado inconsistente: (re)começa do primeiro step.
+    // Inconsistent state: (re)start from the first step.
     return startTour(ordered);
   }
 
@@ -100,7 +100,7 @@ export function goToNextStep(
   };
 }
 
-/** Volta para o step anterior. Voltar no primeiro step mantém o estado atual. */
+/** Goes to the previous step. Going back on the first step keeps current state. */
 export function goToPreviousStep(
   state: TourState,
   steps: readonly TourStep[] = BASE_TOUR_STEPS,
@@ -121,7 +121,7 @@ export function goToPreviousStep(
   };
 }
 
-/** Progresso 0–100 com base na posição do step atual / concluídos. */
+/** Progress 0–100 based on current step position / completed. */
 export function getTourProgress(
   state: TourState,
   steps: readonly TourStep[] = BASE_TOUR_STEPS,
